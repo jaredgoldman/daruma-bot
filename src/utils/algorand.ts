@@ -28,7 +28,7 @@ const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
 export const determineOwnership = async function (address: string): Promise<{
   walletOwned: boolean
   nftsOwned: Asset[] | []
-  hootOwned: number
+  tokensOwned: number
 }> {
   try {
     if (!fs.existsSync('dist/txnData/txnData.json')) {
@@ -46,7 +46,7 @@ export const determineOwnership = async function (address: string): Promise<{
     let walletOwned = false
     const assetIdsOwned: number[] = []
     const nftsOwned: Asset[] = []
-    let hootOwned = 0
+    let tokensOwned = 0
 
     // Create array of unique assetIds
     const uniqueAssets: AlgoAsset[] = []
@@ -54,7 +54,7 @@ export const determineOwnership = async function (address: string): Promise<{
       // Check if opt-in asset
       if (asset['asset-id'] === Number(optInAssetId)) {
         walletOwned = true
-        hootOwned = asset.amount
+        tokensOwned = asset.amount
       }
       // ensure no duplicate assets
       const result = uniqueAssets.findIndex(
@@ -93,14 +93,14 @@ export const determineOwnership = async function (address: string): Promise<{
     return {
       walletOwned,
       nftsOwned,
-      hootOwned,
+      tokensOwned,
     }
   } catch (error) {
     console.log(error)
     return {
       walletOwned: false,
       nftsOwned: [],
-      hootOwned: 0,
+      tokensOwned: 0,
     }
   }
 }
