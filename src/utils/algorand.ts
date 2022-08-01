@@ -132,7 +132,7 @@ export const findAsset = async (
   }
 }
 
-export const claimHoot = async (amount: number, receiverAddress: string) => {
+export const claimToken = async (amount: number, receiverAddress: string) => {
   try {
     const params = await algodClient.getTransactionParams().do()
     const { sk, addr: senderAddress } =
