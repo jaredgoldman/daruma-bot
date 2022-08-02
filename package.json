@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node -r dotenv/config dist/index.js",
     "dev": "nodemon --ignore src/txnData -r dotenv/config dist/index.js",
-    "commands": "node -r dotenv/config dist/deployCommands.js"
+    "commands": "node -r dotenv/config dist/deployCommands.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +25,9 @@
     "ts-node": "^10.8.0"
   },
   "devDependencies": {
+    "@types/jest": "^28.1.6",
+    "jest": "^28.1.3",
+    "ts-jest": "^28.0.7",
     "typescript": "^4.6.4"
   },
   "nodemonConfig": {

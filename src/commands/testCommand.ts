@@ -6,5 +6,6 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('test-command')
     .setDescription('test command'),
+
   async execute(interaction: Interaction) {},
 }

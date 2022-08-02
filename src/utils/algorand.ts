@@ -5,7 +5,6 @@ import algosdk from 'algosdk'
 import { settings } from '../settings'
 import fs from 'fs'
 
-// import txnDataJson from '../txnData/txnData.json'
 import { creatorAddressArr } from '..'
 
 const algoNode = process.env.ALGO_NODE
