@@ -3,13 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.convergeTxnData = exports.updateTransactions = exports.searchForTransactions = exports.claimHoot = exports.findAsset = exports.isAssetCollectionAsset = exports.getAssetIdArray = exports.determineOwnership = void 0;
+exports.convergeTxnData = exports.updateTransactions = exports.searchForTransactions = exports.claimToken = exports.findAsset = exports.isAssetCollectionAsset = exports.getAssetIdArray = exports.determineOwnership = void 0;
 const asset_1 = __importDefault(require("../models/asset"));
 const helpers_1 = require("./helpers");
 const algosdk_1 = __importDefault(require("algosdk"));
 const settings_1 = require("../settings");
 const fs_1 = __importDefault(require("fs"));
-// import txnDataJson from '../txnData/txnData.json'
 const __1 = require("..");
 const algoNode = process.env.ALGO_NODE;
 const pureStakeApi = process.env.PURESTAKE_API;
@@ -38,14 +37,14 @@ const determineOwnership = async function (address) {
         let walletOwned = false;
         const assetIdsOwned = [];
         const nftsOwned = [];
-        let hootOwned = 0;
+        let tokensOwned = 0;
         // Create array of unique assetIds
         const uniqueAssets = [];
         assets.forEach((asset) => {
             // Check if opt-in asset
             if (asset['asset-id'] === Number(optInAssetId)) {
                 walletOwned = true;
-                hootOwned = asset.amount;
+                tokensOwned = asset.amount;
             }
             // ensure no duplicate assets
             const result = uniqueAssets.findIndex((item) => asset['asset-id'] === item['asset-id']);
@@ -79,7 +78,7 @@ const determineOwnership = async function (address) {
         return {
             walletOwned,
             nftsOwned,
-            hootOwned,
+            tokensOwned,
         };
     }
     catch (error) {
@@ -87,7 +86,7 @@ const determineOwnership = async function (address) {
         return {
             walletOwned: false,
             nftsOwned: [],
-            hootOwned: 0,
+            tokensOwned: 0,
         };
     }
 };
@@ -116,7 +115,7 @@ const findAsset = async (assetId) => {
     }
 };
 exports.findAsset = findAsset;
-const claimHoot = async (amount, receiverAddress) => {
+const claimToken = async (amount, receiverAddress) => {
     try {
         const params = await algodClient.getTransactionParams().do();
         const { sk, addr: senderAddress } = algosdk_1.default.mnemonicToSecretKey(accountMnemonic);
@@ -133,7 +132,7 @@ const claimHoot = async (amount, receiverAddress) => {
         console.log(error);
     }
 };
-exports.claimHoot = claimHoot;
+exports.claimToken = claimToken;
 // Finds all transactions from address
 const searchForTransactions = async (address) => {
     const type = 'acfg';
