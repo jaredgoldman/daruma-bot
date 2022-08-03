@@ -1,7 +1,7 @@
 import Player from './player'
 export default class Game {
   constructor(
-    public players: { [key: string]: Player },
+    public players: { [key: discordId]: Player },
     public active: boolean,
     public win: false,
     public megatron?: any,
@@ -17,3 +17,5 @@ interface NPC {
   hp: number
   dead: boolean
 }
+
+type discordId = string
