@@ -12,6 +12,7 @@ export default class User {
     public losses: number,
     //key: EnhancerType
     public enhancers: { [key: string]: Enhancer },
+    public totalBattles: number,
     public wins?: { [key: string]: number },
     public _id?: ObjectId,
     public coolDowns?: { [key: string]: number } // timestamp

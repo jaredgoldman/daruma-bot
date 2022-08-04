@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class User {
     constructor(username, discordId, address, assets, karma, losses, 
     //key: EnhancerType
-    enhancers, wins, _id, coolDowns // timestamp
+    enhancers, totalBattles, wins, _id, coolDowns // timestamp
     ) {
         this.username = username;
         this.discordId = discordId;
@@ -12,6 +12,7 @@ class User {
         this.karma = karma;
         this.losses = losses;
         this.enhancers = enhancers;
+        this.totalBattles = totalBattles;
         this.wins = wins;
         this._id = _id;
         this.coolDowns = coolDowns;
