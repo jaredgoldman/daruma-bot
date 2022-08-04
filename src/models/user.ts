@@ -28,6 +28,7 @@ export interface UserAsset {
 export interface Enhancer {
   type: EnancerType
   owned: boolean
+  // Can add modifiers here
 }
 
 type EnancerType = 'arms' | 'legs' | 'meditation'
