@@ -19,3 +19,9 @@ class User {
     }
 }
 exports.default = User;
+var EnhancerType;
+(function (EnhancerType) {
+    EnhancerType[EnhancerType["arms"] = 0] = "arms";
+    EnhancerType[EnhancerType["legs"] = 1] = "legs";
+    EnhancerType[EnhancerType["meditation"] = 2] = "meditation";
+})(EnhancerType || (EnhancerType = {}));

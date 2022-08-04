@@ -27,9 +27,13 @@ export interface UserAsset {
 }
 
 export interface Enhancer {
-  type: EnancerType
+  type: EnhancerType
   owned: boolean
   // Can add modifiers here
 }
 
-type EnancerType = 'arms' | 'legs' | 'meditation'
+enum EnhancerType {
+  arms,
+  legs,
+  meditation,
+}
