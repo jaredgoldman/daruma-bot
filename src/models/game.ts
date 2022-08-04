@@ -12,7 +12,8 @@ export default class Game {
     public embed?: any,
     public waitingRoom?: any,
     public stopped?: boolean,
-    public update?: boolean
+    public update?: boolean,
+    public winnerId?: number
   ) {}
 }
 

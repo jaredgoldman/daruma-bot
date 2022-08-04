@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Game {
-    constructor(players, active, win, capacity, channelId, megatron, npc, embed, waitingRoom, stopped, update) {
+    constructor(players, active, win, capacity, channelId, megatron, npc, embed, waitingRoom, stopped, update, winnerId) {
         this.players = players;
         this.active = active;
         this.win = win;
@@ -13,6 +13,7 @@ class Game {
         this.waitingRoom = waitingRoom;
         this.stopped = stopped;
         this.update = update;
+        this.winnerId = winnerId;
     }
 }
 exports.default = Game;
