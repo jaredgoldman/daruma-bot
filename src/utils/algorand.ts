@@ -2,50 +2,56 @@ import Asset from '../models/asset'
 import { AlgoAsset, AlgoAssetData, Txn, TxnData } from '../types/user'
 import { asyncForEach, wait } from './helpers'
 import algosdk from 'algosdk'
-import { settings } from '../settings'
+import settings from '../settings'
 import fs from 'fs'
+import { UserAsset } from '../models/user'
 
+// import txnDataJson from '../txnData/txnData.json'
 import { creatorAddressArr } from '..'
 
-const algoNode = process.env.ALGO_NODE
-const pureStakeApi = process.env.PURESTAKE_API
-const algoIndexerNode = process.env.ALGO_INDEXER_NODE
-const optInAssetId: number = Number(process.env.OPT_IN_ASSET_ID)
-const unitPrefix = process.env.UNIT_NAME
-const accountMnemonic = process.env.TOKEN_MNEMONIC
+const algoNode = process.env.ALGO_NODE as string
+const pureStakeApi = process.env.PURESTAKE_API as string
+const algoIndexerNode = process.env.ALGO_INDEXER_NODE as string
+const optInAssetId = Number(process.env.OPT_IN_ASSET_ID) 
+const tokenMnemonic = process.env.TOKEN_MNEMONIC as string
 
 const token = {
   'X-API-Key': pureStakeApi,
 }
-const server: string = algoNode
-const indexerServer: string = algoIndexerNode
+const server = algoNode
+const indexerServer = algoIndexerNode
 const port = ''
 
 const algodClient = new algosdk.Algodv2(token, server, port)
 const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
 
+const defaultAssetData = {
+  wins: 0, 
+  losses: 0,
+  kos:0, 
+  assetId: null,
+  unitName: '',
+  alias: ''
+}
+
 export const determineOwnership = async function (address: string): Promise<{
   walletOwned: boolean
-  nftsOwned: Asset[] | []
-  tokensOwned: number
+  nftsOwned: UserAsset[] | []
 }> {
   try {
-    if (!fs.existsSync('dist/txnData/txnData.json')) {
-      fs.writeFileSync('dist/txnData/txnData.json', '')
-    }
-    // update transactions
+    // First update transactions 
     const txnData = await convergeTxnData(creatorAddressArr, true)
-
     fs.writeFileSync('dist/txnData/txnData.json', JSON.stringify(txnData))
 
-    let { assets } = await algoIndexer.lookupAccountAssets(address).do()
+    let { assets } = await algoIndexer
+      .lookupAccountAssets(address)
+      .limit(10000)
+      .do()
 
     const { maxAssets } = settings
-
     let walletOwned = false
-    const assetIdsOwned: number[] = []
-    const nftsOwned: Asset[] = []
-    let tokensOwned = 0
+    // const assetIdsOwned: number[] = []
+    const nftsOwned: UserAsset[] = []
 
     // Create array of unique assetIds
     const uniqueAssets: AlgoAsset[] = []
@@ -53,7 +59,6 @@ export const determineOwnership = async function (address: string): Promise<{
       // Check if opt-in asset
       if (asset['asset-id'] === Number(optInAssetId)) {
         walletOwned = true
-        tokensOwned = asset.amount
       }
       // ensure no duplicate assets
       const result = uniqueAssets.findIndex(
@@ -64,60 +69,59 @@ export const determineOwnership = async function (address: string): Promise<{
       }
     })
 
-    const assetIdArr = getAssetIdArray()
+    const data = getTxnData() as TxnData
+    const assetIdArr = getAssetIdArrayFromTxnData(data)
     // Determine which assets are part of bot collection
-    uniqueAssets.forEach((asset) => {
-      if (assetIdsOwned.length < maxAssets) {
+    const assetIdsOwned = uniqueAssets.filter(asset => {
         const assetId = asset['asset-id']
-        if (isAssetCollectionAsset(assetId, assetIdArr)) {
-          assetIdsOwned.push(assetId)
+        if ((assetIdsOwned.length < maxAssets) && isAssetCollectionAsset(assetId, assetIdArr)) {
+          return true
         }
-      }
     })
 
     // fetch data for each asset but not too quickly
     await asyncForEach(assetIdsOwned, async (assetId: number) => {
       const assetData = await findAsset(assetId)
       if (assetData) {
-        const { params } = assetData
-
-        if (params[`unit-name`]?.includes(unitPrefix)) {
-          const { name, url } = params
-          nftsOwned.push(new Asset(assetId, name, url, params['unit-name']))
-        }
+          const { name: assetName, url } = assetData.params
+          nftsOwned.push({...defaultAssetData, url, assetId, assetName, })
       }
-      await wait(1000)
+      await wait(250)
     })
 
     return {
       walletOwned,
       nftsOwned,
-      tokensOwned,
     }
   } catch (error) {
     console.log(error)
     return {
       walletOwned: false,
       nftsOwned: [],
-      tokensOwned: 0,
     }
   }
 }
 
-export const getAssetIdArray = () => {
+// get array of unique assetIds from txnData
+export const getAssetIdArrayFromTxnData = (txnData: TxnData): number[] => {
   const assetIdArr: number[] = []
-
-  const txnData = getTxnData() as TxnData
 
   txnData.transactions.forEach((txn: Txn) => {
     const assetId = txn['asset-config-transaction']['asset-id']
-    const result = assetIdArr.findIndex((item) => item === assetId)
-    result <= -1 && assetIdArr.push(assetId)
+    const createdAssetId = txn['created-asset-index']
+    if (assetId) {
+      const result = assetIdArr.findIndex((item) => item === assetId)
+      result <= -1 && assetIdArr.push(assetId)
+    }
+    if (createdAssetId) {
+      const result2 = assetIdArr.findIndex((item) => item === createdAssetId)
+      result2 <= -1 && assetIdArr.push(createdAssetId)
+    }
   })
   return assetIdArr
 }
 
-export const isAssetCollectionAsset = (assetId: number, assetIdArr: number[]) =>
+export const isAssetCollectionAsset = (assetId: number, assetIdArr: number[]): boolean =>
   assetIdArr.includes(assetId)
 
 export const findAsset = async (
@@ -131,11 +135,11 @@ export const findAsset = async (
   }
 }
 
-export const claimToken = async (amount: number, receiverAddress: string) => {
+export const claimHoot = async (amount: number, receiverAddress: string): Promise<void> => {
   try {
     const params = await algodClient.getTransactionParams().do()
     const { sk, addr: senderAddress } =
-      algosdk.mnemonicToSecretKey(accountMnemonic)
+      algosdk.mnemonicToSecretKey(tokenMnemonic)
 
     const revocationTarget = undefined
     const closeRemainderTo = undefined
@@ -155,7 +159,7 @@ export const claimToken = async (amount: number, receiverAddress: string) => {
 
     const rawSignedTxn = xtxn.signTxn(sk)
     let xtx = await algodClient.sendRawTransaction(rawSignedTxn).do()
-    return await algosdk.waitForConfirmation(algodClient, xtx.txId, 4)
+    await algosdk.waitForConfirmation(algodClient, xtx.txId, 4)
   } catch (error) {
     console.log(error)
   }
@@ -216,10 +220,9 @@ export const convergeTxnData = async (
 const reduceTxnData = (txnDataArray: TxnData[]) => {
   const reducedData = txnDataArray.reduce(
     (prevTxnData: TxnData, txnData: TxnData) => {
-      // select the most recent round
       return {
         ['current-round']:
-          prevTxnData['current-round'] > txnData['current-round']
+          prevTxnData['current-round'] < txnData['current-round']
             ? prevTxnData['current-round']
             : txnData['current-round'],
         ['next-token']: prevTxnData['next-token'],
