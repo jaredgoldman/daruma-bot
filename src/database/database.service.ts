@@ -11,7 +11,7 @@ let db: mongoDB.Db
 // Initialize Connection
 export async function connectToDatabase() {
   const client: mongoDB.MongoClient = new mongoDB.MongoClient(
-    process.env.DB_CONN_STRING
+    process.env.DB_CONN_STRING as string
   )
 
   await client.connect()
@@ -19,7 +19,7 @@ export async function connectToDatabase() {
   db = client.db(process.env.DB_NAME)
 
   const usersCollection: mongoDB.Collection = db.collection(
-    process.env.USERS_COLLECTION_NAME
+    process.env.USERS_COLLECTION_NAME as string
   )
 
   collections.users = usersCollection
