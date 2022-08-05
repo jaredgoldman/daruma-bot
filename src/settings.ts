@@ -1,7 +1,3 @@
-export const settings: Settings = {
+export default {
   maxAssets: 20,
-}
-
-interface Settings {
-  maxAssets: number
 }

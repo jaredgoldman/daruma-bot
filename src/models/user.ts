@@ -8,22 +8,30 @@ export default class User {
     public assets: {
       [key: string]: UserAsset
     },
-    public karma: number,
-    public losses: number,
+    public karma?: number,
     //key: EnhancerType
-    public enhancers: { [key: string]: Enhancer },
-    public totalBattles: number,
-    public wins?: { [key: string]: number },
+    public enhancers?: { [key: string]: Enhancer },
+    public totalBattles?: number,
     public _id?: ObjectId,
     public coolDowns?: { [key: string]: number } // timestamp
-  ) {}
+  ) {
+    this.karma = 0
+    this.enhancers = {}
+    this.totalBattles = 0
+    this._id = undefined
+    this.coolDowns = {}
+  }
 }
 
 export interface UserAsset {
-  alias?: string
+  assetId: number
+  url: string
+  assetName: string
+  unitName: string
   wins: number
   losses: number
   kos: number
+  alias?: string
 }
 
 export interface Enhancer {

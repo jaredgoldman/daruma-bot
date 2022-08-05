@@ -14,15 +14,15 @@ import path from 'node:path'
 // Helpers
 import { connectToDatabase } from './database/database.service'
 // Globals
-import { settings } from './settings'
+import settings from './settings'
 // Schema
 import Game from './models/game'
 // Helpers
 import { convergeTxnData } from './utils/algorand'
 
-const token = process.env.DISCORD_TOKEN
-const creatorAddresses = process.env.CREATOR_ADDRESSES
-const channelId = process.env.CHANNEL_ID
+const token = process.env.DISCORD_TOKEN as string
+const creatorAddresses = process.env.CREATOR_ADDRESSES as string
+const channelId = process.env.CHANNEL_ID as string
 
 // Gloval vars
 // export let game: Game = new Game({}, false, false, coolDownInterval)
@@ -43,8 +43,8 @@ export const client: Client = new Client({
 client.once('ready', async () => {
   try {
     await connectToDatabase()
-    console.log('Ye Among AOWLs - Server ready')
-
+    console.log('DarumaBot - Server ready')
+    
     let update = true
     if (!fs.existsSync('dist/txnData/txnData.json')) {
       update = false

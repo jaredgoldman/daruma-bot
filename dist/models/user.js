@@ -1,21 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class User {
-    constructor(username, discordId, address, assets, karma, losses, 
+    constructor(username, discordId, address, assets, karma, 
     //key: EnhancerType
-    enhancers, totalBattles, wins, _id, coolDowns // timestamp
+    enhancers, totalBattles, _id, coolDowns // timestamp
     ) {
         this.username = username;
         this.discordId = discordId;
         this.address = address;
         this.assets = assets;
         this.karma = karma;
-        this.losses = losses;
         this.enhancers = enhancers;
         this.totalBattles = totalBattles;
-        this.wins = wins;
         this._id = _id;
         this.coolDowns = coolDowns;
+        this.karma = 0;
+        this.enhancers = {};
+        this.totalBattles = 0;
+        this._id = undefined;
+        this.coolDowns = {};
     }
 }
 exports.default = User;
