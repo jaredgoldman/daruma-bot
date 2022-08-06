@@ -40,6 +40,21 @@ export interface Enhancer {
   // Can add modifiers here
 }
 
+export interface UserUpdateObject {
+  username?: string,
+  discordId?: string,
+  address?: string,
+  assets?: {
+    [key: string]: UserAsset
+  },
+  karma?: number,
+  //key: EnhancerType
+  enhancers?: { [key: string]: Enhancer },
+  totalBattles?: number,
+  _id?: ObjectId,
+  coolDowns?: { [key: string]: number } // timestamp
+}
+
 enum EnhancerType {
   arms,
   legs,

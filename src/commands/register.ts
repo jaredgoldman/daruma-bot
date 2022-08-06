@@ -7,13 +7,14 @@ import { collections } from '../database/database.service'
 import { determineOwnership } from '../utils/algorand'
 import { addRole } from '../utils/helpers'
 // Schemas
-import User, {UserAsset} from '../models/user'
-import { WithId } from 'mongodb'
+import User, { UserAsset } from '../models/user'
 import { Interaction } from 'discord.js'
+import { findUserByDiscordId, findUserById, updateUser } from '../database/operations/user'
 // Globals
 
 const optInAssetId: number = Number(process.env.OPT_IN_ASSET_ID)
 const unitName = process.env.UNIT_NAME as string
+const registeredRoleId = process.env.REGISTERED_ID as string
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -29,6 +30,7 @@ module.exports = {
   async execute(interaction: Interaction) {
     if (!interaction.isCommand()) return
     const { user, options } = interaction
+    const { username, id } = user
     const address = options.getString('address')
 
     
@@ -38,8 +40,6 @@ module.exports = {
         ephemeral: true,
       })
     }
-
-    const { username, id } = user
 
     await interaction.deferReply({ ephemeral: true })
 
@@ -56,7 +56,7 @@ module.exports = {
       )
       // add permissions if succesful
       if (registeredUser && asset) {
-        addRole(interaction, process.env.REGISTERED_ID as string, registeredUser)
+        addRole(interaction, registeredRoleId, registeredUser)
       }
 
       await interaction.followUp({
@@ -74,9 +74,7 @@ export const processRegistration = async (
 ): Promise<RegistrationResult> => {
   try {
     // Attempt to find user in db
-    let user = (await collections.users?.findOne({
-      discordId,
-    })) as WithId<User>
+    let user = await findUserByDiscordId(discordId)
 
     // Check to see if wallet has opt-in asset
     // Retreive assetIds from specific collections
@@ -89,7 +87,6 @@ export const processRegistration = async (
       keyedNfts[nft.assetId] = nft
     })
 
-    // Catch exceptions
     if (!nftsOwned?.length) {
       return {
         status: `You have no ${unitName}s in this wallet. Please try again with a different address`,
@@ -115,19 +112,14 @@ export const processRegistration = async (
       )
 
       if (acknowledged) {
-        user = (await collections.users?.findOne({
-          _id: insertedId,
-        })) as WithId<User>
+        user = await findUserById(insertedId)
       } else {
         return {
           status: 'Something went wrong during registration, please try again',
         }
       }
     } else {
-      await collections.users.findOneAndUpdate(
-        { _id: user._id },
-        { $set: { assets: keyedNfts, address: address } }
-      )
+      await updateUser({ assets: keyedNfts, address: address }, user._id)
     }
 
     return {
@@ -135,7 +127,7 @@ export const processRegistration = async (
       registeredUser: user,
     }
   } catch (error) {
-    console.log('ERROR::', error)
+    console.log('*** REGISTRATION ERROR ***', error)
     return {
       status: 'Something went wrong during registration, please try again',
     }
