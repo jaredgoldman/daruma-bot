@@ -7,7 +7,7 @@ exports.convergeTxnData = exports.updateTransactions = exports.searchForTransact
 const asset_1 = __importDefault(require("../models/asset"));
 const helpers_1 = require("./helpers");
 const algosdk_1 = __importDefault(require("algosdk"));
-const settings_1 = require("../settings");
+const settings_1 = __importDefault(require("../settings"));
 const fs_1 = __importDefault(require("fs"));
 const __1 = require("..");
 const algoNode = process.env.ALGO_NODE;
@@ -24,7 +24,7 @@ const indexerServer = algoIndexerNode;
 const port = '';
 const algodClient = new algosdk_1.default.Algodv2(token, server, port);
 const algoIndexer = new algosdk_1.default.Indexer(token, indexerServer, port);
-const determineOwnership = async function (address) {
+const determineOwnership = async function (address, channelId) {
     try {
         if (!fs_1.default.existsSync('dist/txnData/txnData.json')) {
             fs_1.default.writeFileSync('dist/txnData/txnData.json', '');
@@ -33,7 +33,7 @@ const determineOwnership = async function (address) {
         const txnData = await (0, exports.convergeTxnData)(__1.creatorAddressArr, true);
         fs_1.default.writeFileSync('dist/txnData/txnData.json', JSON.stringify(txnData));
         let { assets } = await algoIndexer.lookupAccountAssets(address).do();
-        const { maxAssets } = settings_1.settings;
+        const { maxAssets } = settings_1.default[channelId];
         let walletOwned = false;
         const assetIdsOwned = [];
         const nftsOwned = [];
