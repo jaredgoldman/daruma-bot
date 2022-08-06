@@ -10,6 +10,11 @@ export default class Player {
     public asset: Asset,
     public userId: ObjectId,
     public hp: number,
-    public dead: boolean
+    public rounds: Round[]
   ) {}
 }
+
+interface Round {
+  total: number,
+  rolls: [number, number, number]
+} 
