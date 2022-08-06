@@ -20,9 +20,9 @@ import Game from './models/game'
 // Helpers
 import { convergeTxnData } from './utils/algorand'
 
-const token = process.env.DISCORD_TOKEN
-const creatorAddresses = process.env.CREATOR_ADDRESSES
-const channelId = process.env.CHANNEL_ID
+const token = process.env.DISCORD_TOKEN as string
+const creatorAddresses = process.env.CREATOR_ADDRESSES as string
+const channelId = process.env.CHANNEL_ID as string
 
 // Gloval vars
 // export let game: Game = new Game({}, false, false, coolDownInterval)

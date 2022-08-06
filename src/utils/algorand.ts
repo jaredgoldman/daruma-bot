@@ -7,12 +7,12 @@ import fs from 'fs'
 
 import { creatorAddressArr } from '..'
 
-const algoNode = process.env.ALGO_NODE
-const pureStakeApi = process.env.PURESTAKE_API
-const algoIndexerNode = process.env.ALGO_INDEXER_NODE
+const algoNode = process.env.ALGO_NODE as string
+const pureStakeApi = process.env.PURESTAKE_API as string
+const algoIndexerNode = process.env.ALGO_INDEXER_NODE as string
 const optInAssetId: number = Number(process.env.OPT_IN_ASSET_ID)
-const unitPrefix = process.env.UNIT_NAME
-const accountMnemonic = process.env.TOKEN_MNEMONIC
+const unitPrefix = process.env.UNIT_NAME as string
+const accountMnemonic = process.env.TOKEN_MNEMONIC as string
 
 const token = {
   'X-API-Key': pureStakeApi,
