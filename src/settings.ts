@@ -15,3 +15,4 @@ interface ChannelSettings {
   minCapacity: number
   maxCapacity: number
 }
+

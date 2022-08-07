@@ -26,6 +26,7 @@ const token = process.env.DISCORD_TOKEN as string
 const creatorAddresses = process.env.CREATOR_ADDRESSES as string
 const channelIds = process.env.CHANNEL_IDS as string
 
+
 // Gloval vars
 export const games: { [key: string]: Game } = {}
 
@@ -45,7 +46,6 @@ client.once('ready', async () => {
   try {
     await connectToDatabase()
     console.log('Daruma Bot - Server ready')
-
     let update = true
     if (!fs.existsSync('dist/txnData/txnData.json')) {
       update = false

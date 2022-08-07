@@ -15,6 +15,7 @@ const usersCollectionName = process.env.USERS_COLLECTION_NAME as string
 export async function connectToDatabase() {
   const client: mongoDB.MongoClient = new mongoDB.MongoClient(
     connectionString
+
   )
 
   await client.connect()

@@ -22,6 +22,7 @@ declare global {
       TOKEN_MNEMONIC: string
       CREATOR_ADDRESSES: string
       CHANNEL_IDS: string
+
     }
   }
 }

@@ -3,19 +3,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.convergeTxnData = exports.updateTransactions = exports.searchForTransactions = exports.claimToken = exports.findAsset = exports.isAssetCollectionAsset = exports.getAssetIdArray = exports.determineOwnership = void 0;
-const asset_1 = __importDefault(require("../models/asset"));
+exports.convergeTxnData = exports.updateTransactions = exports.searchForTransactions = exports.claimHoot = exports.findAsset = exports.isAssetCollectionAsset = exports.getAssetIdArrayFromTxnData = exports.determineOwnership = void 0;
 const helpers_1 = require("./helpers");
 const algosdk_1 = __importDefault(require("algosdk"));
 const settings_1 = __importDefault(require("../settings"));
 const fs_1 = __importDefault(require("fs"));
+// import txnDataJson from '../txnData/txnData.json'
 const __1 = require("..");
 const algoNode = process.env.ALGO_NODE;
 const pureStakeApi = process.env.PURESTAKE_API_TOKEN;
 const algoIndexerNode = process.env.ALGO_INDEXER_NODE;
 const optInAssetId = Number(process.env.OPT_IN_ASSET_ID);
-const unitPrefix = process.env.UNIT_NAME;
-const accountMnemonic = process.env.TOKEN_MNEMONIC;
+const tokenMnemonic = process.env.TOKEN_MNEMONIC;
 const token = {
     'X-API-Key': pureStakeApi,
 };
@@ -24,27 +23,41 @@ const indexerServer = algoIndexerNode;
 const port = '';
 const algodClient = new algosdk_1.default.Algodv2(token, server, port);
 const algoIndexer = new algosdk_1.default.Indexer(token, indexerServer, port);
+
+const defaultAssetData = {
+    wins: 0,
+    losses: 0,
+    kos: 0,
+    assetId: null,
+    unitName: '',
+    alias: ''
+};
+
 const determineOwnership = async function (address, channelId) {
+
     try {
-        if (!fs_1.default.existsSync('dist/txnData/txnData.json')) {
-            fs_1.default.writeFileSync('dist/txnData/txnData.json', '');
-        }
-        // update transactions
+        // First update transactions 
         const txnData = await (0, exports.convergeTxnData)(__1.creatorAddressArr, true);
         fs_1.default.writeFileSync('dist/txnData/txnData.json', JSON.stringify(txnData));
+
+        let { assets } = await algoIndexer
+            .lookupAccountAssets(address)
+            .limit(10000)
+            .do();
+
+
         let { assets } = await algoIndexer.lookupAccountAssets(address).do();
         const { maxAssets } = settings_1.default[channelId];
+
         let walletOwned = false;
-        const assetIdsOwned = [];
+        // const assetIdsOwned: number[] = []
         const nftsOwned = [];
-        let tokensOwned = 0;
         // Create array of unique assetIds
         const uniqueAssets = [];
         assets.forEach((asset) => {
             // Check if opt-in asset
             if (asset['asset-id'] === Number(optInAssetId)) {
                 walletOwned = true;
-                tokensOwned = asset.amount;
             }
             // ensure no duplicate assets
             const result = uniqueAssets.findIndex((item) => asset['asset-id'] === item['asset-id']);
@@ -52,33 +65,27 @@ const determineOwnership = async function (address, channelId) {
                 uniqueAssets.push(asset);
             }
         });
-        const assetIdArr = (0, exports.getAssetIdArray)();
+        const data = getTxnData();
+        const assetIdArr = (0, exports.getAssetIdArrayFromTxnData)(data);
         // Determine which assets are part of bot collection
-        uniqueAssets.forEach((asset) => {
-            if (assetIdsOwned.length < maxAssets) {
-                const assetId = asset['asset-id'];
-                if ((0, exports.isAssetCollectionAsset)(assetId, assetIdArr)) {
-                    assetIdsOwned.push(assetId);
-                }
+        const assetIdsOwned = uniqueAssets.filter(asset => {
+            const assetId = asset['asset-id'];
+            if ((assetIdsOwned.length < maxAssets) && (0, exports.isAssetCollectionAsset)(assetId, assetIdArr)) {
+                return true;
             }
         });
         // fetch data for each asset but not too quickly
         await (0, helpers_1.asyncForEach)(assetIdsOwned, async (assetId) => {
-            var _a;
             const assetData = await (0, exports.findAsset)(assetId);
             if (assetData) {
-                const { params } = assetData;
-                if ((_a = params[`unit-name`]) === null || _a === void 0 ? void 0 : _a.includes(unitPrefix)) {
-                    const { name, url } = params;
-                    nftsOwned.push(new asset_1.default(assetId, name, url, params['unit-name']));
-                }
+                const { name: assetName, url } = assetData.params;
+                nftsOwned.push(Object.assign(Object.assign({}, defaultAssetData), { url, assetId, assetName }));
             }
-            await (0, helpers_1.wait)(1000);
+            await (0, helpers_1.wait)(250);
         });
         return {
             walletOwned,
             nftsOwned,
-            tokensOwned,
         };
     }
     catch (error) {
@@ -86,22 +93,28 @@ const determineOwnership = async function (address, channelId) {
         return {
             walletOwned: false,
             nftsOwned: [],
-            tokensOwned: 0,
         };
     }
 };
 exports.determineOwnership = determineOwnership;
-const getAssetIdArray = () => {
+// get array of unique assetIds from txnData
+const getAssetIdArrayFromTxnData = (txnData) => {
     const assetIdArr = [];
-    const txnData = getTxnData();
     txnData.transactions.forEach((txn) => {
         const assetId = txn['asset-config-transaction']['asset-id'];
-        const result = assetIdArr.findIndex((item) => item === assetId);
-        result <= -1 && assetIdArr.push(assetId);
+        const createdAssetId = txn['created-asset-index'];
+        if (assetId) {
+            const result = assetIdArr.findIndex((item) => item === assetId);
+            result <= -1 && assetIdArr.push(assetId);
+        }
+        if (createdAssetId) {
+            const result2 = assetIdArr.findIndex((item) => item === createdAssetId);
+            result2 <= -1 && assetIdArr.push(createdAssetId);
+        }
     });
     return assetIdArr;
 };
-exports.getAssetIdArray = getAssetIdArray;
+exports.getAssetIdArrayFromTxnData = getAssetIdArrayFromTxnData;
 const isAssetCollectionAsset = (assetId, assetIdArr) => assetIdArr.includes(assetId);
 exports.isAssetCollectionAsset = isAssetCollectionAsset;
 const findAsset = async (assetId) => {
@@ -115,10 +128,10 @@ const findAsset = async (assetId) => {
     }
 };
 exports.findAsset = findAsset;
-const claimToken = async (amount, receiverAddress) => {
+const claimHoot = async (amount, receiverAddress) => {
     try {
         const params = await algodClient.getTransactionParams().do();
-        const { sk, addr: senderAddress } = algosdk_1.default.mnemonicToSecretKey(accountMnemonic);
+        const { sk, addr: senderAddress } = algosdk_1.default.mnemonicToSecretKey(tokenMnemonic);
         const revocationTarget = undefined;
         const closeRemainderTo = undefined;
         const note = undefined;
@@ -126,13 +139,13 @@ const claimToken = async (amount, receiverAddress) => {
         let xtxn = algosdk_1.default.makeAssetTransferTxnWithSuggestedParams(senderAddress, receiverAddress, closeRemainderTo, revocationTarget, amount, note, assetId, params);
         const rawSignedTxn = xtxn.signTxn(sk);
         let xtx = await algodClient.sendRawTransaction(rawSignedTxn).do();
-        return await algosdk_1.default.waitForConfirmation(algodClient, xtx.txId, 4);
+        await algosdk_1.default.waitForConfirmation(algodClient, xtx.txId, 4);
     }
     catch (error) {
         console.log(error);
     }
 };
-exports.claimToken = claimToken;
+exports.claimHoot = claimHoot;
 // Finds all transactions from address
 const searchForTransactions = async (address) => {
     const type = 'acfg';
@@ -178,9 +191,8 @@ const convergeTxnData = async (creatorAddresses, update) => {
 exports.convergeTxnData = convergeTxnData;
 const reduceTxnData = (txnDataArray) => {
     const reducedData = txnDataArray.reduce((prevTxnData, txnData) => {
-        // select the most recent round
         return {
-            ['current-round']: prevTxnData['current-round'] > txnData['current-round']
+            ['current-round']: prevTxnData['current-round'] < txnData['current-round']
                 ? prevTxnData['current-round']
                 : txnData['current-round'],
             ['next-token']: prevTxnData['next-token'],

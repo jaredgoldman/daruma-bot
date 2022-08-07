@@ -74,6 +74,7 @@ export interface Txn {
   'genesis-id': string
   id: string
   'intra-round-offset': number
+  'created-asset-index': number
   'last-valid': number
   note: string
   'receiver-rewards': number

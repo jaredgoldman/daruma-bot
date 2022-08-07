@@ -37,7 +37,6 @@ exports.client = new discord_js_1.Client({
 exports.client.once('ready', async () => {
     try {
         await (0, database_service_1.connectToDatabase)();
-        console.log('Daruma Bot - Server ready');
         let update = true;
         if (!node_fs_1.default.existsSync('dist/txnData/txnData.json')) {
             update = false;
