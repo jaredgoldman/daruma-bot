@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.client = exports.creatorAddressArr = exports.channel = void 0;
+exports.client = exports.creatorAddressArr = exports.games = void 0;
 // Discord
 const discord_js_1 = require("discord.js");
 // Node
@@ -11,12 +11,21 @@ const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
 // Helpers
 const database_service_1 = require("./database/database.service");
+// Globals
+const settings_1 = __importDefault(require("./settings"));
+// Schema
+const game_1 = __importDefault(require("./models/game"));
 // Helpers
 const algorand_1 = require("./utils/algorand");
+const helpers_1 = require("./utils/helpers");
+const game_2 = __importDefault(require("./game"));
 const token = process.env.DISCORD_TOKEN;
 const creatorAddresses = process.env.CREATOR_ADDRESSES;
-const channelId = process.env.CHANNEL_ID;
+const channelIds = process.env.CHANNEL_IDS;
+// Gloval vars
+exports.games = {};
 exports.creatorAddressArr = creatorAddresses.split(',');
+const channelIdArr = channelIds.split(',');
 exports.client = new discord_js_1.Client({
     restRequestTimeout: 60000,
     intents: [
@@ -37,7 +46,6 @@ exports.client.once('ready', async () => {
         }
         const txnData = await (0, algorand_1.convergeTxnData)(exports.creatorAddressArr, update);
         node_fs_1.default.writeFileSync('dist/txnData/txnData.json', JSON.stringify(txnData));
-        exports.channel = exports.client.channels.cache.get(channelId);
         exports.client.commands = new discord_js_1.Collection();
         const commandsPath = node_path_1.default.join(__dirname, 'commands');
         const commandFiles = node_fs_1.default
@@ -48,11 +56,21 @@ exports.client.once('ready', async () => {
             const command = require(filePath);
             exports.client.commands.set(command.data.name, command);
         }
+        main();
     }
     catch (error) {
         console.log('CLIENT ERROR', error);
     }
 });
+const main = () => {
+    // start game for each channel
+    (0, helpers_1.asyncForEach)(channelIdArr, async (channelId) => {
+        const channel = exports.client.channels.cache.get(channelId);
+        const { maxCapacity } = settings_1.default[channelId];
+        exports.games[channelId] = new game_1.default({}, false, false, maxCapacity, channelId);
+        (0, game_2.default)(channel);
+    });
+};
 /*
  *****************
  * COMMAND SERVER *
@@ -61,16 +79,6 @@ exports.client.once('ready', async () => {
 exports.client.on('interactionCreate', async (interaction) => {
     let command;
     if (interaction.isCommand()) {
-        // ensure two games can't start simultaneously
-        // if (
-        //   (game?.active || game?.waitingRoom) &&
-        //   interaction.commandName === 'start'
-        // ) {
-        //   return await interaction.reply({
-        //     content: 'A game is already running',
-        //     ephemeral: true,
-        //   })
-        // }
         command = exports.client.commands.get(interaction.commandName);
     }
     if (interaction.isSelectMenu() || interaction.isButton()) {

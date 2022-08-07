@@ -2,13 +2,13 @@ import Asset from '../models/asset'
 import { AlgoAsset, AlgoAssetData, Txn, TxnData } from '../types/user'
 import { asyncForEach, wait } from './helpers'
 import algosdk from 'algosdk'
-import { settings } from '../settings'
+import settings from '../settings'
 import fs from 'fs'
 
 import { creatorAddressArr } from '..'
 
 const algoNode = process.env.ALGO_NODE as string
-const pureStakeApi = process.env.PURESTAKE_API as string
+const pureStakeApi = process.env.PURESTAKE_API_TOKEN as string
 const algoIndexerNode = process.env.ALGO_INDEXER_NODE as string
 const optInAssetId: number = Number(process.env.OPT_IN_ASSET_ID)
 const unitPrefix = process.env.UNIT_NAME as string
@@ -24,7 +24,7 @@ const port = ''
 const algodClient = new algosdk.Algodv2(token, server, port)
 const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
 
-export const determineOwnership = async function (address: string): Promise<{
+export const determineOwnership = async function (address: string, channelId: string): Promise<{
   walletOwned: boolean
   nftsOwned: Asset[] | []
   tokensOwned: number
@@ -40,7 +40,7 @@ export const determineOwnership = async function (address: string): Promise<{
 
     let { assets } = await algoIndexer.lookupAccountAssets(address).do()
 
-    const { maxAssets } = settings
+    const { maxAssets } = settings[channelId]
 
     let walletOwned = false
     const assetIdsOwned: number[] = []

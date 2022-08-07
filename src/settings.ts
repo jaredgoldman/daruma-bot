@@ -1,7 +1,17 @@
-export const settings: Settings = {
-  maxAssets: 20,
-}
+export default {
+  "1005510693707067402": {
+    maxAssets: 20,
+    minCapacity: 2,
+    maxCapacity: 4
+  }
+} as Settings
 
 interface Settings {
-  maxAssets: number
+  [key: string]: ChannelSettings
+}
+
+interface ChannelSettings {
+  maxAssets: number,
+  minCapacity: number
+  maxCapacity: number
 }
