@@ -23,32 +23,24 @@ const indexerServer = algoIndexerNode;
 const port = '';
 const algodClient = new algosdk_1.default.Algodv2(token, server, port);
 const algoIndexer = new algosdk_1.default.Indexer(token, indexerServer, port);
-
 const defaultAssetData = {
     wins: 0,
     losses: 0,
     kos: 0,
     assetId: null,
     unitName: '',
-    alias: ''
+    alias: '',
 };
-
 const determineOwnership = async function (address, channelId) {
-
     try {
-        // First update transactions 
+        // First update transactions
         const txnData = await (0, exports.convergeTxnData)(__1.creatorAddressArr, true);
         fs_1.default.writeFileSync('dist/txnData/txnData.json', JSON.stringify(txnData));
-
         let { assets } = await algoIndexer
             .lookupAccountAssets(address)
             .limit(10000)
             .do();
-
-
-        let { assets } = await algoIndexer.lookupAccountAssets(address).do();
         const { maxAssets } = settings_1.default[channelId];
-
         let walletOwned = false;
         // const assetIdsOwned: number[] = []
         const nftsOwned = [];
@@ -68,9 +60,10 @@ const determineOwnership = async function (address, channelId) {
         const data = getTxnData();
         const assetIdArr = (0, exports.getAssetIdArrayFromTxnData)(data);
         // Determine which assets are part of bot collection
-        const assetIdsOwned = uniqueAssets.filter(asset => {
+        const assetIdsOwned = uniqueAssets.filter((asset) => {
             const assetId = asset['asset-id'];
-            if ((assetIdsOwned.length < maxAssets) && (0, exports.isAssetCollectionAsset)(assetId, assetIdArr)) {
+            if (assetIdsOwned.length < maxAssets &&
+                (0, exports.isAssetCollectionAsset)(assetId, assetIdArr)) {
                 return true;
             }
         });

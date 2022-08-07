@@ -9,7 +9,11 @@ import { addRole } from '../utils/helpers'
 // Schemas
 import User, { UserAsset } from '../models/user'
 import { Interaction } from 'discord.js'
-import { findUserByDiscordId, findUserById, updateUser } from '../database/operations/user'
+import {
+  findUserByDiscordId,
+  findUserById,
+  updateUser,
+} from '../database/operations/user'
 // Globals
 
 const optInAssetId: number = Number(process.env.OPT_IN_ASSET_ID)
@@ -29,11 +33,11 @@ module.exports = {
   enabled: true,
   async execute(interaction: Interaction) {
     if (!interaction.isCommand()) return
-    const { user, options } = interaction
+    const { user, options, channelId } = interaction
     const { username, id } = user
+    //@ts-ignore
     const address = options.getString('address')
 
-    
     if (address && !/^[a-zA-Z0-9]{58}$/.test(address)) {
       return interaction.reply({
         content: 'Please enter a valid Algorand wallet address',
@@ -52,7 +56,8 @@ module.exports = {
       const { status, registeredUser, asset } = await processRegistration(
         username,
         id,
-        address
+        address,
+        channelId
       )
       // add permissions if succesful
       if (registeredUser && asset) {
@@ -70,7 +75,8 @@ module.exports = {
 export const processRegistration = async (
   username: string,
   discordId: string,
-  address: string
+  address: string,
+  channelId: string
 ): Promise<RegistrationResult> => {
   try {
     // Attempt to find user in db
@@ -79,7 +85,8 @@ export const processRegistration = async (
     // Check to see if wallet has opt-in asset
     // Retreive assetIds from specific collections
     const { walletOwned, nftsOwned } = await determineOwnership(
-      address
+      address,
+      channelId
     )
 
     const keyedNfts: { [key: string]: UserAsset } = {}
@@ -101,12 +108,7 @@ export const processRegistration = async (
 
     // If user doesn't exist, add to db and grab instance
     if (!user) {
-      const userEntry = new User(
-        username,
-        discordId,
-        address,
-        keyedNfts,
-      )
+      const userEntry = new User(username, discordId, address, keyedNfts)
       const { acknowledged, insertedId } = await collections.users?.insertOne(
         userEntry
       )

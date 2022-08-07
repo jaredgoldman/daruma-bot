@@ -10,37 +10,39 @@ import { UserAsset } from '../models/user'
 import { creatorAddressArr } from '..'
 
 const algoNode = process.env.ALGO_NODE as string
-const pureStakeApi = process.env.PURESTAKE_API as string
+const pureStakeApi = process.env.PURESTAKE_API_TOKEN as string
 const algoIndexerNode = process.env.ALGO_INDEXER_NODE as string
-const optInAssetId = Number(process.env.OPT_IN_ASSET_ID) 
+const optInAssetId = Number(process.env.OPT_IN_ASSET_ID)
 const tokenMnemonic = process.env.TOKEN_MNEMONIC as string
 
 const token = {
   'X-API-Key': pureStakeApi,
-}Module '"discord.js"' has no exported member 'Intents'.const server = algoNode
+}
+const server = algoNode
 const indexerServer = algoIndexerNode
 const port = ''
 
 const algodClient = new algosdk.Algodv2(token, server, port)
 const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
 
-
 const defaultAssetData = {
-  wins: 0, 
+  wins: 0,
   losses: 0,
-  kos:0, 
+  kos: 0,
   assetId: null,
   unitName: '',
-  alias: ''
+  alias: '',
 }
 
-export const determineOwnership = async function (address: string, channelId: string): Promise<{
-
+export const determineOwnership = async function (
+  address: string,
+  channelId: string
+): Promise<{
   walletOwned: boolean
   nftsOwned: UserAsset[] | []
 }> {
   try {
-    // First update transactions 
+    // First update transactions
     const txnData = await convergeTxnData(creatorAddressArr, true)
     fs.writeFileSync('dist/txnData/txnData.json', JSON.stringify(txnData))
 
@@ -49,12 +51,9 @@ export const determineOwnership = async function (address: string, channelId: st
       .limit(10000)
       .do()
 
-
     const { maxAssets } = settings[channelId]
 
-
     let walletOwned = false
-    // const assetIdsOwned: number[] = []
     const nftsOwned: UserAsset[] = []
 
     // Create array of unique assetIds
@@ -76,19 +75,24 @@ export const determineOwnership = async function (address: string, channelId: st
     const data = getTxnData() as TxnData
     const assetIdArr = getAssetIdArrayFromTxnData(data)
     // Determine which assets are part of bot collection
-    const assetIdsOwned = uniqueAssets.filter(asset => {
-        const assetId = asset['asset-id']
-        if ((assetIdsOwned.length < maxAssets) && isAssetCollectionAsset(assetId, assetIdArr)) {
-          return true
-        }
+    let collectionAssetLength = 0
+    const assetIdsOwned = uniqueAssets.filter((asset) => {
+      const assetId = asset['asset-id']
+      if (
+        collectionAssetLength < maxAssets &&
+        isAssetCollectionAsset(assetId, assetIdArr)
+      ) {
+        collectionAssetLength++
+        return true
+      }
     })
 
     // fetch data for each asset but not too quickly
     await asyncForEach(assetIdsOwned, async (assetId: number) => {
       const assetData = await findAsset(assetId)
       if (assetData) {
-          const { name: assetName, url } = assetData.params
-          nftsOwned.push({...defaultAssetData, url, assetId, assetName, })
+        const { name: assetName, url } = assetData.params
+        nftsOwned.push({ ...defaultAssetData, url, assetId, assetName })
       }
       await wait(250)
     })
@@ -125,8 +129,10 @@ export const getAssetIdArrayFromTxnData = (txnData: TxnData): number[] => {
   return assetIdArr
 }
 
-export const isAssetCollectionAsset = (assetId: number, assetIdArr: number[]): boolean =>
-  assetIdArr.includes(assetId)
+export const isAssetCollectionAsset = (
+  assetId: number,
+  assetIdArr: number[]
+): boolean => assetIdArr.includes(assetId)
 
 export const findAsset = async (
   assetId: number
@@ -139,7 +145,10 @@ export const findAsset = async (
   }
 }
 
-export const claimHoot = async (amount: number, receiverAddress: string): Promise<void> => {
+export const claimHoot = async (
+  amount: number,
+  receiverAddress: string
+): Promise<void> => {
   try {
     const params = await algodClient.getTransactionParams().do()
     const { sk, addr: senderAddress } =
