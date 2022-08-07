@@ -76,7 +76,7 @@ export const determineOwnership = async function (
     const assetIdArr = getAssetIdArrayFromTxnData(data)
     // Determine which assets are part of bot collection
     let collectionAssetLength = 0
-    const assetIdsOwned = uniqueAssets.filter((asset) => {
+    const assetsOwned = uniqueAssets.filter((asset) => {
       const assetId = asset['asset-id']
       if (
         collectionAssetLength < maxAssets &&
@@ -88,14 +88,27 @@ export const determineOwnership = async function (
     })
 
     // fetch data for each asset but not too quickly
-    await asyncForEach(assetIdsOwned, async (assetId: number) => {
+    await asyncForEach(assetsOwned, async (asset: AlgoAsset) => {
+      const assetId = asset['asset-id']
       const assetData = await findAsset(assetId)
       if (assetData) {
-        const { name: assetName, url } = assetData.params
-        nftsOwned.push({ ...defaultAssetData, url, assetId, assetName })
+        const {
+          name: assetName,
+          url,
+          ['unit-name']: unitName,
+        } = assetData.params
+        nftsOwned.push({
+          ...defaultAssetData,
+          url,
+          assetId,
+          assetName,
+          unitName,
+        })
       }
       await wait(250)
     })
+
+    console.log(nftsOwned)
 
     return {
       walletOwned,

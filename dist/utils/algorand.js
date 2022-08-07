@@ -42,7 +42,6 @@ const determineOwnership = async function (address, channelId) {
             .do();
         const { maxAssets } = settings_1.default[channelId];
         let walletOwned = false;
-        // const assetIdsOwned: number[] = []
         const nftsOwned = [];
         // Create array of unique assetIds
         const uniqueAssets = [];
@@ -60,22 +59,29 @@ const determineOwnership = async function (address, channelId) {
         const data = getTxnData();
         const assetIdArr = (0, exports.getAssetIdArrayFromTxnData)(data);
         // Determine which assets are part of bot collection
-        const assetIdsOwned = uniqueAssets.filter((asset) => {
+        let collectionAssetLength = 0;
+        const assetsOwned = uniqueAssets.filter((asset) => {
             const assetId = asset['asset-id'];
-            if (assetIdsOwned.length < maxAssets &&
+            if (collectionAssetLength < maxAssets &&
                 (0, exports.isAssetCollectionAsset)(assetId, assetIdArr)) {
+                collectionAssetLength++;
                 return true;
             }
         });
         // fetch data for each asset but not too quickly
-        await (0, helpers_1.asyncForEach)(assetIdsOwned, async (assetId) => {
+        await (0, helpers_1.asyncForEach)(assetsOwned, async (asset) => {
+            const assetId = asset['asset-id'];
             const assetData = await (0, exports.findAsset)(assetId);
             if (assetData) {
-                const { name: assetName, url } = assetData.params;
-                nftsOwned.push(Object.assign(Object.assign({}, defaultAssetData), { url, assetId, assetName }));
+                const { name: assetName, url, ['unit-name']: unitName, } = assetData.params;
+                nftsOwned.push(Object.assign(Object.assign({}, defaultAssetData), { url,
+                    assetId,
+                    assetName,
+                    unitName }));
             }
             await (0, helpers_1.wait)(250);
         });
+        console.log(nftsOwned);
         return {
             walletOwned,
             nftsOwned,

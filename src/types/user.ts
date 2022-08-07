@@ -12,6 +12,8 @@ export interface AlgoAsset {
   amount: number
   'asset-id': number
   'is-frozen': boolean
+  deleted: boolean
+  'opted-in-at-round': number
 }
 
 export interface AlgoAssetData {
