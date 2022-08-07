@@ -1,7 +1,7 @@
 // Discord
 import {
   Client,
-  Intents,
+  GatewayIntentBits,
   Interaction,
   Collection,
   SelectMenuInteraction,
@@ -27,25 +27,24 @@ const creatorAddresses = process.env.CREATOR_ADDRESSES as string
 const channelIds = process.env.CHANNEL_IDS as string
 
 // Gloval vars
-export const games: {[key: string]: Game} = {}
+export const games: { [key: string]: Game } = {}
 
 export const creatorAddressArr = creatorAddresses.split(',')
 const channelIdArr = channelIds.split(',')
 
 export const client: Client = new Client({
-  restRequestTimeout: 60000,
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
-    Intents.FLAGS.GUILD_MEMBERS,
-    Intents.FLAGS.GUILD_MESSAGES,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildEmojisAndStickers,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
   ],
 })
 
 client.once('ready', async () => {
   try {
     await connectToDatabase()
-    console.log('Ye Among AOWLs - Server ready')
+    console.log('Daruma Bot - Server ready')
 
     let update = true
     if (!fs.existsSync('dist/txnData/txnData.json')) {
@@ -80,9 +79,9 @@ const main = () => {
   // start game for each channel
   asyncForEach(channelIdArr, async (channelId: string) => {
     const channel = client.channels.cache.get(channelId) as TextChannel
-      const { maxCapacity } = settings[channelId]
-      games[channelId] = new Game({}, false, false, maxCapacity, channelId)
-      startWaitingRoom(channel)
+    const { maxCapacity } = settings[channelId]
+    games[channelId] = new Game({}, false, false, maxCapacity, channelId)
+    startWaitingRoom(channel)
   })
 }
 

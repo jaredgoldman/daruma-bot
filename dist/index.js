@@ -27,18 +27,17 @@ exports.games = {};
 exports.creatorAddressArr = creatorAddresses.split(',');
 const channelIdArr = channelIds.split(',');
 exports.client = new discord_js_1.Client({
-    restRequestTimeout: 60000,
     intents: [
-        discord_js_1.Intents.FLAGS.GUILDS,
-        discord_js_1.Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
-        discord_js_1.Intents.FLAGS.GUILD_MEMBERS,
-        discord_js_1.Intents.FLAGS.GUILD_MESSAGES,
+        discord_js_1.GatewayIntentBits.Guilds,
+        discord_js_1.GatewayIntentBits.GuildEmojisAndStickers,
+        discord_js_1.GatewayIntentBits.GuildMembers,
+        discord_js_1.GatewayIntentBits.GuildMessages,
     ],
 });
 exports.client.once('ready', async () => {
     try {
         await (0, database_service_1.connectToDatabase)();
-        console.log('Ye Among AOWLs - Server ready');
+        console.log('Daruma Bot - Server ready');
         let update = true;
         if (!node_fs_1.default.existsSync('dist/txnData/txnData.json')) {
             update = false;
