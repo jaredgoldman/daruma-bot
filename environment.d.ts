@@ -21,8 +21,8 @@ declare global {
       TOKEN_CLAWBACK_ADDRESS: string
       TOKEN_MNEMONIC: string
       CREATOR_ADDRESSES: string
-      CHANNEL_ID: string
-      CLEAR_TIMEOUT_ENABLED: string
+      CHANNEL_IDS: string
+
     }
   }
 }

@@ -1,7 +1,7 @@
 // Discord
 import {
   Client,
-  Intents,
+  GatewayIntentBits,
   Interaction,
   Collection,
   SelectMenuInteraction,
@@ -19,32 +19,33 @@ import settings from './settings'
 import Game from './models/game'
 // Helpers
 import { convergeTxnData } from './utils/algorand'
+import { asyncForEach } from './utils/helpers'
+import startWaitingRoom from './game'
 
 const token = process.env.DISCORD_TOKEN as string
 const creatorAddresses = process.env.CREATOR_ADDRESSES as string
-const channelId = process.env.CHANNEL_ID as string
+const channelIds = process.env.CHANNEL_IDS as string
+
 
 // Gloval vars
-// export let game: Game = new Game({}, false, false, coolDownInterval)
-export let channel: TextChannel
+export const games: { [key: string]: Game } = {}
 
 export const creatorAddressArr = creatorAddresses.split(',')
+const channelIdArr = channelIds.split(',')
 
 export const client: Client = new Client({
-  restRequestTimeout: 60000,
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
-    Intents.FLAGS.GUILD_MEMBERS,
-    Intents.FLAGS.GUILD_MESSAGES,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildEmojisAndStickers,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
   ],
 })
 
 client.once('ready', async () => {
   try {
     await connectToDatabase()
-    console.log('DarumaBot - Server ready')
-    
+    console.log('Daruma Bot - Server ready')
     let update = true
     if (!fs.existsSync('dist/txnData/txnData.json')) {
       update = false
@@ -54,8 +55,6 @@ client.once('ready', async () => {
     const txnData = await convergeTxnData(creatorAddressArr, update)
 
     fs.writeFileSync('dist/txnData/txnData.json', JSON.stringify(txnData))
-
-    channel = client.channels.cache.get(channelId) as TextChannel
 
     client.commands = new Collection()
 
@@ -70,10 +69,21 @@ client.once('ready', async () => {
 
       client.commands.set(command.data.name, command)
     }
+    main()
   } catch (error) {
     console.log('CLIENT ERROR', error)
   }
 })
+
+const main = () => {
+  // start game for each channel
+  asyncForEach(channelIdArr, async (channelId: string) => {
+    const channel = client.channels.cache.get(channelId) as TextChannel
+    const { maxCapacity } = settings[channelId]
+    games[channelId] = new Game({}, false, false, maxCapacity, channelId)
+    startWaitingRoom(channel)
+  })
+}
 
 /*
  *****************
@@ -88,17 +98,6 @@ client.on(
   ) => {
     let command
     if (interaction.isCommand()) {
-      // ensure two games can't start simultaneously
-      // if (
-      //   (game?.active || game?.waitingRoom) &&
-      //   interaction.commandName === 'start'
-      // ) {
-      //   return await interaction.reply({
-      //     content: 'A game is already running',
-      //     ephemeral: true,
-      //   })
-      // }
-
       command = client.commands.get(interaction.commandName)
     }
     if (interaction.isSelectMenu() || interaction.isButton()) {

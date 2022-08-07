@@ -17,13 +17,13 @@ const tokenMnemonic = process.env.TOKEN_MNEMONIC as string
 
 const token = {
   'X-API-Key': pureStakeApi,
-}
-const server = algoNode
+}Module '"discord.js"' has no exported member 'Intents'.const server = algoNode
 const indexerServer = algoIndexerNode
 const port = ''
 
 const algodClient = new algosdk.Algodv2(token, server, port)
 const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
+
 
 const defaultAssetData = {
   wins: 0, 
@@ -34,7 +34,8 @@ const defaultAssetData = {
   alias: ''
 }
 
-export const determineOwnership = async function (address: string): Promise<{
+export const determineOwnership = async function (address: string, channelId: string): Promise<{
+
   walletOwned: boolean
   nftsOwned: UserAsset[] | []
 }> {
@@ -48,7 +49,10 @@ export const determineOwnership = async function (address: string): Promise<{
       .limit(10000)
       .do()
 
-    const { maxAssets } = settings
+
+    const { maxAssets } = settings[channelId]
+
+
     let walletOwned = false
     // const assetIdsOwned: number[] = []
     const nftsOwned: UserAsset[] = []
