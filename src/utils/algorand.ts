@@ -8,6 +8,7 @@ import { UserAsset } from '../models/user'
 
 // import txnDataJson from '../txnData/txnData.json'
 import { creatorAddressArr } from '..'
+import { addAsset } from '../database/operations/asset'
 
 const algoNode = process.env.ALGO_NODE as string
 const pureStakeApi = process.env.PURESTAKE_API_TOKEN as string
@@ -97,18 +98,20 @@ export const determineOwnership = async function (
           url,
           ['unit-name']: unitName,
         } = assetData.params
-        nftsOwned.push({
+
+        const userAsset: UserAsset = {
           ...defaultAssetData,
           url,
           assetId,
           assetName,
           unitName,
-        })
+        }
+        nftsOwned.push(userAsset)
+        // Add asset to db
+        await addAsset(new Asset(assetId, assetName, url, unitName))
       }
       await wait(250)
     })
-
-    console.log(nftsOwned)
 
     return {
       walletOwned,

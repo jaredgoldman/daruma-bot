@@ -4,12 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.convergeTxnData = exports.updateTransactions = exports.searchForTransactions = exports.claimHoot = exports.findAsset = exports.isAssetCollectionAsset = exports.getAssetIdArrayFromTxnData = exports.determineOwnership = void 0;
+const asset_1 = __importDefault(require("../models/asset"));
 const helpers_1 = require("./helpers");
 const algosdk_1 = __importDefault(require("algosdk"));
 const settings_1 = __importDefault(require("../settings"));
 const fs_1 = __importDefault(require("fs"));
 // import txnDataJson from '../txnData/txnData.json'
 const __1 = require("..");
+const asset_2 = require("../database/operations/asset");
 const algoNode = process.env.ALGO_NODE;
 const pureStakeApi = process.env.PURESTAKE_API_TOKEN;
 const algoIndexerNode = process.env.ALGO_INDEXER_NODE;
@@ -74,14 +76,16 @@ const determineOwnership = async function (address, channelId) {
             const assetData = await (0, exports.findAsset)(assetId);
             if (assetData) {
                 const { name: assetName, url, ['unit-name']: unitName, } = assetData.params;
-                nftsOwned.push(Object.assign(Object.assign({}, defaultAssetData), { url,
+                const userAsset = Object.assign(Object.assign({}, defaultAssetData), { url,
                     assetId,
                     assetName,
-                    unitName }));
+                    unitName });
+                nftsOwned.push(userAsset);
+                // Add asset to db
+                await (0, asset_2.addAsset)(new asset_1.default(assetId, assetName, url, unitName));
             }
             await (0, helpers_1.wait)(250);
         });
-        console.log(nftsOwned);
         return {
             walletOwned,
             nftsOwned,
