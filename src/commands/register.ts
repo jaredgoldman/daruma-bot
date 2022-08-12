@@ -32,10 +32,10 @@ module.exports = {
     ),
   enabled: true,
   async execute(interaction: Interaction) {
-    if (!interaction.isCommand()) return
+    if (!interaction.isChatInputCommand()) return
     const { user, options, channelId } = interaction
     const { username, id } = user
-    //@ts-ignore
+
     const address = options.getString('address')
 
     if (address && !/^[a-zA-Z0-9]{58}$/.test(address)) {
