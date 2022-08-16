@@ -1,9 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
-    "1005510693707067402": {
+    '1005510693707067402': {
         maxAssets: 20,
         minCapacity: 2,
-        maxCapacity: 4
-    }
+        maxCapacity: 4,
+        npcHp: 100,
+        imageDir: 'dist/nftAssets',
+        playerHp: 100,
+    },
 };

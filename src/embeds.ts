@@ -5,14 +5,16 @@ import {
   InteractionReplyOptions,
   MessageOptions,
   EmbedBuilder,
+  ButtonBuilder,
+  ActionRowBuilder,
+  ButtonStyle,
 } from 'discord.js'
 // Types/Constants
 import { EmbedData } from './types/game'
-import embeds from './constants/embeds'
-// Game state
-import { games } from '.'
+import { Embeds } from './constants/embeds'
 // Helpers
 import { normalizeIpfsUrl } from './utils/helpers'
+import Game from './models/game'
 
 const defaultEmbedValues: EmbedData = {
   title: 'DarumaBot',
@@ -26,7 +28,8 @@ const defaultEmbedValues: EmbedData = {
 }
 
 export default function doEmbed(
-  type: string,
+  type: Embeds,
+  game: Game,
   options?: any
 ):
   | string
@@ -37,7 +40,42 @@ export default function doEmbed(
   let data: EmbedData = {}
   let components: any = []
 
-  // Waiting Room
+  const playerArr = Object.values(game.players)
+  const playerCount = playerArr.length
+
+  if (type === Embeds.waitingRoom) {
+    const playerWord = playerCount === 1 ? 'player' : 'players'
+    const hasWord = playerCount === 1 ? 'has' : 'have'
+
+    data = {
+      title: 'Waiting Room',
+      description: `${playerCount} ${playerWord} ${hasWord} joined the game.`,
+      files: [],
+      fields: playerArr.map((player) => {
+        return {
+          name: player.username,
+          value: player.asset.alias || player.asset.assetName,
+        }
+      }),
+    }
+
+    components.push(
+      new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId('select-attacker')
+          .setLabel('Choose your Daruma')
+          .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+          .setCustomId('begin-game')
+          .setLabel('Start game')
+          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setCustomId('withdraw-player')
+          .setLabel('Withdraw Daruma')
+          .setStyle(ButtonStyle.Danger)
+      )
+    )
+  }
 
   let {
     title,
