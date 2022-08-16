@@ -26,7 +26,6 @@ const token = process.env.DISCORD_TOKEN as string
 const creatorAddresses = process.env.CREATOR_ADDRESSES as string
 const channelIds = process.env.CHANNEL_IDS as string
 
-
 // Gloval vars
 export const games: { [key: string]: Game } = {}
 
