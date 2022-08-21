@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.convergeTxnData = exports.updateTransactions = exports.searchForTransactions = exports.claimHoot = exports.findAsset = exports.isAssetCollectionAsset = exports.getAssetIdArrayFromTxnData = exports.determineOwnership = void 0;
 const asset_1 = __importDefault(require("../models/asset"));
-const helpers_1 = require("./helpers");
+const shared_1 = require("./shared");
 const algosdk_1 = __importDefault(require("algosdk"));
 const settings_1 = __importDefault(require("../settings"));
 const fs_1 = __importDefault(require("fs"));
@@ -71,7 +71,7 @@ const determineOwnership = async function (address, channelId) {
             }
         });
         // fetch data for each asset but not too quickly
-        await (0, helpers_1.asyncForEach)(assetsOwned, async (asset) => {
+        await (0, shared_1.asyncForEach)(assetsOwned, async (asset) => {
             const assetId = asset['asset-id'];
             const assetData = await (0, exports.findAsset)(assetId);
             if (assetData) {
@@ -84,7 +84,7 @@ const determineOwnership = async function (address, channelId) {
                 // Add asset to db
                 await (0, asset_2.addAsset)(new asset_1.default(assetId, assetName, url, unitName));
             }
-            await (0, helpers_1.wait)(250);
+            await (0, shared_1.wait)(250);
         });
         return {
             walletOwned,

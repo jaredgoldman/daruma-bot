@@ -9,12 +9,18 @@ export default class Player {
     public address: string,
     public asset: Asset,
     public userId: ObjectId,
-    public hp: number,
-    public rounds: Round[]
-  ) {}
+    public rounds: Round[],
+    public totalScore: number
+  ) {
+    this.rounds = []
+  }
 }
 
-interface Round {
-  total: number,
-  rolls: [number, number, number]
-} 
+export class Round {
+  constructor(
+    public damage: number,
+    public roundNumber: number,
+    public diceValue: number,
+    public isWin: boolean
+  ) {}
+}

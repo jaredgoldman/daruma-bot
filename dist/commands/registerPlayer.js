@@ -74,7 +74,7 @@ module.exports = {
                     !game.players[id]) {
                     return interaction.editReply('Sorry, the game is at capacity, please wait until the next round');
                 }
-                game.players[id] = new player_1.default(username, id, address, gameAsset, _id, playerHp, false);
+                game.players[id] = new player_1.default(username, id, address, gameAsset, _id, [], 0);
                 await interaction.editReply(`${asset.alias || asset.assetName} has entered the game`);
                 (0, helpers_1.updateGame)(game);
             }

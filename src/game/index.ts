@@ -4,7 +4,7 @@ import { resetGame } from '../utils/helpers'
 import doEmbed from '../embeds'
 import { Embeds } from '../constants/embeds'
 import { games } from '..'
-import { wait } from '../utils/helpers'
+import { wait } from '../utils/shared'
 import runGame from './runGame'
 
 export default async function startWaitingRoom(channel: TextChannel) {
@@ -35,5 +35,5 @@ export default async function startWaitingRoom(channel: TextChannel) {
 
   game.active = true
 
-  runGame(game)
+  runGame(game, false)
 }

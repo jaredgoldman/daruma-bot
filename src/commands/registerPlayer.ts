@@ -109,8 +109,8 @@ module.exports = {
           address,
           gameAsset,
           _id,
-          playerHp,
-          false
+          [],
+          0
         )
         await interaction.editReply(
           `${asset.alias || asset.assetName} has entered the game`

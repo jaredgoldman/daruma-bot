@@ -19,7 +19,7 @@ import settings from './settings'
 import Game from './models/game'
 // Helpers
 import { convergeTxnData } from './utils/algorand'
-import { asyncForEach } from './utils/helpers'
+import { asyncForEach } from './utils/shared'
 import startWaitingRoom from './game'
 
 const token = process.env.DISCORD_TOKEN as string
@@ -29,8 +29,8 @@ const channelIds = process.env.CHANNEL_IDS as string
 // Gloval vars
 export const games: { [key: string]: Game } = {}
 
-export const creatorAddressArr = creatorAddresses.split(',')
-const channelIdArr = channelIds.split(',')
+export const creatorAddressArr = creatorAddresses?.split(',')
+const channelIdArr = channelIds?.split(',')
 
 export const client: Client = new Client({
   intents: [

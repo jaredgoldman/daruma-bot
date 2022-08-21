@@ -3,23 +3,10 @@ import path from 'path'
 import axios from 'axios'
 import User, { UserAsset } from '../models/user'
 import { Interaction } from 'discord.js'
-import Player from '../models/player'
 import { games } from '..'
 import NPC from '../models/npc'
 import settings from '../settings'
 import Game from '../models/game'
-
-export const wait = async (duration: number) => {
-  await new Promise((res) => {
-    setTimeout(res, duration)
-  })
-}
-
-export const asyncForEach = async (array: Array<any>, callback: Function) => {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array)
-  }
-}
 
 const ipfsGateway = process.env.IPFS_GATEWAY || 'https://dweb.link/ipfs/'
 
@@ -32,7 +19,9 @@ export const downloadFile = async (
     const { url } = asset
     if (url) {
       const normalizedUrl = normalizeIpfsUrl(url) as string
-      const path = `${directory}/${username.replace(' ', '')}.jpg`
+      const path = `${directory}/${username
+        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+        .trim()}.jpg`
       const writer = fs.createWriteStream(path)
       const res = await axios.get(normalizedUrl, {
         responseType: 'stream',
@@ -144,7 +133,7 @@ export const resetGame = (
   game.waitingRoom = {}
   game.stopped = false
   game.update = false
-  game.winnerId = undefined
+  game.winnerDiscordId = undefined
 }
 
 export const isIpfs = (url: string): boolean => url?.slice(0, 4) === 'ipfs'
@@ -176,6 +165,5 @@ export const checkIfRegisteredPlayer = (
     if (game?.players[discordId]?.asset?.assetId === Number(assetId))
       gameCount++
   })
-  console.log(gameCount)
   return gameCount >= 1
 }

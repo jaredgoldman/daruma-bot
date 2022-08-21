@@ -17,15 +17,15 @@ const settings_1 = __importDefault(require("./settings"));
 const game_1 = __importDefault(require("./models/game"));
 // Helpers
 const algorand_1 = require("./utils/algorand");
-const helpers_1 = require("./utils/helpers");
+const shared_1 = require("./utils/shared");
 const game_2 = __importDefault(require("./game"));
 const token = process.env.DISCORD_TOKEN;
 const creatorAddresses = process.env.CREATOR_ADDRESSES;
 const channelIds = process.env.CHANNEL_IDS;
 // Gloval vars
 exports.games = {};
-exports.creatorAddressArr = creatorAddresses.split(',');
-const channelIdArr = channelIds.split(',');
+exports.creatorAddressArr = creatorAddresses === null || creatorAddresses === void 0 ? void 0 : creatorAddresses.split(',');
+const channelIdArr = channelIds === null || channelIds === void 0 ? void 0 : channelIds.split(',');
 exports.client = new discord_js_1.Client({
     intents: [
         discord_js_1.GatewayIntentBits.Guilds,
@@ -63,7 +63,7 @@ exports.client.once('ready', async () => {
 });
 const main = () => {
     // start game for each channel
-    (0, helpers_1.asyncForEach)(channelIdArr, async (channelId) => {
+    (0, shared_1.asyncForEach)(channelIdArr, async (channelId) => {
         const channel = exports.client.channels.cache.get(channelId);
         const { maxCapacity } = settings_1.default[channelId];
         exports.games[channelId] = new game_1.default({}, false, false, maxCapacity, channelId);

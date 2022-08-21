@@ -8,7 +8,7 @@ const helpers_1 = require("../utils/helpers");
 const embeds_1 = __importDefault(require("../embeds"));
 const embeds_2 = require("../constants/embeds");
 const __1 = require("..");
-const helpers_2 = require("../utils/helpers");
+const shared_1 = require("../utils/shared");
 const runGame_1 = __importDefault(require("./runGame"));
 async function startWaitingRoom(channel) {
     const { maxCapacity } = settings_1.default[channel.id];
@@ -23,12 +23,12 @@ async function startWaitingRoom(channel) {
             await game.megatron.edit((0, embeds_1.default)(embeds_2.Embeds.waitingRoom, game));
             playerCount = getPlayerCount();
         }
-        await (0, helpers_2.wait)(1000);
+        await (0, shared_1.wait)(1000);
     }
     if (game.waitingRoom)
         game.waitingRoom = false;
-    await (0, helpers_2.wait)(2000);
+    await (0, shared_1.wait)(2000);
     game.active = true;
-    (0, runGame_1.default)(game);
+    (0, runGame_1.default)(game, false);
 }
 exports.default = startWaitingRoom;
