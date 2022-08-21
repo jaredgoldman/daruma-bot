@@ -1,36 +1,29 @@
 import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
-import User from '../models/user'
+import User, { UserAsset } from '../models/user'
 import { Interaction } from 'discord.js'
-import Asset from '../models/asset'
-
-export const wait = async (duration: number) => {
-  await new Promise((res) => {
-    setTimeout(res, duration)
-  })
-}
-
-export const asyncForEach = async (array: Array<any>, callback: Function) => {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array)
-  }
-}
+import { games } from '..'
+import NPC from '../models/npc'
+import settings from '../settings'
+import Game from '../models/game'
 
 const ipfsGateway = process.env.IPFS_GATEWAY || 'https://dweb.link/ipfs/'
 
 export const downloadFile = async (
-  asset: Asset,
+  asset: UserAsset,
   directory: string,
   username: string
 ): Promise<string | void> => {
   try {
-    const { assetUrl } = asset
-    if (assetUrl) {
-      const url = normalizeIpfsUrl(assetUrl) as string
-      const path = `${directory}/${username.replace(' ', '')}.jpg`
+    const { url } = asset
+    if (url) {
+      const normalizedUrl = normalizeIpfsUrl(url) as string
+      const path = `${directory}/${username
+        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+        .trim()}.jpg`
       const writer = fs.createWriteStream(path)
-      const res = await axios.get(url, {
+      const res = await axios.get(normalizedUrl, {
         responseType: 'stream',
       })
       res.data.pipe(writer)
@@ -124,21 +117,24 @@ export const randomSort = (arr: any[]): any[] => {
   return arr
 }
 
-export const resetGame = (stopped: boolean = false): void => {}
-
-// export const doDamage = (
-//   player: Player,
-//   withMultiplier: boolean = false
-// ): number => {
-//   if (withMultiplier) {
-//     const { assetMultiplier } = player
-//     const multiplierDamage =
-//       (assetMultiplier >= 20 ? 20 : assetMultiplier) * damagePerAowl
-//     return Math.floor(Math.random() * damageRange) + multiplierDamage
-//   } else {
-//     return Math.floor(Math.random() * damageRange)
-//   }
-// }
+export const resetGame = (
+  stopped: boolean = false,
+  channelId: string
+): void => {
+  const game = games[channelId]
+  const settingsData = settings[channelId]
+  const { npcHp } = settingsData
+  game.players = {}
+  game.active = false
+  game.win = false
+  game.megatron = {}
+  game.npc = new NPC(npcHp, false)
+  game.embed = {}
+  game.waitingRoom = {}
+  game.stopped = false
+  game.update = false
+  game.winnerDiscordId = undefined
+}
 
 export const isIpfs = (url: string): boolean => url?.slice(0, 4) === 'ipfs'
 
@@ -151,4 +147,23 @@ export const normalizeIpfsUrl = (url: string): string => {
   }
 }
 
+export const updateGame = (game: Game) => {
+  game.update = true
+  setTimeout(() => {
+    game.update = false
+  }, 3000)
+}
 
+export const checkIfRegisteredPlayer = (
+  games: { [key: string]: Game },
+  assetId: string,
+  discordId: string
+) => {
+  let gameCount = 0
+  const gameArray = Object.values(games)
+  gameArray.forEach((game: Game) => {
+    if (game?.players[discordId]?.asset?.assetId === Number(assetId))
+      gameCount++
+  })
+  return gameCount >= 1
+}
