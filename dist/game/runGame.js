@@ -91,7 +91,6 @@ const mutateEmbed = (players, roundNumber) => {
         board += createPlayerRow(player, roundNumber) + '\n';
     });
     board = board += '-'.repeat(10) + '\n';
-    console.log(board);
     return board;
 };
 const createPlayerRow = (player, roundNumber) => {
@@ -100,14 +99,17 @@ const createPlayerRow = (player, roundNumber) => {
     const prevRoundNumber = roundNumber - 1;
     const currentRound = rounds[roundNumber];
     const prevRound = rounds[prevRoundNumber];
+    // FIRST ROW
     const firstRow = isFirstRound
         ? `round 1`
         : `round: ${prevRoundNumber}    round: ${roundNumber}`;
+    // SECOND ROW
     let secondRow = '';
     if (!isFirstRound) {
         secondRow += mapRoundsForSecondRow(prevRound);
     }
     secondRow += mapRoundsForSecondRow(currentRound);
+    // THIRD ROW
     const thirdRow = isFirstRound
         ? `      ${currentRound.totalDamage}`
         : `      ${prevRound.totalDamage}           ${currentRound.totalDamage}`;
