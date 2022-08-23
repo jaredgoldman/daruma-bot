@@ -14,7 +14,7 @@ const asset = new Asset(
 const players = {
   '717166398320672867': new Player(
     'test-user-1',
-    '977691495245164585',
+    '717166398320672867',
     'RIY4VDR6L2NTSLIBRDATJ5WSGLJTO4QH775FPDPTNC4XRFNPRIE2K7UPQ4',
     asset,
     _id,
@@ -32,4 +32,14 @@ const players = {
   ),
 } as { [key: string]: Player }
 
-export { players }
+const settings = {
+  maxAssets: 20,
+  minCapacity: 2,
+  maxCapacity: 2,
+  npcHp: 100,
+  imageDir: 'dist/nftAssets',
+  playerHp: 100,
+  rollInterval: 1000 * 2,
+}
+
+export { players, settings }

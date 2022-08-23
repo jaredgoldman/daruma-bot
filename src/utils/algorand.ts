@@ -210,14 +210,14 @@ export const searchForTransactions = async (
 
 export const updateTransactions = async (
   accountAddress: string,
-  currentRound: number
+  currentRoll: number
 ): Promise<TxnData> => {
   const type = 'acfg'
   return (await algoIndexer
     .searchForTransactions()
     .address(accountAddress)
     .txType(type)
-    .minRound(currentRound)
+    .minRound(currentRoll)
     .do()) as TxnData
 }
 
@@ -230,8 +230,8 @@ export const convergeTxnData = async (
   const txnData = getTxnData() as TxnData
   creatorAddresses.forEach((address: string) => {
     if (update) {
-      const currentRound = txnData['current-round']
-      updateCalls.push(updateTransactions(address, currentRound))
+      const currentRoll = txnData['current-round']
+      updateCalls.push(updateTransactions(address, currentRoll))
     } else {
       updateCalls.push(searchForTransactions(address))
     }

@@ -66,7 +66,7 @@ const main = () => {
     (0, shared_1.asyncForEach)(channelIdArr, async (channelId) => {
         const channel = exports.client.channels.cache.get(channelId);
         const { maxCapacity } = settings_1.default[channelId];
-        exports.games[channelId] = new game_1.default({}, false, false, maxCapacity, channelId);
+        exports.games[channelId] = new game_1.default({}, false, false, maxCapacity, channelId, 1);
         (0, game_2.default)(channel);
     });
 };

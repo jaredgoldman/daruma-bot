@@ -20,7 +20,7 @@ const registeredRoleId = process.env.REGISTERED_ID;
 module.exports = {
     data: new builders_1.SlashCommandBuilder()
         .setName('register')
-        .setDescription('register for When DarumaS Attack')
+        .setDescription('register for When Darumas Attack')
         .addStringOption((option) => option
         .setName('address')
         .setDescription('enter the your wallet address')

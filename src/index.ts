@@ -79,7 +79,7 @@ const main = () => {
   asyncForEach(channelIdArr, async (channelId: string) => {
     const channel = client.channels.cache.get(channelId) as TextChannel
     const { maxCapacity } = settings[channelId]
-    games[channelId] = new Game({}, false, false, maxCapacity, channelId)
+    games[channelId] = new Game({}, false, false, maxCapacity, channelId, 1)
     startWaitingRoom(channel)
   })
 }

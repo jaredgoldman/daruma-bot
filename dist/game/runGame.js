@@ -5,17 +5,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rollDice = void 0;
 const shared_1 = require("../utils/shared");
-const player_1 = require("../models/player");
 const settings_1 = __importDefault(require("../settings"));
+const game_1 = require("../mocks/game");
 async function runGame(game, test) {
-    const { rollInterval } = settings_1.default[game.channelId];
+    const { rollInterval } = test ? game_1.settings : settings_1.default[game.channelId];
     try {
-        game.rounds = 0;
         const playerArr = Object.values(game.players);
-        let roundNumber = 1;
+        game.rolls = 1;
         while (!game.win) {
             // loop through each player
             await (0, shared_1.asyncForEach)(playerArr, async (player) => {
+                const currentRoundNumber = game.roundNumber;
                 // roll six-sided die
                 const { damage, numberRolled } = (0, exports.rollDice)();
                 // increment score
@@ -29,18 +29,37 @@ async function runGame(game, test) {
                 if (player.totalScore > 21) {
                     player.totalScore = 15;
                 }
-                // add new playerRound to
-                const playerRound = new player_1.Round(damage, roundNumber, numberRolled, false);
-                player.rounds.push(playerRound);
+                // add new playerRoll to
+                const roll = {
+                    damage,
+                    roundNumber: game.roundNumber || 1,
+                    numberRolled,
+                    isWin: game.win,
+                };
+                const currentRound = player.rounds[currentRoundNumber];
+                // Create round array with first roll or push new roll into existing array
+                // Also update totalDamage
+                if (!currentRound) {
+                    player.rounds[currentRoundNumber] = {
+                        rolls: [roll],
+                        totalDamage: damage,
+                    };
+                }
+                else {
+                    currentRound.rolls.push(roll);
+                    currentRound.totalDamage += damage;
+                }
                 // perform non-test behaviour
                 if (!test) {
                     await (0, shared_1.wait)(rollInterval);
-                    await mutateEmbed();
                 }
             });
-            roundNumber++;
+            mutateEmbed(game_1.players, game.roundNumber);
+            // if we're on the third roll, update rounds
+            if (game.rolls % 3 === 0)
+                game.roundNumber++;
+            game.rolls++;
         }
-        game.rounds = roundNumber;
         game.active = false;
     }
     catch (error) {
@@ -64,6 +83,38 @@ const rollDice = () => {
     };
 };
 exports.rollDice = rollDice;
-const mutateEmbed = async () => {
-    // update embed
+const mutateEmbed = (players, roundNumber) => {
+    const playerArr = Object.values(players);
+    let board = '-'.repeat(10) + '\n';
+    // FOR EACH PLAYER
+    playerArr.forEach((player) => {
+        board += createPlayerRow(player, roundNumber) + '\n';
+    });
+    board = board += '-'.repeat(10) + '\n';
+    console.log(board);
+    return board;
+};
+const createPlayerRow = (player, roundNumber) => {
+    const { rounds } = player;
+    const isFirstRound = roundNumber === 1;
+    const prevRoundNumber = roundNumber - 1;
+    const currentRound = rounds[roundNumber];
+    const prevRound = rounds[prevRoundNumber];
+    const firstRow = isFirstRound
+        ? `round 1`
+        : `round: ${prevRoundNumber}    round: ${roundNumber}`;
+    let secondRow = '';
+    if (!isFirstRound) {
+        secondRow += mapRoundsForSecondRow(prevRound);
+    }
+    secondRow += mapRoundsForSecondRow(currentRound);
+    const thirdRow = isFirstRound
+        ? `      ${currentRound.totalDamage}`
+        : `      ${prevRound.totalDamage}           ${currentRound.totalDamage}`;
+    return firstRow + '\n' + '| ' + secondRow + '\n' + thirdRow;
+};
+const mapRoundsForSecondRow = (round) => {
+    var _a, _b, _c;
+    const { rolls } = round;
+    return `${((_a = rolls[0]) === null || _a === void 0 ? void 0 : _a.damage) || ' '} - ${((_b = rolls[1]) === null || _b === void 0 ? void 0 : _b.damage) || ' '} - ${((_c = rolls[2]) === null || _c === void 0 ? void 0 : _c.damage) || ' '} | `;
 };

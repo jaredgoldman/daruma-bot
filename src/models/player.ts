@@ -9,18 +9,23 @@ export default class Player {
     public address: string,
     public asset: Asset,
     public userId: ObjectId,
-    public rounds: Round[],
+    public rounds: { [key: number]: Round },
     public totalScore: number
   ) {
-    this.rounds = []
+    this.rounds = {}
   }
 }
 
-export class Round {
-  constructor(
-    public damage: number,
-    public roundNumber: number,
-    public diceValue: number,
-    public isWin: boolean
-  ) {}
+export interface Roll {
+  damage: number
+  roundNumber: number
+  numberRolled: number
+  isWin: boolean
 }
+
+export interface Round {
+  rolls: Roll[]
+  totalDamage: number
+}
+
+export type Players = { [key: string]: Player }

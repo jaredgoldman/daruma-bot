@@ -160,13 +160,13 @@ const searchForTransactions = async (address) => {
     return txns;
 };
 exports.searchForTransactions = searchForTransactions;
-const updateTransactions = async (accountAddress, currentRound) => {
+const updateTransactions = async (accountAddress, currentRoll) => {
     const type = 'acfg';
     return (await algoIndexer
         .searchForTransactions()
         .address(accountAddress)
         .txType(type)
-        .minRound(currentRound)
+        .minRound(currentRoll)
         .do());
 };
 exports.updateTransactions = updateTransactions;
@@ -176,8 +176,8 @@ const convergeTxnData = async (creatorAddresses, update) => {
     const txnData = getTxnData();
     creatorAddresses.forEach((address) => {
         if (update) {
-            const currentRound = txnData['current-round'];
-            updateCalls.push((0, exports.updateTransactions)(address, currentRound));
+            const currentRoll = txnData['current-round'];
+            updateCalls.push((0, exports.updateTransactions)(address, currentRoll));
         }
         else {
             updateCalls.push((0, exports.searchForTransactions)(address));
