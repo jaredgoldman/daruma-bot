@@ -1,6 +1,9 @@
 import { ColorResolvable, Attachment } from 'discord.js'
 import Player from '../models/player'
 
+/*
+ * Embed component types
+ */
 export interface EmbedData {
   title?: string
   description?: string
@@ -26,8 +29,26 @@ type Footer = {
   iconUrl?: string
 }
 
+/*
+ * Game logic types
+ */
 export enum GameTypes {
   OneVsNpc = 'OneVsNpc',
   OneVsOne = 'OneVSOne',
   FourVsNpc = 'FourVsNpc',
+}
+
+export interface Settings {
+  [key: string]: ChannelSettings
+}
+
+export interface ChannelSettings {
+  maxAssets: number
+  minCapacity: number
+  maxCapacity: number
+  npcHp: number
+  playerHp: number
+  rollInterval: number
+  channelId: string
+  gameType: GameTypes
 }

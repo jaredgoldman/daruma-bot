@@ -39,7 +39,7 @@ module.exports = {
       // Check if user is another game
       if (checkIfRegisteredPlayer(games, assetId, id)) {
         return interaction.reply({
-          ephemeral: true,
+          ephemeral: true,∑∑˚∑∑˚
           content: `You can't register with the same asset in two games at a time`,
         })
       }

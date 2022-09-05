@@ -13,14 +13,15 @@ import fs from 'node:fs'
 import path from 'node:path'
 // Helpers
 import { connectToDatabase } from './database/database.service'
-// Globals
-import settings from './settings'
+
 // Schema
 import Game from './models/game'
 // Helpers
 import { convergeTxnData } from './utils/algorand'
 import { asyncForEach } from './utils/shared'
 import startWaitingRoom from './game'
+import { getSettings } from './database/operations/game'
+import { ChannelSettings, GameTypes } from './types/game'
 
 const token = process.env.DISCORD_TOKEN as string
 const creatorAddresses = process.env.CREATOR_ADDRESSES as string
@@ -30,7 +31,6 @@ const channelIds = process.env.CHANNEL_IDS as string
 export const games: { [key: string]: Game } = {}
 
 export const creatorAddressArr = creatorAddresses?.split(',')
-const channelIdArr = channelIds?.split(',')
 
 export const client: Client = new Client({
   intents: [
@@ -74,12 +74,16 @@ client.once('ready', async () => {
   }
 })
 
-const main = () => {
+const main = async () => {
+  const settings = await getSettings()
+
   // start game for each channel
-  asyncForEach(channelIdArr, async (channelId: string) => {
+  asyncForEach(settings, async (settings: ChannelSettings) => {
+    const { channelId, maxCapacity, gameType } = settings
     const channel = client.channels.cache.get(channelId) as TextChannel
-    const { maxCapacity } = settings[channelId]
-    games[channelId] = new Game({}, false, false, maxCapacity, channelId)
+    const newGame = new Game(maxCapacity, channelId, gameType, settings)
+    if (gameType !== GameTypes.OneVsOne) newGame.addNpc()
+    games[settings.channelId] = newGame
     startWaitingRoom(channel)
   })
 }
