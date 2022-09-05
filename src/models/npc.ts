@@ -1,5 +1,5 @@
 export default class NPC {
-  constructor(public hp: number) {
+  constructor() {
     this.dead = false
   }
 

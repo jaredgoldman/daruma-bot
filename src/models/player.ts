@@ -1,13 +1,15 @@
 import { ObjectId } from 'mongodb'
-import Asset from './asset'
 
-// This model represents a player enrolled in a battle
+/**
+ * Player Class
+ * Represents a player registered in an active game
+ */
 export default class Player {
   constructor(
-    private username: string,
-    private discordId: string,
-    private address: string,
-    private assetId: number,
-    private userId: ObjectId
+    public username: string,
+    public discordId: string,
+    public address: string,
+    public assetId: number,
+    public userId: ObjectId
   ) {}
 }

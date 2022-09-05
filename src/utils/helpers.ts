@@ -1,22 +1,20 @@
 import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
-import User, { UserAsset } from '../models/user'
+import { UserData } from '../models/user'
 import { Interaction } from 'discord.js'
-import { games } from '..'
-import NPC from '../models/npc'
-import settings from '../settings'
 import Game from '../models/game'
+import Asset from '../models/asset'
 
 const ipfsGateway = process.env.IPFS_GATEWAY || 'https://dweb.link/ipfs/'
 
 export const downloadFile = async (
-  asset: UserAsset,
+  asset: Asset,
   directory: string,
   username: string
 ): Promise<string | void> => {
   try {
-    const { url } = asset
+    const { assetUrl: url } = asset
     if (url) {
       const normalizedUrl = normalizeIpfsUrl(url) as string
       const path = `${directory}/${username
@@ -59,7 +57,7 @@ export const emptyDir = (dirPath: string): void => {
 export const addRole = async (
   interaction: Interaction,
   roleId: string,
-  user: User
+  user: UserData
 ): Promise<void> => {
   try {
     const role = interaction.guild?.roles.cache.find(
@@ -117,25 +115,6 @@ export const randomSort = (arr: any[]): any[] => {
   return arr
 }
 
-export const resetGame = (
-  stopped: boolean = false,
-  channelId: string
-): void => {
-  const game = games[channelId]
-  const settingsData = settings[channelId]
-  const { npcHp } = settingsData
-  game.players = {}
-  game.active = false
-  game.win = false
-  game.megatron = {}
-  game.npc = new NPC(npcHp, false)
-  game.embed = {}
-  game.waitingRoom = {}
-  game.stopped = false
-  game.update = false
-  game.winnerDiscordId = undefined
-}
-
 export const isIpfs = (url: string): boolean => url?.slice(0, 4) === 'ipfs'
 
 export const normalizeIpfsUrl = (url: string): string => {
@@ -147,13 +126,6 @@ export const normalizeIpfsUrl = (url: string): string => {
   }
 }
 
-export const updateGame = (game: Game) => {
-  game.update = true
-  setTimeout(() => {
-    game.update = false
-  }, 3000)
-}
-
 export const checkIfRegisteredPlayer = (
   games: { [key: string]: Game },
   assetId: string,
@@ -162,8 +134,8 @@ export const checkIfRegisteredPlayer = (
   let gameCount = 0
   const gameArray = Object.values(games)
   gameArray.forEach((game: Game) => {
-    if (game?.players[discordId]?.asset?.assetId === Number(assetId))
-      gameCount++
+    const player = game.getPlayer(discordId)
+    if (player.assetId === Number(assetId)) gameCount++
   })
   return gameCount >= 1
 }

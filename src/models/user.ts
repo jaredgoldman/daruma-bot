@@ -1,58 +1,56 @@
-import { ObjectId } from 'mongodb'
+import { InsertOneResult, ObjectId } from 'mongodb'
+import { collections } from '../database/database.service'
 
 export default class User {
+  private enhancers: { [key: string]: Enhancer }
+  private totalBattles: number
+  private karma: number
+  private coolDowns: { [key: string]: number } // timestamp
+
   constructor(
-    public username: string,
-    public discordId: string,
-    public address: string,
-    public assets: {
-      [key: string]: UserAsset
-    },
-    public karma?: number,
-    //key: EnhancerType
-    public enhancers?: { [key: string]: Enhancer },
-    public totalBattles?: number,
-    public _id?: ObjectId,
-    public coolDowns?: { [key: string]: number } // timestamp
+    private username: string,
+    private discordId: string,
+    private address: string,
+    private assets: number[]
   ) {
     this.karma = 0
     this.enhancers = {}
-    this.totalBattles = 0
-    this._id = undefined
     this.coolDowns = {}
+    this.totalBattles = 0
+    this.karma = 0
+  }
+
+  async saveUser(): Promise<InsertOneResult<UserData>> {
+    const userEntry: UserData = {
+      username: this.username,
+      discordId: this.discordId,
+      address: this.address,
+      assets: this.assets,
+      karma: this.karma,
+      enhancers: this.enhancers,
+      totalBattles: this.totalBattles,
+      coolDowns: this.coolDowns,
+    }
+    return await collections.users.insertOne(userEntry)
   }
 }
 
-export interface UserAsset {
-  assetId: number
-  url: string
-  assetName: string
-  unitName: string
-  wins: number
-  losses: number
-  kos: number
-  alias?: string
+export interface UserData {
+  discordId?: string
+  username?: string
+  address?: string
+  assets?: number[]
+  karma?: number
+  enhancers?: { [key: string]: Enhancer }
+  totalBattles?: number
+  coolDowns?: { [key: string]: number } // timestamp
+  _id?: ObjectId
 }
 
 export interface Enhancer {
   type: EnhancerType
   owned: boolean
   // Can add modifiers here
-}
-
-export interface UserUpdateObject {
-  username?: string,
-  discordId?: string,
-  address?: string,
-  assets?: {
-    [key: string]: UserAsset
-  },
-  karma?: number,
-  //key: EnhancerType
-  enhancers?: { [key: string]: Enhancer },
-  totalBattles?: number,
-  _id?: ObjectId,
-  coolDowns?: { [key: string]: number } // timestamp
 }
 
 enum EnhancerType {

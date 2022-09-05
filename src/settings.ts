@@ -24,7 +24,7 @@ interface Settings {
   [key: string]: ChannelSettings
 }
 
-interface ChannelSettings {
+export interface ChannelSettings {
   maxAssets: number
   minCapacity: number
   maxCapacity: number

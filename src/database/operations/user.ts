@@ -1,20 +1,19 @@
 import { ObjectId, WithId } from 'mongodb'
 import { collections } from '../database.service'
-import User, { UserUpdateObject } from '../../models/user'
-import Asset from '../../models/asset'
+import { UserData } from '../../models/user'
 
 export const findUserById = async (_id: ObjectId) =>
   (await collections.users?.findOne({
     _id,
-  })) as WithId<User>
+  })) as WithId<UserData>
 
 export const findUserByDiscordId = async (discordId: string) =>
   (await collections.users?.findOne({
     discordId,
-  })) as WithId<User>
+  })) as WithId<UserData>
 
 export const updateUser = async (
-  updateData: UserUpdateObject,
+  updateData: UserData,
   _id?: ObjectId | string,
   discordId?: string
 ) => {
