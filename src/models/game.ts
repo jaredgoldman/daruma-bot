@@ -1,20 +1,30 @@
 import Player from './player'
 import NPC from './npc'
+import { collections } from '../database/database.service'
+import Encounter from './encounter'
+import { GameTypes } from '../types/game'
 
 export default class Game {
-  constructor(
-    public players: { [key: discordId]: Player },
-    public capacity: number,
-    public channelId: string,
-    public npc: NPC
-  ) {
-    this.active = true
-    this.win = false
-    this.rounds = 0
-    this.stopped = false
-    this.embed = undefined
-    this.isWaitingRoom = true
-    this.doUpdate = false
+  /*
+   * PLAYER OPERSATIONS
+   */
+  getPlayerArray() {
+    return Object.values(this.players)
+  }
+
+  getPlayer(discordId: discordId) {
+    return this.players[discordId]
+  }
+
+  /*
+   * GENERIC GETTERS AND SETTERS
+   */
+  getCapacity() {
+    return this.capacity
+  }
+
+  getChannelId() {
+    return this.channelId
   }
 
   private active: boolean
@@ -91,6 +101,41 @@ export default class Game {
 
   damageNPC(damage: number) {
     this.npc.hp -= damage
+  }
+
+  constructor(
+    private players: { [key: discordId]: Player },
+    private capacity: number,
+    private channelId: string,
+    private type: GameTypes,
+    private npc: NPC
+  ) {
+    this.active = true
+    this.win = false
+    this.rounds = 0
+    this.stopped = false
+    this.embed = undefined
+    this.isWaitingRoom = true
+    this.doUpdate = false
+  }
+
+  /*
+   * OPERATIONS
+   */
+  saveEncounter() {
+    if (!this.winnerDiscordId) {
+      throw new Error('the game must have a winner to save an encounter')
+    }
+    collections.encounters.insertOne(
+      new Encounter(this.winnerDiscordId, this.type, Date.now())
+    )
+  }
+
+  winGame() {
+    if (!this.winnerDiscordId) {
+      throw new Error('the game must have a winner before you trigger win')
+    }
+    this.saveEncounter()
   }
 }
 
