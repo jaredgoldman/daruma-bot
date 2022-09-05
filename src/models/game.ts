@@ -172,7 +172,8 @@ export default class Game {
     private channelId: string,
     private type: GameTypes,
     private settings: ChannelSettings
-  ) {
+  ) // private m
+  {
     this.active = true
     this.win = false
     this.rounds = 0

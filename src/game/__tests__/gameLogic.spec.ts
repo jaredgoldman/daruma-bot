@@ -1,8 +1,5 @@
 import { diceRolls, damageCalc } from '../gameLogic'
-import { createPlayers } from '../../mocks/game'
 import Game from '../../models/game'
-
-
 
 // describe('game test suite', () => {
 //   const players = createPlayers(2)
@@ -26,7 +23,7 @@ import Game from '../../models/game'
 // })
 
 describe('Test Dice Rolls', () => {
-  const rolls = diceRolls()
+  const rolls = diceRolls(100)
   const belowSix = (diceSide: number) => diceSide <= 6
 
   it('Produces correct 6-sided dice numbers', () => {
@@ -52,6 +49,7 @@ describe('Test Damage Win Index', () => {
     expect(rollsWin.length).toBe(7)
   })
 })
+
 describe('Test Damage Reset Win Index', () => {
   const rollsWinReset = damageCalc([6, 6, 6, 6, 6, 6, 4, 3, 6, 6])
 

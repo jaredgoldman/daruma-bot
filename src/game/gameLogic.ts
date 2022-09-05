@@ -2,10 +2,12 @@ import Game from '../models/game'
 
 import Player from '../models/player'
 
-export const diceRolls = (): Array<number> => {
-  let randomRolls = [...Array(100)].map((_) => ~~(Math.random() * 6) + 1)
-  return randomRolls
-}
+/**
+ *
+ * @returns array of numbers
+ */
+export const diceRolls = (arrayLength: number): Array<number> =>
+  Array(arrayLength).map((_) => ~~(Math.random() * 6) + 1)
 
 export const damageCalc = (diceRolls: Array<number>): Array<number> => {
   const diceValues: { [key: number]: number } = {
@@ -37,26 +39,31 @@ export const damageCalc = (diceRolls: Array<number>): Array<number> => {
   }
   return damage
 }
-function findZen(players: Array<Player>) {
-  const uniqueElements = new Set(players)
-  const filteredElements = players.filter((item) => {
-    if (uniqueElements.has(item)) {
-      uniqueElements.delete(item)
-    } else {
-      return item
-    }
-  })
 
-  return [...new Set(uniqueElements)]
-}
-// export default async function runGame(game: Game, test: boolean) {
-//   try {
-//     const playerArr = Object.values(game.players)
-//     // game.maxRolls = Math.max(...playerArr.map(o => o.rolls.length))
-//     game.maxRoundNumber = Math.floor(Math.max(game.maxRolls / 3))
-//     game.zen = true
-//     console.table(findZen(playerArr))
-//   } catch (error) {
-//     console.log(error)
-//   }
+// function findZen(players: Array<Player>) {
+//   const uniqueElements = new Set(players)
+//   const filteredElements = players.filter((item) => {
+//     if (uniqueElements.has(item)) {
+//       uniqueElements.delete(item)
+//     } else {
+//       return item
+//     }
+//   })
+
+//   return [...new Set(uniqueElements)]
 // }
+
+export default async function runGame(game: Game, test: boolean) {
+  try {
+    const rolls = diceRolls(100)
+    const results = damageCalc(rolls)
+    console.log(results)
+    // const playerArr = game.getPlayerArray()
+    // // game.maxRolls = Math.max(...playerArr.map(o => o.rolls.length))
+    // game.maxRoundNumber = Math.floor(Math.max(game.maxRolls / 3))
+    // game.zen = true
+    // console.table(findZen(playerArr))
+  } catch (error) {
+    console.log('***** RUNGAME ERROR ******')
+  }
+}
