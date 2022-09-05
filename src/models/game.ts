@@ -3,18 +3,28 @@ import NPC from './npc'
 import { collections } from '../database/database.service'
 import Encounter from './encounter'
 import { GameTypes } from '../types/game'
-import { ChannelSettings } from '../settings'
+import { ChannelSettings } from '../types/game'
+import { MessageOptions } from 'discord.js'
 
 export default class Game {
   /*
-   * PLAYER OPERSATIONS
+   * PLAYER OPERATIONS
    */
+  private players: { [key: string]: Player }
   getPlayerArray() {
     return Object.values(this.players)
   }
 
   getPlayer(discordId: discordId) {
     return this.players[discordId]
+  }
+
+  addPlayer(player: Player) {
+    this.players[player.discordId] = player
+  }
+
+  getPlayerCount() {
+    return this.getPlayerArray.length
   }
 
   /*
@@ -92,11 +102,11 @@ export default class Game {
    * Waiting Room
    */
   private isWaitingRoom: boolean
-  setWaitingRoom(isWaitingRoom: boolean) {
+  setIsWaitingRoom(isWaitingRoom: boolean) {
     this.isWaitingRoom = isWaitingRoom
   }
 
-  getWaitingRoom() {
+  getIsWaitingRoom() {
     return this.isWaitingRoom
   }
 
@@ -122,7 +132,6 @@ export default class Game {
   /*
    * Embed
    */
-
   private embed: any
   setEmbed(embed: any) {
     this.embed = embed
@@ -132,12 +141,33 @@ export default class Game {
     return this.embed
   }
 
+  async editEmbed(options: MessageOptions) {
+    await this.embed.edit(options)
+  }
+
+  /*
+   * NPC
+   */
+  private npc: NPC | undefined
+  addNpc() {
+    this.npc = new NPC()
+  }
+
+  /*
+   * Settings
+   */
+  addSettings(settings: ChannelSettings) {
+    this.settings = settings
+  }
+
+  getSettings() {
+    return this.settings
+  }
+
   constructor(
-    private players: { [key: discordId]: Player },
     private capacity: number,
     private channelId: string,
     private type: GameTypes,
-    private npc: NPC,
     private settings: ChannelSettings
   ) {
     this.active = true
@@ -147,6 +177,8 @@ export default class Game {
     this.embed = undefined
     this.isWaitingRoom = true
     this.doUpdate = false
+    this.players = {}
+    this.npc = undefined
   }
 
   /*
@@ -167,6 +199,30 @@ export default class Game {
     }
     this.saveEncounter()
   }
+
+  resetGame() {
+    this.active = true
+    this.win = false
+    this.rounds = 0
+    this.stopped = false
+    this.embed = undefined
+    this.isWaitingRoom = true
+    this.doUpdate = false
+    this.players = {}
+    this.npc = undefined
+    this.settings = defaultSettings
+  }
+}
+
+const defaultSettings = {
+  maxAssets: 20,
+  minCapacity: 2,
+  maxCapacity: 2,
+  npcHp: 100,
+  playerHp: 100,
+  rollInterval: 1000,
+  channelId: '1005510693707067402',
+  gameType: GameTypes.FourVsNpc,
 }
 
 type discordId = string

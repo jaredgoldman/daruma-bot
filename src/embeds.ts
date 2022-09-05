@@ -31,12 +31,7 @@ export default function doEmbed(
   type: Embeds,
   game: Game,
   options?: any
-):
-  | string
-  | MessagePayload
-  | InteractionReplyOptions
-  | EmbedBuilder
-  | MessageOptions {
+): MessageOptions {
   let data: EmbedData = {}
   let components: any = []
 

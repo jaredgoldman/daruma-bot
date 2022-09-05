@@ -12,6 +12,8 @@ declare global {
       DB_CONN_STRING: string
       USERS_COLLECTION_NAME: string
       ASSETS_COLLECTION_NAME: string
+      ENCOUNTERS_COLLECTION_NAME: string
+      SETTINGS_COLLECTION_NAME: string
       GAME_COLLECTION_NAME: string
       UNIT_NAME: string
       IPFS_GATEWAY: string
@@ -22,7 +24,6 @@ declare global {
       TOKEN_MNEMONIC: string
       CREATOR_ADDRESSES: string
       CHANNEL_IDS: string
-
     }
   }
 }
