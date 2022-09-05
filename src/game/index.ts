@@ -14,9 +14,11 @@ export default async function startWaitingRoom(channel: TextChannel) {
   const { maxCapacity } = settings
 
   const waitingRoomEmbed = await channel.send(doEmbed(Embeds.waitingRoom, game))
+
   game.setEmbed(waitingRoomEmbed)
 
   game.setIsWaitingRoom(true)
+
   let playerCount = game.getPlayerCount()
 
   while (playerCount < maxCapacity && game.getIsWaitingRoom()) {

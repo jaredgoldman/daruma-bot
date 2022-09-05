@@ -142,6 +142,9 @@ export default class Game {
   }
 
   async editEmbed(options: MessageOptions) {
+    if (!this.embed) {
+      throw new Error('No embed stored in game')
+    }
     await this.embed.edit(options)
   }
 
