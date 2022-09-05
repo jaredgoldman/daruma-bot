@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb'
+import Asset from './asset'
 
 /**
  * Player Class
@@ -9,7 +10,7 @@ export default class Player {
     public username: string,
     public discordId: string,
     public address: string,
-    public assetId: number,
+    public asset: Asset,
     public userId: ObjectId
   ) {}
 }

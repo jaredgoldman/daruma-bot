@@ -36,9 +36,9 @@ export default class User {
 }
 
 export interface UserData {
+  address: string
   discordId?: string
   username?: string
-  address?: string
   assets?: number[]
   karma?: number
   enhancers?: { [key: string]: Enhancer }
