@@ -106,5 +106,6 @@ typings/
 .vscode-test
 
 ## Blockchain data/assets
+dist/*
 dist/txnData
 dist/nftAssets
