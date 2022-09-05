@@ -25,3 +25,9 @@ type Footer = {
   text: string
   iconUrl?: string
 }
+
+export enum GameTypes {
+  OneVsNpc = 'OneVsNpc',
+  OneVsOne = 'OneVSOne',
+  FourVsNpc = 'FourVsNpc',
+}

@@ -11,6 +11,8 @@ let db: mongoDB.Db
 const connectionString = process.env.DB_CONN_STRING as string
 const usersCollectionName = process.env.USERS_COLLECTION_NAME as string
 const assetsCollectionName = process.env.ASSETS_COLLECTION_NAME as string
+const encountersCollectionName = process.env
+  .ENCOUNTERS_COLLECTION_NAME as string
 
 // Initialize Connection
 export async function connectToDatabase() {
@@ -21,12 +23,15 @@ export async function connectToDatabase() {
   db = client.db(process.env.DB_NAME)
 
   const usersCollection: mongoDB.Collection = db.collection(usersCollectionName)
-
   const assetsCollecton: mongoDB.Collection =
     db.collection(assetsCollectionName)
+  const encountersCollection: mongoDB.Collection = db.collection(
+    encountersCollectionName
+  )
 
   collections.users = usersCollection
   collections.assets = assetsCollecton
+  collections.encounters = encountersCollection
 
   console.log(`Successfully connected to database: ${db.databaseName}`)
 }

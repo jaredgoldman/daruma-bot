@@ -2,12 +2,11 @@
 import { RegistrationResult } from '../types/user'
 import { SlashCommandBuilder } from '@discordjs/builders'
 // Data
-import { collections } from '../database/database.service'
 // Helpers
 import { determineOwnership } from '../utils/algorand'
 import { addRole } from '../utils/helpers'
 // Schemas
-import User, { UserAsset } from '../models/user'
+import User from '../models/user'
 import { Interaction } from 'discord.js'
 import {
   findUserByDiscordId,
@@ -89,10 +88,7 @@ export const processRegistration = async (
       channelId
     )
 
-    const keyedNfts: { [key: string]: UserAsset } = {}
-    nftsOwned.forEach((nft) => {
-      keyedNfts[nft.assetId] = nft
-    })
+    const assetsOwnedIds: number[] = nftsOwned.map((nft) => nft.assetId)
 
     if (!nftsOwned?.length) {
       return {
@@ -108,11 +104,8 @@ export const processRegistration = async (
 
     // If user doesn't exist, add to db and grab instance
     if (!user) {
-      const userEntry = new User(username, discordId, address, keyedNfts)
-      const { acknowledged, insertedId } = await collections.users?.insertOne(
-        userEntry
-      )
-
+      const newUser = new User(username, discordId, address, assetsOwnedIds)
+      const { acknowledged, insertedId } = await newUser.saveUser()
       if (acknowledged) {
         user = await findUserById(insertedId)
       } else {
@@ -121,7 +114,7 @@ export const processRegistration = async (
         }
       }
     } else {
-      await updateUser({ assets: keyedNfts, address: address }, user._id)
+      await updateUser({ assets: assetsOwnedIds, address: address }, user._id)
     }
 
     return {

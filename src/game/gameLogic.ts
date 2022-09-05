@@ -2,7 +2,6 @@ import Game from '../models/game'
 
 import Player from '../models/player'
 
-
 export const diceRolls = (): Array<number> => {
   let randomRolls = [...Array(100)].map((_) => ~~(Math.random() * 6) + 1)
   return randomRolls
@@ -39,14 +38,14 @@ export const damageCalc = (diceRolls: Array<number>): Array<number> => {
   return damage
 }
 function findZen(players: Array<Player>) {
-  const uniqueElements = new Set(players);
-  const filteredElements = players.filter(item => {
+  const uniqueElements = new Set(players)
+  const filteredElements = players.filter((item) => {
     if (uniqueElements.has(item)) {
-      uniqueElements.delete(item);
+      uniqueElements.delete(item)
     } else {
-      return item;
+      return item
     }
-  });
+  })
 
   return [...new Set(uniqueElements)]
 }
