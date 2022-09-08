@@ -4,9 +4,9 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 // Data
 import { collections } from '../database/database.service'
 // Schemas
-import Asset, { AssetData } from '../models/asset'
+import Asset from '../models/asset'
 import { WithId } from 'mongodb'
-import { UserData } from '../models/user'
+import User from '../models/user'
 import Player from '../models/player'
 // Helpers
 import { checkIfRegisteredPlayer, downloadFile } from '../utils/helpers'
@@ -17,6 +17,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('register-player')
     .setDescription('Register an active player'),
+  enabled: true,
   async execute(interaction: SelectMenuInteraction) {
     try {
       if (!interaction.isSelectMenu()) return
@@ -28,7 +29,7 @@ module.exports = {
       const { values, user } = interaction
       const assetId = values[0]
       const { username, id: discordId } = user
-      const { playerHp, maxCapacity } = game.getSettings()
+      const { maxCapacity } = game.getSettings()
 
       // Check if user is another game
       if (checkIfRegisteredPlayer(games, assetId, discordId)) {
@@ -42,17 +43,12 @@ module.exports = {
       if (game.getPlayerCount() < maxCapacity || game.getPlayer(discordId)) {
         await interaction.deferReply({ ephemeral: true })
 
-        const { address, _id, coolDowns } = (await collections.users.findOne({
-          discordId: user.id,
-        })) as WithId<UserData>
+        const { address, _id, coolDowns, assets } =
+          (await collections.users.findOne({
+            discordId: user.id,
+          })) as WithId<User>
 
-        const asset = (await collections.assets.findOne({
-          assetId,
-        })) as WithId<AssetData>
-
-        if (!asset) {
-          return
-        }
+        const asset = assets[assetId]
 
         const coolDown = coolDowns ? coolDowns[assetId] : null
 
@@ -67,7 +63,7 @@ module.exports = {
         let localPath
 
         try {
-          // localPath = await downloadFile(asset, imageDir, username)
+          localPath = await downloadFile(asset, username)
         } catch (error) {
           console.log('download error', error)
         }
@@ -76,13 +72,6 @@ module.exports = {
           return
         }
 
-        const gameAsset = new Asset(
-          asset.id,
-          asset.name,
-          asset.url,
-          asset.unitName
-        )
-        await gameAsset.saveAsset()
         // check again for capacity once added
         if (
           game.getPlayerCount() >= maxCapacity &&
@@ -93,16 +82,10 @@ module.exports = {
           )
         }
 
-        const newPlayer = new Player(
-          username,
-          discordId,
-          address,
-          gameAsset,
-          _id
-        )
+        const newPlayer = new Player(username, discordId, address, asset, _id)
         game.addPlayer(newPlayer)
         await interaction.editReply(
-          `${gameAsset.getAlias() || gameAsset.getName()} has entered the game`
+          `${asset.alias || asset.name} has entered the game`
         )
         game.updateGame()
       } else {
