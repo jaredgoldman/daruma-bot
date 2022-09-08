@@ -1,7 +1,7 @@
-import { AssetData } from '../../models/asset'
+import Asset from '../../models/asset'
 import { collections } from '../database.service'
 
-export const addAsset = async (asset: AssetData) => {
+export const addAsset = async (asset: Asset) => {
   const dbAsset = await collections.assets.findOne({ id: asset.id })
   if (dbAsset) {
     return
