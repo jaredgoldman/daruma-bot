@@ -47,7 +47,6 @@ export interface ChannelSettings {
   minCapacity: number
   maxCapacity: number
   npcHp: number
-  playerHp: number
   rollInterval: number
   channelId: string
   gameType: GameTypes

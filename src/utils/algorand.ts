@@ -1,14 +1,13 @@
-import Asset from '../models/asset'
 import { AlgoAsset, AlgoAssetData, Txn, TxnData } from '../types/user'
 import { asyncForEach, wait } from './shared'
 import algosdk from 'algosdk'
-import settings from '../settings'
 import fs from 'fs'
-import { UserAsset } from '../models/user'
+import Asset from '../models/asset'
 
 // import txnDataJson from '../txnData/txnData.json'
 import { creatorAddressArr } from '..'
 import { addAsset } from '../database/operations/asset'
+import { getGameSettings, getSettings } from '../database/operations/game'
 
 const algoNode = process.env.ALGO_NODE as string
 const pureStakeApi = process.env.PURESTAKE_API_TOKEN as string
@@ -26,21 +25,12 @@ const port = ''
 const algodClient = new algosdk.Algodv2(token, server, port)
 const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
 
-const defaultAssetData = {
-  wins: 0,
-  losses: 0,
-  kos: 0,
-  assetId: null,
-  unitName: '',
-  alias: '',
-}
-
 export const determineOwnership = async function (
   address: string,
   channelId: string
 ): Promise<{
   walletOwned: boolean
-  nftsOwned: UserAsset[] | []
+  nftsOwned: Asset[] | []
 }> {
   try {
     // First update transactions
@@ -52,10 +42,10 @@ export const determineOwnership = async function (
       .limit(10000)
       .do()
 
-    const { maxAssets } = settings[channelId]
+    const { maxAssets } = await getGameSettings(channelId)
 
     let walletOwned = false
-    const nftsOwned: UserAsset[] = []
+    const nftsOwned: Asset[] = []
 
     // Create array of unique assetIds
     const uniqueAssets: AlgoAsset[] = []
@@ -93,22 +83,10 @@ export const determineOwnership = async function (
       const assetId = asset['asset-id']
       const assetData = await findAsset(assetId)
       if (assetData) {
-        const {
-          name: assetName,
-          url,
-          ['unit-name']: unitName,
-        } = assetData.params
+        const { name, url, ['unit-name']: unitName } = assetData.params
 
-        const userAsset: UserAsset = {
-          ...defaultAssetData,
-          url,
-          assetId,
-          assetName,
-          unitName,
-        }
-        nftsOwned.push(userAsset)
+        nftsOwned.push(new Asset(url, assetId, name, unitName))
         // Add asset to db
-        await addAsset(new Asset(assetId, assetName, url, unitName))
       }
       await wait(250)
     })
@@ -118,7 +96,7 @@ export const determineOwnership = async function (
       nftsOwned,
     }
   } catch (error) {
-    console.log(error)
+    console.log('****** ERROR DETERMINING OWNERSHIP ******', error)
     return {
       walletOwned: false,
       nftsOwned: [],
