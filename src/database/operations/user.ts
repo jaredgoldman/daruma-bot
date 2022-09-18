@@ -24,7 +24,7 @@ export const updateUser = async (
   }
   const idObject = _id ? { _id } : { discordId }
   return await collections.users.findOneAndReplace(idObject, {
-    userData,
+    ...userData,
   })
 }
 
