@@ -9,9 +9,12 @@ import { WithId } from 'mongodb'
 import User from '../models/user'
 import Player from '../models/player'
 // Helpers
-import { checkIfRegisteredPlayer, downloadFile } from '../utils/helpers'
+import { checkIfRegisteredPlayer, downloadAssetImage } from '../utils/helpers'
 // Globals
 import { games } from '..'
+import { GameStatus } from '../models/game'
+
+const assetDir = process.env.ASSET_DIR as string
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -24,7 +27,7 @@ module.exports = {
       const channelId = interaction.channelId
       const game = games[channelId]
 
-      if (!game.getIsWaitingRoom()) return
+      if (game.getStatus() !== GameStatus.waitingRoom) return
 
       const { values, user } = interaction
       const assetId = values[0]
@@ -62,11 +65,12 @@ module.exports = {
 
         let localPath
 
-        try {
-          localPath = await downloadFile(asset, username)
-        } catch (error) {
-          console.log('download error', error)
-        }
+        // Download nft asset to local dir
+        localPath = await downloadAssetImage(
+          asset,
+          username,
+          `${assetDir}${channelId}`
+        )
 
         if (!localPath) {
           return
