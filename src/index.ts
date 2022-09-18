@@ -26,7 +26,7 @@ const creatorAddresses = process.env.CREATOR_ADDRESSES as string
 export const games: { [key: string]: Game } = {}
 export const creatorAddressArr = creatorAddresses?.split(',')
 
-export const client: Client = new Client({
+const client: Client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildEmojisAndStickers,
@@ -43,14 +43,13 @@ client.once('ready', async () => {
     startGame()
     console.log('Daruma Bot - Server ready')
   } catch (error) {
-    console.log('CLIENT ERROR', error)
+    console.log('****** CLIENT ERROR ******', error)
   }
 })
 
 const startGame = async () => {
   try {
     const settings = await getSettings()
-
     // start game for each channel
     asyncForEach(settings, async (settings: ChannelSettings) => {
       const { channelId, maxCapacity, gameType } = settings
@@ -58,10 +57,10 @@ const startGame = async () => {
       const newGame = new Game(maxCapacity, channelId, gameType, settings)
       if (gameType !== GameTypes.OneVsOne) newGame.addNpc()
       games[settings.channelId] = newGame
-      startWaitingRoom(channel)
+      await startWaitingRoom(channel)
     })
   } catch (error) {
-    console.log('****** ERROR STARTING GAMES ******')
+    console.log('****** ERROR STARTING GAMES ******', error)
   }
 }
 
@@ -105,21 +104,19 @@ const setupCommands = () => {
  */
 
 client.on('interactionCreate', async (interaction: Interaction) => {
-  console.log('ADFASDFASF')
-
-  // try {
-  //   let command
-  //   if (interaction.type === InteractionType.ApplicationCommand) {
-  //     command = client.commands.get(interaction.commandName)
-  //   }
-  //   if (interaction.isSelectMenu() || interaction.isButton()) {
-  //     command = client.commands.get(interaction.customId)
-  //   }
-  //   if (!command) return
-  //   await command.execute(interaction)
-  // } catch (error) {
-  //   console.log('****** INTERACTION ERROR ******', error)
-  // }
+  try {
+    let command
+    if (interaction.type === InteractionType.ApplicationCommand) {
+      command = client.commands.get(interaction.commandName)
+    }
+    if (interaction.isSelectMenu() || interaction.isButton()) {
+      command = client.commands.get(interaction.customId)
+    }
+    if (!command) return
+    await command.execute(interaction)
+  } catch (error) {
+    console.log('****** INTERACTION ERROR ******', error)
+  }
 })
 
 client.login(token)
