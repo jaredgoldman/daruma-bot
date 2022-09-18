@@ -1,8 +1,6 @@
 // Discord
 import {
   ColorResolvable,
-  MessagePayload,
-  InteractionReplyOptions,
   MessageOptions,
   EmbedBuilder,
   ButtonBuilder,
@@ -27,15 +25,11 @@ const defaultEmbedValues: EmbedData = {
   rawEmbed: false,
 }
 
-export default function doEmbed(
-  type: Embeds,
-  game: Game,
-  options?: any
-): MessageOptions {
+export default function doEmbed(type: Embeds, game: Game): MessageOptions {
   let data: EmbedData = {}
   let components: any = []
 
-  const playerArr = Object.values(game.players)
+  const playerArr = game.getPlayerArray()
   const playerCount = playerArr.length
 
   if (type === Embeds.waitingRoom) {
@@ -49,7 +43,7 @@ export default function doEmbed(
       fields: playerArr.map((player) => {
         return {
           name: player.username,
-          value: player.asset.alias || player.asset.assetName,
+          value: player.asset.alias || player.asset.name,
         }
       }),
     }
@@ -57,11 +51,11 @@ export default function doEmbed(
     components.push(
       new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-          .setCustomId('select-attacker')
+          .setCustomId('select-player')
           .setLabel('Choose your Daruma')
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
-          .setCustomId('begin-game')
+          .setCustomId('start-game')
           .setLabel('Start game')
           .setStyle(ButtonStyle.Secondary),
         new ButtonBuilder()
@@ -72,17 +66,7 @@ export default function doEmbed(
     )
   }
 
-  let {
-    title,
-    description,
-    color,
-    image,
-    thumbNail,
-    fields,
-    footer,
-    files,
-    rawEmbed,
-  } = {
+  let { title, description, color, image, thumbNail, fields, footer, files } = {
     ...defaultEmbedValues,
     ...data,
   }
@@ -103,12 +87,9 @@ export default function doEmbed(
   fields?.length && embed.addFields(fields)
   footer && embed.setFooter(footer)
 
-  if (rawEmbed) {
-    return embed
-  }
-
   return {
     embeds: [embed],
+    //@ts-ignore
     fetchReply: true,
     //@ts-ignore
     components,

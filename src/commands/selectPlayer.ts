@@ -2,24 +2,27 @@
 import {
   ActionRowBuilder,
   ButtonInteraction,
-  MessageActionRowComponent,
   SelectMenuBuilder,
 } from 'discord.js'
 import { SlashCommandBuilder } from '@discordjs/builders'
 // Data
 import { collections } from '../database/database.service'
-// Schemas
 import User from '../models/user'
+// Schemas
 import { WithId } from 'mongodb'
-import { UserAsset } from '../models/user'
 // Globals
 import { games } from '..'
-import settings from '../settings'
+import Asset from '../models/asset'
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('select-attacker')
+    .setName('select-player')
     .setDescription(`Pick which Daruma you'd like to compete`),
+  /**
+   * Sends a select menu to user to pick asset for registration
+   * @param interaction {ButtonInteraction}
+   * @returns {void}
+   */
   async execute(interaction: ButtonInteraction) {
     try {
       const {
@@ -28,46 +31,37 @@ module.exports = {
       } = interaction
 
       const game = games[channelId]
-
-      const { maxAssets } = settings[channelId]
-
-      if (!game.waitingRoom) {
-        return interaction.reply({
-          content:
-            'Game is not currently active. Use the /start command to start the game',
-          ephemeral: true,
-        })
-      }
+      const { maxAssets } = game.getSettings()
 
       await interaction.deferReply({ ephemeral: true })
 
-      const data = (await collections.users.findOne({
+      const user = (await collections.users.findOne({
         discordId: id,
       })) as WithId<User>
 
-      if (data === null) {
+      if (user === null) {
         return interaction.editReply({
           content: 'You are not registered. Use the /register command',
         })
       }
 
-      const assetData = data?.assets ? Object.values(data.assets) : []
+      const userAssetsArr = Object.values(user.assets)
 
-      if (!assetData.length) {
+      if (!userAssetsArr.length) {
         return interaction.editReply({
           content: 'You have no Darumas to select!',
         })
       }
 
-      const options = Object.values(data.assets)
-        .map((asset: UserAsset, i: number) => {
+      const options = userAssetsArr
+        .map((asset: Asset, i: number) => {
           if (i < maxAssets) {
-            const label = asset.alias || asset.assetName
+            const label = asset.alias || asset.name
             const normalizedLabel = label.slice(0, 20)
             return {
               label: normalizedLabel,
               description: 'Select to play',
-              value: asset?.assetId?.toString(),
+              value: asset.id.toString(),
             }
           }
         })
@@ -93,9 +87,7 @@ module.exports = {
         components: [row],
       })
     } catch (error) {
-      console.log('ERROR SELECTING')
-      console.log(error)
-      //@ts-ignore
+      console.log('****** ERROR SELECTING ******', error)
     }
   },
 }

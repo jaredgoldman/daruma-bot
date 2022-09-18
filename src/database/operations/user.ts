@@ -1,19 +1,19 @@
 import { ObjectId, WithId } from 'mongodb'
 import { collections } from '../database.service'
-import { UserData } from '../../models/user'
+import User from '../../models/user'
 
 export const findUserById = async (_id: ObjectId) =>
   (await collections.users?.findOne({
     _id,
-  })) as WithId<UserData>
+  })) as WithId<User>
 
 export const findUserByDiscordId = async (discordId: string) =>
   (await collections.users?.findOne({
     discordId,
-  })) as WithId<UserData>
+  })) as WithId<User>
 
 export const updateUser = async (
-  updateData: UserData,
+  userData: User,
   _id?: ObjectId | string,
   discordId?: string
 ) => {
@@ -23,7 +23,10 @@ export const updateUser = async (
     )
   }
   const idObject = _id ? { _id } : { discordId }
-  return await collections.users.findOneAndUpdate(idObject, {
-    $set: { ...updateData },
+  return await collections.users.findOneAndReplace(idObject, {
+    ...userData,
   })
 }
+
+export const saveUser = (userData: User) =>
+  collections.users.insertOne(userData)

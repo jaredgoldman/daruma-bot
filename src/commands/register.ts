@@ -7,10 +7,12 @@ import { determineOwnership } from '../utils/algorand'
 import { addRole } from '../utils/helpers'
 // Schemas
 import User from '../models/user'
+import Asset from '../models/asset'
 import { Interaction } from 'discord.js'
 import {
   findUserByDiscordId,
   findUserById,
+  saveUser,
   updateUser,
 } from '../database/operations/user'
 // Globals
@@ -29,6 +31,9 @@ module.exports = {
         .setDescription('enter the your wallet address')
         .setRequired(true)
     ),
+  /**
+   * Register player
+   */
   enabled: true,
   async execute(interaction: Interaction) {
     if (!interaction.isChatInputCommand()) return
@@ -51,6 +56,7 @@ module.exports = {
         'Thanks for registering! This might take a while! Please check back in a few minutes',
       ephemeral: true,
     })
+
     if (address) {
       const { status, registeredUser, asset } = await processRegistration(
         username,
@@ -58,6 +64,7 @@ module.exports = {
         address,
         channelId
       )
+
       // add permissions if succesful
       if (registeredUser && asset) {
         addRole(interaction, registeredRoleId, registeredUser)
@@ -79,7 +86,7 @@ export const processRegistration = async (
 ): Promise<RegistrationResult> => {
   try {
     // Attempt to find user in db
-    let user = await findUserByDiscordId(discordId)
+    let user: User | null = await findUserByDiscordId(discordId)
 
     // Check to see if wallet has opt-in asset
     // Retreive assetIds from specific collections
@@ -87,8 +94,12 @@ export const processRegistration = async (
       address,
       channelId
     )
+    // console.log(nftsOwned)
 
-    const assetsOwnedIds: number[] = nftsOwned.map((nft) => nft.assetId)
+    const keyedNfts: { [key: string]: Asset } = {}
+    nftsOwned.forEach((nft: Asset) => {
+      keyedNfts[nft.id] = nft
+    })
 
     if (!nftsOwned?.length) {
       return {
@@ -104,8 +115,9 @@ export const processRegistration = async (
 
     // If user doesn't exist, add to db and grab instance
     if (!user) {
-      const newUser = new User(username, discordId, address, assetsOwnedIds)
-      const { acknowledged, insertedId } = await newUser.saveUser()
+      const newUser = new User(username, discordId, address, keyedNfts)
+      const { acknowledged, insertedId } = await saveUser(newUser)
+
       if (acknowledged) {
         user = await findUserById(insertedId)
       } else {
@@ -114,7 +126,8 @@ export const processRegistration = async (
         }
       }
     } else {
-      await updateUser({ assets: assetsOwnedIds, address: address }, user._id)
+      const updatedUser = new User(username, discordId, address, keyedNfts)
+      await updateUser(updatedUser, user._id, discordId)
     }
 
     return {

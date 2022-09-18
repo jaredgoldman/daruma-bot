@@ -1,29 +1,19 @@
 export default class Asset {
+  public alias: string | undefined
+  public localPath: string | undefined
+  public wins: number
+  public losses: number
+  public kos: number
   constructor(
-    public assetId: number,
-    public assetName: string,
-    public assetUrl: string,
+    public url: string,
+    public id: number,
+    public name: string,
     public unitName: string
   ) {
     this.alias = undefined
     this.localPath = undefined
-  }
-
-  private alias: string | undefined
-  setAlias(alias: string) {
-    this.alias = alias
-  }
-
-  getAlias() {
-    return this.alias
-  }
-
-  private localPath: string | undefined
-  setLocalPath(localPath: string) {
-    this.localPath = localPath
-  }
-
-  getLocalPath() {
-    return this.localPath
+    this.wins = 0
+    this.losses = 0
+    this.kos = 0
   }
 }

@@ -1,4 +1,4 @@
-import User, { UserData } from '../models/user'
+import User from '../models/user'
 
 export interface Asset {
   assetUrl?: string
@@ -46,7 +46,7 @@ export interface AlgoAssetResponse {
 export interface RegistrationResult {
   status: string
   asset?: Asset
-  registeredUser?: UserData
+  registeredUser?: User
 }
 
 export interface TxnData {

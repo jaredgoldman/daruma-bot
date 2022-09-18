@@ -1,23 +1,23 @@
 import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
-import { UserData } from '../models/user'
+import User from '../models/user'
 import { Interaction } from 'discord.js'
 import Game from '../models/game'
 import Asset from '../models/asset'
 
 const ipfsGateway = process.env.IPFS_GATEWAY || 'https://dweb.link/ipfs/'
 
-export const downloadFile = async (
+export const downloadAssetImage = async (
   asset: Asset,
-  directory: string,
-  username: string
+  username: string,
+  directory: string
 ): Promise<string | void> => {
   try {
-    const { assetUrl: url } = asset
+    const url = asset.url
     if (url) {
       const normalizedUrl = normalizeIpfsUrl(url) as string
-      const path = `${directory}/${username
+      const path = `${directory}${username
         .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
         .trim()}.jpg`
       const writer = fs.createWriteStream(path)
@@ -57,7 +57,7 @@ export const emptyDir = (dirPath: string): void => {
 export const addRole = async (
   interaction: Interaction,
   roleId: string,
-  user: UserData
+  user: User
 ): Promise<void> => {
   try {
     const role = interaction.guild?.roles.cache.find(
@@ -87,10 +87,10 @@ export const removeRole = async (
 export const confirmRole = async (
   roleId: string,
   interaction: Interaction,
-  userId: string
+  discordId: string
 ): Promise<boolean | undefined> => {
   const member = interaction.guild?.members.cache.find(
-    (member) => member.id === userId
+    (member) => member.id === discordId
   )
   return member?.roles.cache.has(roleId)
 }
@@ -135,7 +135,7 @@ export const checkIfRegisteredPlayer = (
   const gameArray = Object.values(games)
   gameArray.forEach((game: Game) => {
     const player = game.getPlayer(discordId)
-    if (player.assetId === Number(assetId)) gameCount++
+    if (player?.asset.id === Number(assetId)) gameCount++
   })
   return gameCount >= 1
 }

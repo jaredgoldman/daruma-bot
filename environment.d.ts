@@ -23,7 +23,6 @@ declare global {
       TOKEN_CLAWBACK_ADDRESS: string
       TOKEN_MNEMONIC: string
       CREATOR_ADDRESSES: string
-      CHANNEL_IDS: string
     }
   }
 }

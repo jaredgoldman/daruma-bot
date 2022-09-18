@@ -9,58 +9,49 @@ import { WithId } from 'mongodb'
 import User from '../models/user'
 import Player from '../models/player'
 // Helpers
-import {
-  checkIfRegisteredPlayer,
-  downloadFile,
-  updateGame,
-} from '../utils/helpers'
+import { checkIfRegisteredPlayer, downloadAssetImage } from '../utils/helpers'
 // Globals
 import { games } from '..'
-import settings from '../settings'
+import { GameStatus } from '../models/game'
+
+const assetDir = process.env.ASSET_DIR as string
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('register-player')
     .setDescription('Register an active player'),
+  enabled: true,
   async execute(interaction: SelectMenuInteraction) {
     try {
       if (!interaction.isSelectMenu()) return
-
       const channelId = interaction.channelId
       const game = games[channelId]
-      const channelSettings = settings[channelId]
-      if (!game.waitingRoom) return
+
+      if (game.getStatus() !== GameStatus.waitingRoom) return
 
       const { values, user } = interaction
       const assetId = values[0]
-      const { username, id } = user
-      const { imageDir, playerHp, maxCapacity } = channelSettings
+      const { username, id: discordId } = user
+      const { maxCapacity } = game.getSettings()
 
       // Check if user is another game
-      if (checkIfRegisteredPlayer(games, assetId, id)) {
+      if (checkIfRegisteredPlayer(games, assetId, discordId)) {
         return interaction.reply({
-          ephemeral: true,∑∑˚∑∑˚
+          ephemeral: true,
           content: `You can't register with the same asset in two games at a time`,
         })
       }
       // Check for game capacity, allow already registered user to re-register
       // even if capacity is full
-      if (
-        Object.values(game.players).length < maxCapacity ||
-        game.players[id]
-      ) {
+      if (game.getPlayerCount() < maxCapacity || game.getPlayer(discordId)) {
         await interaction.deferReply({ ephemeral: true })
 
-        const { assets, address, _id, coolDowns } =
+        const { address, _id, coolDowns, assets } =
           (await collections.users.findOne({
             discordId: user.id,
           })) as WithId<User>
 
         const asset = assets[assetId]
-
-        if (!asset) {
-          return
-        }
 
         const coolDown = coolDowns ? coolDowns[assetId] : null
 
@@ -68,54 +59,39 @@ module.exports = {
           const minutesLeft = Math.floor((coolDown - Date.now()) / 60000)
           const minuteWord = minutesLeft === 1 ? 'minute' : 'minutes'
           return interaction.editReply({
-            content: `Please wait ${minutesLeft} ${minuteWord} before playing ${asset.assetName} again`,
+            content: `Please wait ${minutesLeft} ${minuteWord} before playing ${asset.name} again`,
           })
         }
 
         let localPath
 
-        try {
-          localPath = await downloadFile(asset, imageDir, username)
-        } catch (error) {
-          console.log('download error', error)
-        }
+        // Download nft asset to local dir
+        localPath = await downloadAssetImage(
+          asset,
+          username,
+          `${assetDir}${channelId}`
+        )
 
         if (!localPath) {
           return
         }
 
-        const gameAsset = new Asset(
-          asset.assetId,
-          asset.assetName,
-          asset.url,
-          asset.unitName,
-          localPath,
-          asset.alias
-        )
-
         // check again for capacity once added
         if (
-          Object.values(game.players).length >= maxCapacity &&
-          !game.players[id]
+          game.getPlayerCount() >= maxCapacity &&
+          !game.getPlayer(discordId)
         ) {
           return interaction.editReply(
             'Sorry, the game is at capacity, please wait until the next round'
           )
         }
 
-        game.players[id] = new Player(
-          username,
-          id,
-          address,
-          gameAsset,
-          _id,
-          [],
-          0
-        )
+        const newPlayer = new Player(username, discordId, address, asset, _id)
+        game.addPlayer(newPlayer)
         await interaction.editReply(
-          `${asset.alias || asset.assetName} has entered the game`
+          `${asset.alias || asset.name} has entered the game`
         )
-        updateGame(game)
+        game.updateGame()
       } else {
         interaction.reply({
           content:

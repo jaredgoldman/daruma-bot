@@ -1,50 +1,27 @@
-import { InsertOneResult, ObjectId } from 'mongodb'
-import { collections } from '../database/database.service'
+import { ObjectId } from 'mongodb'
+import Asset from './asset'
 
 export default class User {
-  private enhancers: { [key: string]: Enhancer }
-  private totalBattles: number
-  private karma: number
-  private coolDowns: { [key: string]: number } // timestamp
+  public enhancers: { [key: string]: Enhancer }
+  public totalBattles: number
+  public karma: number
+  public coolDowns: { [key: string]: number } // timestamp
+  _id?: ObjectId
+  created: number
 
   constructor(
-    private username: string,
-    private discordId: string,
-    private address: string,
-    private assets: number[]
+    public username: string,
+    public discordId: string,
+    public address: string,
+    public assets: { [key: string]: Asset }
   ) {
     this.karma = 0
     this.enhancers = {}
     this.coolDowns = {}
     this.totalBattles = 0
     this.karma = 0
+    this.created = Date.now()
   }
-
-  async saveUser(): Promise<InsertOneResult<UserData>> {
-    const userEntry: UserData = {
-      username: this.username,
-      discordId: this.discordId,
-      address: this.address,
-      assets: this.assets,
-      karma: this.karma,
-      enhancers: this.enhancers,
-      totalBattles: this.totalBattles,
-      coolDowns: this.coolDowns,
-    }
-    return await collections.users.insertOne(userEntry)
-  }
-}
-
-export interface UserData {
-  discordId?: string
-  username?: string
-  address?: string
-  assets?: number[]
-  karma?: number
-  enhancers?: { [key: string]: Enhancer }
-  totalBattles?: number
-  coolDowns?: { [key: string]: number } // timestamp
-  _id?: ObjectId
 }
 
 export interface Enhancer {

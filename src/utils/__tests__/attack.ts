@@ -1,33 +1,9 @@
-import { diceRolls, damageCalc } from '../gameLogic'
-import { createPlayers } from '../../mocks/game'
-import Game from '../../models/game'
-
-
-
-// describe('game test suite', () => {
-//   const players = createPlayers(2)
-//   const game = new Game(players, 2, '1005510628217192579')
-
-//   it('Should produce a Winner without a tie', async () => {
-//     runGame(game, true)
-//     expect(game.maxRoundNumber).toBeGreaterThan(0)
-//     expect(game.active).toBe(false)
-//   })
-//   it('Should produce a Winner with a tie', async () => {
-//     // TODO: this logic
-//     game.players[0]._rolls = [6, 6, 6, 6, 6, 6, 6]
-//     game.players[1]._rolls = [6, 6, 6, 6, 6, 6, 6]
-//     runGame(game, true)
-//     expect(game.zen).toBeTruthy()
-//     expect(game.active).toBe(false)
-
-//   })
-
-// })
+import { diceRolls, damageCalc } from '../attack'
 
 describe('Test Dice Rolls', () => {
-  const rolls = diceRolls()
+  const rolls = diceRolls(100)
   const belowSix = (diceSide: number) => diceSide <= 6
+  console.log(rolls)
 
   it('Produces correct 6-sided dice numbers', () => {
     expect(rolls.every(belowSix)).toBeTruthy()
@@ -52,6 +28,7 @@ describe('Test Damage Win Index', () => {
     expect(rollsWin.length).toBe(7)
   })
 })
+
 describe('Test Damage Reset Win Index', () => {
   const rollsWinReset = damageCalc([6, 6, 6, 6, 6, 6, 4, 3, 6, 6])
 
