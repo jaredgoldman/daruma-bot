@@ -7,6 +7,7 @@ export default class User {
   public karma: number
   public coolDowns: { [key: string]: number } // timestamp
   _id?: ObjectId
+  created: number
 
   constructor(
     public username: string,
@@ -19,6 +20,7 @@ export default class User {
     this.coolDowns = {}
     this.totalBattles = 0
     this.karma = 0
+    this.created = Date.now()
   }
 }
 

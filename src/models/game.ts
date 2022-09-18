@@ -7,6 +7,21 @@ import { ChannelSettings } from '../types/game'
 import { MessageOptions } from 'discord.js'
 
 export default class Game {
+  constructor(
+    private capacity: number,
+    private channelId: string,
+    private type: GameTypes,
+    private settings: ChannelSettings // private m
+  ) {
+    this.status = GameStatus.waitingRoom
+    this.win = false
+    this.rounds = 0
+    this.stopped = false
+    this.embed = undefined
+    this.doUpdate = false
+    this.players = {}
+    this.npc = undefined
+  }
   /*
    * PLAYER OPERATIONS
    */
@@ -16,7 +31,11 @@ export default class Game {
   }
 
   getPlayer(discordId: discordId) {
-    return this.players[discordId]
+    return this.players[discordId] || undefined
+  }
+
+  getPlayers() {
+    return this.players
   }
 
   addPlayer(player: Player) {
@@ -24,7 +43,7 @@ export default class Game {
   }
 
   getPlayerCount() {
-    return this.getPlayerArray.length
+    return this.getPlayerArray().length
   }
 
   /*
@@ -44,13 +63,13 @@ export default class Game {
   /*
    * Active
    */
-  private active: boolean
-  setActive(active: boolean) {
-    this.active = active
+  private status: GameStatus
+  setStatus(statusType: GameStatus) {
+    this.status = statusType
   }
 
-  getActive() {
-    return this.active
+  getStatus() {
+    return this.status
   }
 
   /*
@@ -99,18 +118,6 @@ export default class Game {
   }
 
   /*
-   * Waiting Room
-   */
-  private isWaitingRoom: boolean
-  setIsWaitingRoom(isWaitingRoom: boolean) {
-    this.isWaitingRoom = isWaitingRoom
-  }
-
-  getIsWaitingRoom() {
-    return this.isWaitingRoom
-  }
-
-  /*
    * Update
    */
   private doUpdate: boolean
@@ -118,7 +125,7 @@ export default class Game {
     this.doUpdate = doUpdate
   }
 
-  getDoUpdate() {
+  isUpdating() {
     return this.doUpdate
   }
 
@@ -167,24 +174,6 @@ export default class Game {
     return this.settings
   }
 
-  constructor(
-    private capacity: number,
-    private channelId: string,
-    private type: GameTypes,
-    private settings: ChannelSettings
-  ) // private m
-  {
-    this.active = true
-    this.win = false
-    this.rounds = 0
-    this.stopped = false
-    this.embed = undefined
-    this.isWaitingRoom = true
-    this.doUpdate = false
-    this.players = {}
-    this.npc = undefined
-  }
-
   /*
    * OPERATIONS
    */
@@ -205,12 +194,11 @@ export default class Game {
   }
 
   resetGame() {
-    this.active = true
+    this.status = GameStatus.waitingRoom
     this.win = false
     this.rounds = 0
     this.stopped = false
     this.embed = undefined
-    this.isWaitingRoom = true
     this.doUpdate = false
     this.players = {}
     this.npc = undefined
@@ -227,6 +215,11 @@ const defaultSettings = {
   rollInterval: 1000,
   channelId: '1005510693707067402',
   gameType: GameTypes.FourVsNpc,
+}
+
+export enum GameStatus {
+  waitingRoom = 'waitingRoom',
+  activeGame = 'activeGame',
 }
 
 type discordId = string
