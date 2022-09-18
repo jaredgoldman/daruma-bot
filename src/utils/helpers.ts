@@ -8,15 +8,16 @@ import Asset from '../models/asset'
 
 const ipfsGateway = process.env.IPFS_GATEWAY || 'https://dweb.link/ipfs/'
 
-export const downloadFile = async (
+export const downloadAssetImage = async (
   asset: Asset,
-  username: string
+  username: string,
+  directory: string
 ): Promise<string | void> => {
   try {
     const url = asset.url
     if (url) {
       const normalizedUrl = normalizeIpfsUrl(url) as string
-      const path = `dist/nftAssets/${username
+      const path = `${directory}${username
         .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
         .trim()}.jpg`
       const writer = fs.createWriteStream(path)
@@ -86,10 +87,10 @@ export const removeRole = async (
 export const confirmRole = async (
   roleId: string,
   interaction: Interaction,
-  userId: string
+  discordId: string
 ): Promise<boolean | undefined> => {
   const member = interaction.guild?.members.cache.find(
-    (member) => member.id === userId
+    (member) => member.id === discordId
   )
   return member?.roles.cache.has(roleId)
 }
@@ -134,7 +135,7 @@ export const checkIfRegisteredPlayer = (
   const gameArray = Object.values(games)
   gameArray.forEach((game: Game) => {
     const player = game.getPlayer(discordId)
-    if (player.asset.id === Number(assetId)) gameCount++
+    if (player?.asset.id === Number(assetId)) gameCount++
   })
   return gameCount >= 1
 }

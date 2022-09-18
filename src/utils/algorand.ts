@@ -6,8 +6,8 @@ import Asset from '../models/asset'
 
 // import txnDataJson from '../txnData/txnData.json'
 import { creatorAddressArr } from '..'
-import { addAsset } from '../database/operations/asset'
-import { getGameSettings, getSettings } from '../database/operations/game'
+
+import { getChannelSettings } from '../database/operations/game'
 
 const algoNode = process.env.ALGO_NODE as string
 const pureStakeApi = process.env.PURESTAKE_API_TOKEN as string
@@ -42,13 +42,14 @@ export const determineOwnership = async function (
       .limit(10000)
       .do()
 
-    const { maxAssets } = await getGameSettings(channelId)
+    const settings = await getChannelSettings(channelId)
 
     let walletOwned = false
     const nftsOwned: Asset[] = []
 
     // Create array of unique assetIds
     const uniqueAssets: AlgoAsset[] = []
+
     assets.forEach((asset: AlgoAsset) => {
       // Check if opt-in asset
       if (asset['asset-id'] === Number(optInAssetId)) {
@@ -63,6 +64,8 @@ export const determineOwnership = async function (
       }
     })
 
+    // console.log(uniqueAssets)
+
     const data = getTxnData() as TxnData
     const assetIdArr = getAssetIdArrayFromTxnData(data)
     // Determine which assets are part of bot collection
@@ -70,7 +73,7 @@ export const determineOwnership = async function (
     const assetsOwned = uniqueAssets.filter((asset) => {
       const assetId = asset['asset-id']
       if (
-        collectionAssetLength < maxAssets &&
+        collectionAssetLength < settings.maxAssets &&
         isAssetCollectionAsset(assetId, assetIdArr)
       ) {
         collectionAssetLength++
