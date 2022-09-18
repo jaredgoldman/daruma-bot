@@ -55,7 +55,7 @@ export default function doEmbed(type: Embeds, game: Game): MessageOptions {
           .setLabel('Choose your Daruma')
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
-          .setCustomId('begin-game')
+          .setCustomId('start-game')
           .setLabel('Start game')
           .setStyle(ButtonStyle.Secondary),
         new ButtonBuilder()
