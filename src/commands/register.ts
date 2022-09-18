@@ -31,6 +31,9 @@ module.exports = {
         .setDescription('enter the your wallet address')
         .setRequired(true)
     ),
+  /**
+   * Register player
+   */
   enabled: true,
   async execute(interaction: Interaction) {
     if (!interaction.isChatInputCommand()) return
@@ -53,6 +56,7 @@ module.exports = {
         'Thanks for registering! This might take a while! Please check back in a few minutes',
       ephemeral: true,
     })
+
     if (address) {
       const { status, registeredUser, asset } = await processRegistration(
         username,
@@ -60,6 +64,7 @@ module.exports = {
         address,
         channelId
       )
+
       // add permissions if succesful
       if (registeredUser && asset) {
         addRole(interaction, registeredRoleId, registeredUser)
@@ -89,6 +94,7 @@ export const processRegistration = async (
       address,
       channelId
     )
+    // console.log(nftsOwned)
 
     const keyedNfts: { [key: string]: Asset } = {}
     nftsOwned.forEach((nft: Asset) => {
@@ -111,6 +117,7 @@ export const processRegistration = async (
     if (!user) {
       const newUser = new User(username, discordId, address, keyedNfts)
       const { acknowledged, insertedId } = await saveUser(newUser)
+
       if (acknowledged) {
         user = await findUserById(insertedId)
       } else {
@@ -119,7 +126,8 @@ export const processRegistration = async (
         }
       }
     } else {
-      await updateUser(user, user._id, discordId)
+      const updatedUser = new User(username, discordId, address, keyedNfts)
+      await updateUser(updatedUser, user._id, discordId)
     }
 
     return {
