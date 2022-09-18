@@ -1,14 +1,17 @@
-import Game from '../models/game'
-
-import Player from '../models/player'
+import { randomNumber } from '../utils/helpers'
 
 /**
- *
+ * Creates an array of random numbers between one and six with a length of 100
  * @returns array of numbers
  */
 export const diceRolls = (arrayLength: number): Array<number> =>
-  Array(arrayLength).map((_) => ~~(Math.random() * 6) + 1)
+  Array.from({ length: arrayLength }, () => randomNumber(1, 6))
 
+/**
+ * Takes an array of rolls between 1 and 6 and maps damage to said numbers
+ * @param diceRolls number
+ * @returns
+ */
 export const damageCalc = (diceRolls: Array<number>): Array<number> => {
   const diceValues: { [key: number]: number } = {
     1: 1,
@@ -40,30 +43,11 @@ export const damageCalc = (diceRolls: Array<number>): Array<number> => {
   return damage
 }
 
-// function findZen(players: Array<Player>) {
-//   const uniqueElements = new Set(players)
-//   const filteredElements = players.filter((item) => {
-//     if (uniqueElements.has(item)) {
-//       uniqueElements.delete(item)
-//     } else {
-//       return item
-//     }
-//   })
-
-//   return [...new Set(uniqueElements)]
-// }
-
-export default async function runGame(game: Game, test: boolean) {
-  try {
-    const rolls = diceRolls(100)
-    const results = damageCalc(rolls)
-    console.log(results)
-    // const playerArr = game.getPlayerArray()
-    // // game.maxRolls = Math.max(...playerArr.map(o => o.rolls.length))
-    // game.maxRoundNumber = Math.floor(Math.max(game.maxRolls / 3))
-    // game.zen = true
-    // console.table(findZen(playerArr))
-  } catch (error) {
-    console.log('***** RUNGAME ERROR ******')
-  }
+/**
+ * Creates an array of rolls that add up to 21
+ * @returns ArrayMnumbeR>
+ */
+export default function completeGameForPlayer(): Array<number> {
+  const rolls = diceRolls(100)
+  return damageCalc(rolls)
 }
