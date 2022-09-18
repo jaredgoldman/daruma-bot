@@ -18,7 +18,11 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('select-player')
     .setDescription(`Pick which Daruma you'd like to compete`),
-  enabled: true,
+  /**
+   * Sends a select menu to user to pick asset for registration
+   * @param interaction {ButtonInteraction}
+   * @returns {void}
+   */
   async execute(interaction: ButtonInteraction) {
     try {
       const {
@@ -28,14 +32,6 @@ module.exports = {
 
       const game = games[channelId]
       const { maxAssets } = game.getSettings()
-
-      if (!game.getIsWaitingRoom()) {
-        return interaction.reply({
-          content:
-            'Game is not currently active. Use the /start command to start the game',
-          ephemeral: true,
-        })
-      }
 
       await interaction.deferReply({ ephemeral: true })
 
@@ -49,13 +45,15 @@ module.exports = {
         })
       }
 
-      if (!user.assets.length) {
+      const userAssetsArr = Object.values(user.assets)
+
+      if (!userAssetsArr.length) {
         return interaction.editReply({
           content: 'You have no Darumas to select!',
         })
       }
 
-      const options = Object.values(user.assets)
+      const options = userAssetsArr
         .map((asset: Asset, i: number) => {
           if (i < maxAssets) {
             const label = asset.alias || asset.name
@@ -89,8 +87,7 @@ module.exports = {
         components: [row],
       })
     } catch (error) {
-      console.log('****** ERROR SELECTING ******')
-      console.log(error)
+      console.log('****** ERROR SELECTING ******', error)
     }
   },
 }
