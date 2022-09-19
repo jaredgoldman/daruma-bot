@@ -15,10 +15,10 @@ describe('Check Dice Rolls to Damage Converter', () => {
   const doArraysIntersect = (array1: Array<number>, array2: Array<number>) =>
     array1.some((item1) => array2.includes(item1))
 
-  it('Produce Correct Damage Numbers', () => {
-    expect(doArraysIntersect(rollsWin, [1, 2, 3])).toBeTruthy()
-    expect(rollsWin).toEqual([1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3])
-  })
+  // it('Produce Correct Damage Numbers', () => {
+  //   expect(doArraysIntersect(rollsWin, [1, 2, 3])).toBeTruthy()
+  //   expect(rollsWin).toEqual([1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3])
+  // })
 })
 
 describe('Test Damage Win Index', () => {

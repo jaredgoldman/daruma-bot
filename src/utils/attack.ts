@@ -1,3 +1,6 @@
+import Game from '../models/game'
+import Player from '../models/player'
+import { RollData } from '../types/attack'
 import { randomNumber } from '../utils/helpers'
 
 /**
@@ -12,7 +15,7 @@ export const diceRolls = (arrayLength: number): Array<number> =>
  * @param diceRolls number
  * @returns
  */
-export const damageCalc = (diceRolls: Array<number>): Array<number> => {
+export const damageCalc = (diceRolls: Array<number>): Array<RollData> => {
   const diceValues: { [key: number]: number } = {
     1: 1,
     2: 1,
@@ -22,10 +25,13 @@ export const damageCalc = (diceRolls: Array<number>): Array<number> => {
     6: 3,
   }
   let totalScore = 0
-  let damage = diceRolls.map((diceRandValue) => diceValues[diceRandValue])
+  let damage = diceRolls.map((diceRandValue) => ({
+    damage: diceValues[diceRandValue],
+    roll: diceRandValue,
+  }))
   let gameWinIndex = 0
 
-  damage.map((theDmg, index) => {
+  damage.map(({ damage: theDmg }, index) => {
     totalScore += theDmg
     if (totalScore === 21) {
       gameWinIndex = index
@@ -47,7 +53,7 @@ export const damageCalc = (diceRolls: Array<number>): Array<number> => {
  * Creates an array of rolls that add up to 21
  * @returns ArrayMnumbeR>
  */
-export default function completeGameForPlayer(): Array<number> {
+export const completeGameForPlayer = (): Array<RollData> => {
   const rolls = diceRolls(100)
   return damageCalc(rolls)
 }
