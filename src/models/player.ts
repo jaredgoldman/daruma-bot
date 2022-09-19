@@ -1,13 +1,13 @@
 import { ObjectId } from 'mongodb'
 import Asset from './asset'
-import completeGameForPlayer from '../game/roll'
+import { completeGameForPlayer } from '../utils/attack'
+import { RollData } from '../types/attack'
 
 /**
  * Player Class
  * Represents a player registered in an active game
  */
 export default class Player {
-  username: string
   discordId: string
   address: string
   userId: ObjectId
@@ -31,11 +31,22 @@ export default class Player {
   /*
    * Rolls
    */
-  rolls: number[]
+  private rolls: RollData[]
   getRolls() {
     return this.rolls
   }
 
+  getRollsLength() {
+    return this.rolls.length
+  }
+
+  getRollsUntilIndex(index: number): RollData[] {
+    return this.getRolls().slice(0, index + 1)
+  }
+
+  setRolls(rolls: RollData[]) {
+    this.rolls = rolls
+  }
   /*
    * Asset
    */
@@ -48,11 +59,19 @@ export default class Player {
    * isWinner
    */
   isWinner: boolean
-  getIsWInner() {
+  getIsWinner() {
     return this.isWinner
   }
 
   setIsWinner() {
     this.isWinner = true
+  }
+
+  /*
+   * Username
+   */
+  private username
+  getUsername() {
+    return this.username
   }
 }
