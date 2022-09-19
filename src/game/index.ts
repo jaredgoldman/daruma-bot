@@ -2,9 +2,11 @@ import { TextChannel } from 'discord.js'
 import doEmbed from '../embeds'
 import { Embeds } from '../constants/embeds'
 import { games } from '..'
-import { wait } from '../utils/shared'
+import { asyncForEach, wait } from '../utils/shared'
 import { getChannelSettings } from '../database/operations/game'
 import { GameStatus } from '../models/game'
+import Player from '../models/player'
+import { renderBoard } from './board'
 
 /**
  * Start game waiting room
@@ -40,6 +42,39 @@ export default async function startWaitingRoom(channel: TextChannel) {
     }
 
     await wait(2000)
+
+    // Active game lopp
+    let rollIndex = 0
+    let roundNumber = 1
+    while (game.getStatus() === GameStatus.activeGame && !game.getWin()) {
+      // also can think of this as rounds
+
+      const playerArr = game.getPlayerArray()
+      if ((rollIndex + 1) % 3 === 0) roundNumber++
+
+      console.log('rollIndex: ', rollIndex)
+      console.log('roundNumber: ', roundNumber)
+      // for each player
+      await asyncForEach(
+        playerArr,
+        async (player: Player, playerIndex: number) => {
+          // for each roll
+          // call reander board
+          const board = renderBoard(
+            rollIndex,
+            roundNumber,
+            playerIndex,
+            game.getPlayerArray()
+          )
+          if (game.getWin()) {
+            // handle winning logic
+          }
+          await wait(4000)
+        }
+      )
+
+      rollIndex++
+    }
   } catch (error) {
     console.log('****** ERROR STARTING WAITING ROOM ******', error)
   }
