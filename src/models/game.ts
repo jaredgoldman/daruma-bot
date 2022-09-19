@@ -185,7 +185,42 @@ export default class Game {
       new Encounter(this.winnerDiscordId, this.type, Date.now())
     )
   }
+  /**
+   * Finds an array of winningPlayers and the round index that the game was won
+   * @returns { winningPlayers: Player[]; winIndex: number }
+   */
+  findWinIndexAndWinners = (): {
+    winningPlayers: Player[]
+    winIndex: number
+  } => {
+    const winningPlayers: Player[] = []
+    const playerArr = this.getPlayerArray()
 
+    // find who has the shortest array length
+    const winningPlayer = playerArr.reduce(
+      (prevPlayer: Player, currentPlayer: Player): Player => {
+        return prevPlayer.getRollsLength() < currentPlayer.getRollsLength()
+          ? prevPlayer
+          : currentPlayer
+      }
+    )
+    // Assing winner
+    winningPlayer.setIsWinner()
+
+    // Prase remaining players for win
+    this.getPlayerArray().forEach((player: Player) => {
+      if (player.getRollsLength() && !player.getIsWinner()) {
+        winningPlayers.push(player)
+      }
+    })
+
+    const winIndex = winningPlayers[0].getRollsLength()
+    return { winningPlayers, winIndex }
+  }
+
+  /**
+   * Saves an encounter
+   */
   winGame() {
     if (!this.winnerDiscordId) {
       throw new Error('the game must have a winner before you trigger win')
@@ -221,5 +256,7 @@ export enum GameStatus {
   waitingRoom = 'waitingRoom',
   activeGame = 'activeGame',
 }
+
+type PlayersRollData = { [key: discordId]: number[] }
 
 type discordId = string
