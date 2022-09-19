@@ -51,9 +51,6 @@ export default async function startWaitingRoom(channel: TextChannel) {
 
       const playerArr = game.getPlayerArray()
       if ((rollIndex + 1) % 3 === 0) roundNumber++
-
-      console.log('rollIndex: ', rollIndex)
-      console.log('roundNumber: ', roundNumber)
       // for each player
       await asyncForEach(
         playerArr,
@@ -66,6 +63,7 @@ export default async function startWaitingRoom(channel: TextChannel) {
             playerIndex,
             game.getPlayerArray()
           )
+          // console.log(board)
           if (game.getWin()) {
             // handle winning logic
           }
