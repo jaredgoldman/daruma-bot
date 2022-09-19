@@ -94,7 +94,6 @@ export const processRegistration = async (
       address,
       channelId
     )
-    // console.log(nftsOwned)
 
     const keyedNfts: { [key: string]: Asset } = {}
     nftsOwned.forEach((nft: Asset) => {

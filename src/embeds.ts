@@ -42,7 +42,7 @@ export default function doEmbed(type: Embeds, game: Game): MessageOptions {
       files: [],
       fields: playerArr.map((player) => {
         return {
-          name: player.username,
+          name: player.getUsername(),
           value: player.asset.alias || player.asset.name,
         }
       }),
