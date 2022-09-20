@@ -151,11 +151,7 @@ export const createAttackCell = (attackNumber?: number) => {
   if (!attackNumber) {
     return createWhitespace(cellWidth)
   }
-  const attackNumberString = attackNumber.toString()
-  // if (attackNumberString.length < 2) {
-  //   return createCell(cellWidth, Alignment.centered, `0${attackNumberString}`)
-  // }
-  return createCell(cellWidth, Alignment.left, attackNumberString)
+  return createCell(cellWidth, Alignment.left, attackNumber.toString())
 }
 
 /**
@@ -172,10 +168,19 @@ export const createTotalRow = (
   if (roundNumber === 1) {
     const firstRoundTotal = findRoundTotal(rolls).toString()
     return createCell(roundWidth, Alignment.centered, firstRoundTotal, 1)
-    // reateCell(roundWidth, Alignment.centered, stringNum)
   }
-  const prevRoundTotal = findRoundTotal(rolls).toString()
-  const currRoundTotal = findRoundTotal(rolls).toString()
+  // TODO: find round total for each round
+  const prevRounds = rolls.slice(rolls.length - 6, rolls.length - 6 + 3)
+  const currRounds = rolls.slice(rolls.length - 3)
+  // ennsure if rounds number is over 21 we display 15
+  const prevRoundTotal =
+    findRoundTotal(prevRounds) > 21
+      ? '15'
+      : findRoundTotal(prevRounds).toString()
+  const currRoundTotal =
+    findRoundTotal(currRounds) > 21
+      ? '15'
+      : findRoundTotal(currRounds).toString()
   const prevRoundCell = createCell(
     roundWidth,
     Alignment.centered,
