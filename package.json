@@ -32,7 +32,7 @@
     "@discordjs/rest": "^1.1.0",
     "algosdk": "^1.19.1",
     "axios": "^0.27.2",
-    "canvas": "^2.9.1",
+    "canvas": "^2.10.1",
     "discord.js": "^14.3.0",
     "dotenv": "^16.0.1",
     "mongodb": "^4.9.1",
