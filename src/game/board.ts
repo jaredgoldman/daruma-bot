@@ -7,7 +7,7 @@ import Player from '../models/player'
  * @param roundNumber
  * @param playerIndex
  * @param players
- * @returns
+ * @returns {string}
  */
 export const renderBoard = (
   rollIndex: number,
@@ -202,6 +202,12 @@ export const createRoundCell = (roundNum?: number) => {
 
   return `           `
 }
+
+// BOARD VISUALIZATION AND MEASUERMENTS
+// w: 25
+// h: 1 = 2 X playerCount
+// first column width: 13
+// round width: 11 OR 13 w/ padding
 
 /*           ----5-----6
 -------------------25------------------
