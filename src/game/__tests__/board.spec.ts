@@ -8,6 +8,7 @@ import {
   createAttackRow,
   createAttackAndTotalRows,
   findRoundTotal,
+  renderBoard,
   // createAttackRows,
 } from '../board'
 import { boardConfig } from '../../config/board'
@@ -19,6 +20,38 @@ const { roundWidth, cellWidth } = boardConfig.board
  * WORK IN PROGRESS
  * tests are not complete
  */
+
+// Tests variables
+const rolls = [
+  { damage: 1, roll: 0 },
+  { damage: 2, roll: 0 },
+  { damage: 3, roll: 0 },
+  { damage: 4, roll: 0 },
+  { damage: 5, roll: 0 },
+  { damage: 6, roll: 0 },
+  { damage: 7, roll: 0 },
+  { damage: 8, roll: 0 },
+  { damage: 9, roll: 0 },
+  { damage: 10, roll: 0 },
+]
+
+const player1 = new Player(
+  'test-user-1',
+  '00000',
+  '00000',
+  new Asset('0000', 1, '', ''),
+  new ObjectId()
+)
+
+const player2 = new Player(
+  'test-user-2',
+  '00000',
+  '00000',
+  new Asset('0000', 1, '', ''),
+  new ObjectId()
+)
+
+const players = [player1, player2]
 
 describe('first row board test suite', () => {
   it('correct labels are created from createRoundCell', () => {
@@ -68,40 +101,22 @@ describe('attack row test suite', () => {
   })
 
   it('makes multiple attack rows', () => {
-    const rolls = [
-      { damage: 1, roll: 0 },
-      { damage: 2, roll: 0 },
-      { damage: 3, roll: 0 },
-      { damage: 4, roll: 0 },
-      { damage: 5, roll: 0 },
-      { damage: 6, roll: 0 },
-      { damage: 7, roll: 0 },
-      { damage: 8, roll: 0 },
-      { damage: 9, roll: 0 },
-      { damage: 10, roll: 0 },
-    ]
-
-    const player1 = new Player(
-      'test-user-1',
-      '00000',
-      '00000',
-      new Asset('0000', 1, '', ''),
-      new ObjectId()
-    )
-
-    const player2 = new Player(
-      'test-user-2',
-      '00000',
-      '00000',
-      new Asset('0000', 1, '', ''),
-      new ObjectId()
-    )
-
     player1.setRolls(rolls)
     player2.setRolls(rolls)
-    const players = [player1, player2]
+
+    const expectedResult = ``
+
+    // console.log(createAttackAndTotalRows(players, players.length - 1, 2, 1))
     // two players, on second player turn, on third roll, 1st round
-    console.log(createAttackAndTotalRows(players, players.length - 1, 2, 1))
+    // expect(createAttackAndTotalRows(players, players.length - 1, 2, 1)).toEqual(
+    //   expectedResult
+    // )
     expect(findRoundTotal(rolls)).toEqual(55)
+  })
+})
+
+describe('Test suite for rendering entire board', () => {
+  it('renders an entire bboard', () => {
+    console.log(renderBoard(9, 3, 0, players))
   })
 })

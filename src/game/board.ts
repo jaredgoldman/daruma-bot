@@ -3,6 +3,7 @@ import Player from '../models/player'
 import { Alignment, createCell, createWhitespace } from '../utils/board'
 import { boardConfig } from '../config/board'
 
+// import in avsolute values for board sizing
 const { roundWidth, cellWidth, centeredLength } = boardConfig.board
 /**
  * Main round embed building function
@@ -18,20 +19,18 @@ export const renderBoard = (
   playerIndex: number,
   players: Player[]
 ) => {
-  const isFirstRound = roundNumber === 1
   // Round number row
-  const roundNumberRow = createRoundNumberRow(roundNumber, 2, isFirstRound)
+  const roundNumberRow = createRoundNumberRow(roundNumber, 2)
   // TODO determine if we should update score yet for individual player we're on
-
   // create a row for each player
-  const attackRows = createAttackAndTotalRows(
+  const attackAndTotalRows = createAttackAndTotalRows(
     players,
     playerIndex,
     rollIndex,
     roundNumber
   )
 
-  return roundNumberRow + '\n' + attackRows
+  return roundNumberRow + '\n' + attackAndTotalRows
 }
 
 /**
@@ -72,9 +71,9 @@ export const createRoundCell = (roundNum?: number): string => {
     let stringNum = roundNum.toString()
     // if shorter than 2 digits prepend a 0
     if (roundNum < 10) {
-      return createCell(roundWidth, Alignment.centered, `0${stringNum}`)
+      return createCell(roundWidth, Alignment.centered, `0${stringNum}`, 1)
     } else {
-      return createCell(roundWidth, Alignment.centered, stringNum)
+      return createCell(roundWidth, Alignment.centered, stringNum, 1)
     }
   }
   // returb hjust space if no round number
@@ -172,19 +171,22 @@ export const createTotalRow = (
 ): string => {
   if (roundNumber === 1) {
     const firstRoundTotal = findRoundTotal(rolls).toString()
-    return createCell(centeredLength, Alignment.centered, firstRoundTotal)
+    return createCell(roundWidth, Alignment.centered, firstRoundTotal, 1)
+    // reateCell(roundWidth, Alignment.centered, stringNum)
   }
   const prevRoundTotal = findRoundTotal(rolls).toString()
   const currRoundTotal = findRoundTotal(rolls).toString()
   const prevRoundCell = createCell(
-    centeredLength,
+    roundWidth,
     Alignment.centered,
-    prevRoundTotal
+    prevRoundTotal,
+    1
   )
   const currRoundCell = createCell(
-    centeredLength,
+    roundWidth,
     Alignment.centered,
-    currRoundTotal
+    currRoundTotal,
+    1
   )
   return prevRoundCell + currRoundCell
 }
@@ -209,20 +211,3 @@ export const findRoundTotal = (
   )
   return roundTotal
 }
-
-// BOARD VISUALIZATION AND MEASUERMENTS
-// w: 25
-// h: 1 = 2 X playerCount
-// first column width: 13
-// round width: 11 OR 13 w/ padding
-
-/*           ----5-----6
--------------------25------------------
------13------     1              2            -> roundNumberRow
-Algorandpa   X     X     X    X    X    X       -> attackRow
-hits:             6              12           -> totalRow
-wpatest      X    X    X    X    X    X 
-hits:             6              12    
-----------------------------------------
-             -----15--------    
-*/

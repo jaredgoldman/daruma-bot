@@ -15,7 +15,8 @@ export enum Alignment {
 export const createCell = (
   space: number,
   alignment: Alignment = Alignment.centered,
-  content: string = ''
+  content: string = '',
+  shift: number = 0
 ): string => {
   let indexToPrintContent
   const whitespace = createWhitespace(space)
@@ -29,8 +30,8 @@ export const createCell = (
       break
     case Alignment.centered:
       const median = Math.floor(space / 2)
-      const offsetLength = content.length > 1 ? content.length - 1 : 0
-      indexToPrintContent = median - offsetLength
+      const offSet = Math.floor(content.length / 2)
+      indexToPrintContent = median - offSet - shift
       break
     default:
       indexToPrintContent = 0
