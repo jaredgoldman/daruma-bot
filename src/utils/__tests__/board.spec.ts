@@ -1,7 +1,7 @@
 import { createCell, replaceAt, createWhitespace } from '../board'
 import { Alignment } from '../board'
 
-describe('Whitespace test uitls', () => {
+describe('Create cell test utils', () => {
   it('creates a whitespace if fed no params', () => {
     expect(createCell(5).length === 5).toBeTruthy()
   })
@@ -10,6 +10,13 @@ describe('Whitespace test uitls', () => {
     expect(createCell(5, Alignment.left, 'r')).toBe('r    ')
     expect(createCell(5, Alignment.right, 'r')).toBe('    r')
     expect(createCell(5, Alignment.centered, 'r')).toBe('  r  ')
+  })
+
+  it('handles multiple characters correctly', () => {
+    expect(createCell(5, Alignment.left, 'rr')).toBe('rr   ')
+    expect(createCell(5, Alignment.right, 'rr')).toBe('   rr')
+    expect(createCell(5, Alignment.centered, 'rr')).toBe(' rr  ')
+    expect(createCell(12, Alignment.centered, 'r')).toBe(`      r     `)
   })
 })
 

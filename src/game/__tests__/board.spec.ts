@@ -6,27 +6,40 @@ import {
   createRoundNumberRow,
   createAttackCell,
   createAttackRow,
+  createAttackAndTotalRows,
+  findRoundTotal,
   // createAttackRows,
 } from '../board'
+import { boardConfig } from '../../config/board'
+import { createCell } from '../../utils/board'
+
+const { roundWidth, cellWidth } = boardConfig.board
+
+/**
+ * WORK IN PROGRESS
+ * tests are not complete
+ */
 
 describe('first row board test suite', () => {
   it('correct labels are created from createRoundCell', () => {
-    expect(createRoundCell(1)).toEqual(`     01    `)
-    expect(createRoundCell()).toEqual(`           `)
+    expect(createRoundCell().length === roundWidth).toBeTruthy()
   })
 
   it('correctly maps out both round numbers', () => {
-    expect(createRoundNumberRow(1, 2, true)).toEqual(`     01               `)
-    expect(createRoundNumberRow(2, 2)).toEqual(`     01         02    `)
-    expect(createRoundNumberRow(6, 2)).toEqual(`     05         06    `)
+    const numOfCells = 2
+    expect(
+      createRoundNumberRow(1, numOfCells, true).includes('01')
+    ).toBeTruthy()
+    expect(
+      createRoundNumberRow(1, numOfCells, true).length ===
+        numOfCells * roundWidth
+    ).toBeTruthy()
   })
 })
 
 describe('attack row test suite', () => {
   it('correctly creats an attack cell', () => {
-    expect(createAttackCell()).toEqual('     ')
-    expect(createAttackCell(5)).toEqual('5    ')
-    expect(createAttackCell(10)).toEqual('10   ')
+    expect(createAttackCell().length === cellWidth).toBeTruthy()
   })
 
   it('correctly maps out attack row for user with 6 attacks', () => {
@@ -39,7 +52,7 @@ describe('attack row test suite', () => {
       { damage: 3, roll: 0 },
     ]
 
-    const expectedResult = `3    3    3    3    3    3    `
+    const expectedResult = `3   3   3   3   3   3   `
     expect(createAttackRow(rolls)).toEqual(expectedResult)
   })
 
@@ -50,7 +63,7 @@ describe('attack row test suite', () => {
       { damage: 3, roll: 0 },
     ]
 
-    const expectedResult = `3    3    3                   `
+    const expectedResult = `3   3   3               `
     expect(createAttackRow(rolls)).toEqual(expectedResult)
   })
 
@@ -87,6 +100,8 @@ describe('attack row test suite', () => {
     player1.setRolls(rolls)
     player2.setRolls(rolls)
     const players = [player1, player2]
-    // expect(createAttackRows(players, 1, 8)).toEqual('')
+    // two players, on second player turn, on third roll, 1st round
+    console.log(createAttackAndTotalRows(players, players.length - 1, 2, 1))
+    expect(findRoundTotal(rolls)).toEqual(55)
   })
 })

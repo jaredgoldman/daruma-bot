@@ -1,6 +1,9 @@
 import { RollData } from '../types/attack'
 import Player from '../models/player'
+import { Alignment, createCell, createWhitespace } from '../utils/board'
+import { boardConfig } from '../config/board'
 
+const { roundWidth, cellWidth, centeredLength } = boardConfig.board
 /**
  * Main round embed building function
  * @param rollIndex
@@ -25,11 +28,57 @@ export const renderBoard = (
     players,
     playerIndex,
     rollIndex,
-    roundNumber,
-    isFirstRound
+    roundNumber
   )
 
   return roundNumberRow + '\n' + attackRows
+}
+
+/**
+ * Creates row which takes into account the current and potnetially previous row
+ * @param roundNumber
+ * @param roundsOnEmbed
+ * @param isFirstRound
+ * @returns {string}
+ */
+export const createRoundNumberRow = (
+  roundNumber: number,
+  roundsOnEmbed: number,
+  isFirstRound?: boolean
+) => {
+  let roundNumberRowLabel = ``
+  for (let i = 1; i <= roundsOnEmbed; i++) {
+    // TODO, make this dynamic
+    // if first round, only the first element should have a label
+    if (isFirstRound && i === 2) {
+      roundNumberRowLabel += createRoundCell()
+    } else if (i === 1 && roundNumber !== 1) {
+      // as long as we're not in the first round, the first round is previous
+      roundNumberRowLabel += createRoundCell(roundNumber - 1)
+    } else {
+      roundNumberRowLabel += createRoundCell(roundNumber)
+    }
+  }
+  return roundNumberRowLabel
+}
+
+/**
+ * Creates single cell with roundNumber
+ * @param roundNum
+ * @returns {number}
+ */
+export const createRoundCell = (roundNum?: number): string => {
+  if (roundNum) {
+    let stringNum = roundNum.toString()
+    // if shorter than 2 digits prepend a 0
+    if (roundNum < 10) {
+      return createCell(roundWidth, Alignment.centered, `0${stringNum}`)
+    } else {
+      return createCell(roundWidth, Alignment.centered, stringNum)
+    }
+  }
+  // returb hjust space if no round number
+  return createWhitespace(roundWidth)
 }
 
 /**
@@ -45,74 +94,25 @@ export const createAttackAndTotalRows = (
   players: Player[],
   playerIndex: number,
   rollIndex: number,
-  roundNumber: number,
-  isFirstRound: boolean
+  roundNumber: number
 ) => {
   let rows = ``
+  const isFirstRound = roundNumber === 1
+  // For each player
   for (let i = 0; i <= players.length - 1; i++) {
-    const shouldIncrementRound = i <= playerIndex
-
+    // figure out which players should roll this render
+    // TODO: does this work?
+    // const shouldIncrementRound = i <= playerIndex
+    // define which rolls have occured
     const playerRollsSoFar = players[i].getRollsUntilIndex(rollIndex)
 
-    if (shouldIncrementRound) {
-      // create row with latest score
-      rows += 'attacks: ' + createAttackRow(playerRollsSoFar) + '\n'
-    } else {
-      // figure out how to not increment latest score on this row
-      rows += 'attacks: ' + createAttackRow(playerRollsSoFar) + '\n'
-    }
-    // add total row here
-    rows +=
-      'total: ' +
-      createTotalRow(roundNumber, playerRollsSoFar, isFirstRound) +
-      '\n'
+    // add attack row
+    rows += createAttackRow(playerRollsSoFar) + '\n'
+    // add round total row
+    rows += createTotalRow(roundNumber, playerRollsSoFar) + '\n'
   }
 
   return rows
-}
-
-/**
- * Creates row of round total scores
- * @param roundNumber
- * @param rolls
- * @param isFirstRound
- * @returns
- */
-export const createTotalRow = (
-  roundNumber: number,
-  rolls: RollData[],
-  isFirstRound: boolean
-): string => {
-  if (isFirstRound) {
-    return createRoundTotal(rolls, 1)
-  }
-  const prevRoundTotal = createRoundTotal(rolls, roundNumber - 1)
-  const currRoundTotal = createRoundTotal(rolls, roundNumber)
-  return `${prevRoundTotal}             ${currRoundTotal}`
-}
-
-/**
- * Calculate current total for any round
- * @param rolls
- * @param roundNumber
- * @returns {string}
- */
-export const createRoundTotal = (
-  rolls: RollData[],
-  roundNumber: number
-): string => {
-  const roundStartIndex = roundNumber * 3 - 1
-  const roundEndIndex = roundStartIndex + 3
-  const roundRolls = rolls.slice(roundStartIndex, roundEndIndex)
-
-  const roundTotal = roundRolls.reduce(
-    (prevTotal: number, currentRoll: RollData) => {
-      const currentRollValue = currentRoll.damage || 0
-      return prevTotal + currentRollValue
-    },
-    0
-  )
-  return roundTotal.toString()
 }
 
 /**
@@ -150,57 +150,64 @@ export const createAttackRow = (playerRolls: RollData[]) => {
  */
 export const createAttackCell = (attackNumber?: number) => {
   if (!attackNumber) {
-    return `     `
+    return createWhitespace(cellWidth)
   }
   const attackNumberString = attackNumber.toString()
-  if (attackNumberString.length < 2) {
-    return `${attackNumber}    `
-  }
-  return `${attackNumber}   `
+  // if (attackNumberString.length < 2) {
+  //   return createCell(cellWidth, Alignment.centered, `0${attackNumberString}`)
+  // }
+  return createCell(cellWidth, Alignment.left, attackNumberString)
 }
 
 /**
- * Creates row which takes into account the current and potnetially previous row
+ * Creates row of round total scores
  * @param roundNumber
- * @param roundsOnEmbed
+ * @param rolls
  * @param isFirstRound
+ * @returns
+ */
+export const createTotalRow = (
+  roundNumber: number,
+  rolls: RollData[]
+): string => {
+  if (roundNumber === 1) {
+    const firstRoundTotal = findRoundTotal(rolls).toString()
+    return createCell(centeredLength, Alignment.centered, firstRoundTotal)
+  }
+  const prevRoundTotal = findRoundTotal(rolls).toString()
+  const currRoundTotal = findRoundTotal(rolls).toString()
+  const prevRoundCell = createCell(
+    centeredLength,
+    Alignment.centered,
+    prevRoundTotal
+  )
+  const currRoundCell = createCell(
+    centeredLength,
+    Alignment.centered,
+    currRoundTotal
+  )
+  return prevRoundCell + currRoundCell
+}
+
+/**
+ * Calculate current total for any round
+ * @param rolls
+ * @param roundNumber
  * @returns {string}
  */
-export const createRoundNumberRow = (
-  roundNumber: number,
-  roundsOnEmbed: number,
-  isFirstRound?: boolean
-) => {
-  let roundNumberRowLabel = ``
-  for (let i = 1; i <= roundsOnEmbed; i++) {
-    // TODO, make this dynamic
-
-    // if first round, only the first element should have it
-    if (isFirstRound && i === 2) {
-      roundNumberRowLabel += createRoundCell()
-    } else if (i === 1 && roundNumber !== 1) {
-      // as long as we're not in the first round, the first round is previous
-      roundNumberRowLabel += createRoundCell(roundNumber - 1)
-    } else {
-      roundNumberRowLabel += createRoundCell(roundNumber)
-    }
-  }
-  return roundNumberRowLabel
-}
-
-/**
- * Creates single cell with roundNumber
- * @param roundNum
- * @returns {number}
- */
-export const createRoundCell = (roundNum?: number) => {
-  if (roundNum) {
-    let stringNum = roundNum.toString()
-    if (stringNum.length < 10) return `     0${stringNum}    `
-    return `     ${stringNum}     `
-  }
-
-  return `           `
+export const findRoundTotal = (
+  rolls: RollData[],
+  roundNumber: number = 1
+): number => {
+  // TODO: grab last 3 rounds from round number
+  const roundTotal = rolls.reduce(
+    (prevTotal: number, currentRoll: RollData) => {
+      const currentRollValue = currentRoll.damage || 0
+      return prevTotal + currentRollValue
+    },
+    0
+  )
+  return roundTotal
 }
 
 // BOARD VISUALIZATION AND MEASUERMENTS
@@ -212,7 +219,7 @@ export const createRoundCell = (roundNum?: number) => {
 /*           ----5-----6
 -------------------25------------------
 -----13------     1              2            -> roundNumberRow
-Algorandpa   X    X    X    X    X    X       -> attackRow
+Algorandpa   X     X     X    X    X    X       -> attackRow
 hits:             6              12           -> totalRow
 wpatest      X    X    X    X    X    X 
 hits:             6              12    
