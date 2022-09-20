@@ -3,8 +3,8 @@ import { RegistrationResult } from '../types/user'
 import { SlashCommandBuilder } from '@discordjs/builders'
 // Data
 // Helpers
-import { determineOwnership } from '../utils/algorand'
-import { addRole } from '../utils/helpers'
+import { determineOwnership } from '../utils/algorandUtils'
+import { addRole } from '../utils/discordUtils'
 // Schemas
 import User from '../models/user'
 import Asset from '../models/asset'

@@ -1,5 +1,5 @@
-import { createCell, replaceAt, createWhitespace } from '../board'
-import { Alignment } from '../board'
+import { createCell, replaceAt, createWhitespace } from '../boardUtils'
+import { Alignment } from '../boardUtils'
 
 describe('Create cell test utils', () => {
   it('creates a whitespace if fed no params', () => {

@@ -6,13 +6,12 @@ import {
   createRoundNumberRow,
   createAttackCell,
   createAttackRow,
-  createAttackAndTotalRows,
+  // createAttackAndTotalRows,
   findRoundTotal,
   renderBoard,
   // createAttackRows,
 } from '../board'
 import { boardConfig } from '../../config/board'
-import { createCell } from '../../utils/board'
 
 const { roundWidth, cellWidth } = boardConfig.board
 

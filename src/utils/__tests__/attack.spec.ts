@@ -1,4 +1,4 @@
-import { diceRolls, damageCalc } from '../attack'
+import { diceRolls, damageCalc } from '../attackUtils'
 
 describe('Test Dice Rolls', () => {
   const rolls = diceRolls(100)

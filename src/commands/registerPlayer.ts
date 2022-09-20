@@ -4,12 +4,12 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 // Data
 import { collections } from '../database/database.service'
 // Schemas
-import Asset from '../models/asset'
 import { WithId } from 'mongodb'
 import User from '../models/user'
 import Player from '../models/player'
 // Helpers
-import { checkIfRegisteredPlayer, downloadAssetImage } from '../utils/helpers'
+import { downloadAssetImage } from '../utils/fileSystemTuils'
+import { checkIfRegisteredPlayer } from '../utils/gameUtils'
 // Globals
 import { games } from '..'
 import { GameStatus } from '../models/game'

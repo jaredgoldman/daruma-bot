@@ -1,5 +1,5 @@
 import { AlgoAsset, AlgoAssetData, Txn, TxnData } from '../types/user'
-import { asyncForEach, wait } from './shared'
+import { asyncForEach, wait } from './sharedUtils'
 import algosdk from 'algosdk'
 import fs from 'fs'
 import Asset from '../models/asset'

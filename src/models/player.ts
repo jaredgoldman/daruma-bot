@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 import Asset from './asset'
-import { completeGameForPlayer } from '../utils/attack'
+import { completeGameForPlayer } from '../utils/attackUtils'
 import { RollData } from '../types/attack'
 
 /**

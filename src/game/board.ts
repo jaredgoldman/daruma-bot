@@ -1,10 +1,10 @@
 import { RollData } from '../types/attack'
 import Player from '../models/player'
-import { Alignment, createCell, createWhitespace } from '../utils/board'
+import { Alignment, createCell, createWhitespace } from '../utils/boardUtils'
 import { boardConfig } from '../config/board'
 
 // import in avsolute values for board sizing
-const { roundWidth, cellWidth, centeredLength } = boardConfig.board
+const { roundWidth, cellWidth, roundPadding } = boardConfig.board
 /**
  * Main round embed building function
  * @param rollIndex
@@ -57,6 +57,10 @@ export const createRoundNumberRow = (
     } else {
       roundNumberRowLabel += createRoundCell(roundNumber)
     }
+    // add round padding
+    if (i === 1) {
+      roundNumberRowLabel += createWhitespace(roundPadding)
+    }
   }
   return roundNumberRowLabel
 }
@@ -105,7 +109,6 @@ export const createAttackAndTotalRows = (
     // define which rolls have occured
     const playerRollsSoFar = players[i].getRollsUntilIndex(rollIndex)
 
-    // add attack row
     rows += createAttackRow(playerRollsSoFar) + '\n'
     // add round total row
     rows += createTotalRow(roundNumber, playerRollsSoFar) + '\n'
@@ -132,11 +135,14 @@ export const createAttackRow = (playerRolls: RollData[]) => {
     }
   }
   // add attack data/
-  lastSixAttacks.forEach((attack) => {
+  lastSixAttacks.forEach((attack, i) => {
     if (attack?.damage) {
       row += createAttackCell(attack.damage)
     } else {
       row += createAttackCell()
+    }
+    if (i === 2) {
+      row += createWhitespace(roundPadding)
     }
   })
   return row
@@ -193,7 +199,7 @@ export const createTotalRow = (
     currRoundTotal,
     1
   )
-  return prevRoundCell + currRoundCell
+  return prevRoundCell + createWhitespace(roundPadding) + currRoundCell
 }
 
 /**

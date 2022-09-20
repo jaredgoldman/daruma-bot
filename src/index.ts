@@ -15,8 +15,8 @@ import { connectToDatabase } from './database/database.service'
 // Schema
 import Game from './models/game'
 // Helpers
-import { convergeTxnData } from './utils/algorand'
-import { asyncForEach } from './utils/shared'
+import { convergeTxnData } from './utils/algorandUtils'
+import { asyncForEach } from './utils/sharedUtils'
 import startWaitingRoom from './game'
 import { getSettings } from './database/operations/game'
 import { ChannelSettings, GameTypes } from './types/game'

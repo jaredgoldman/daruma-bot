@@ -1,7 +1,5 @@
-import Game from '../models/game'
-import Player from '../models/player'
 import { RollData } from '../types/attack'
-import { randomNumber } from '../utils/helpers'
+import { randomNumber } from './sharedUtils'
 
 /**
  * Creates an array of random numbers between one and six with a length of 100
