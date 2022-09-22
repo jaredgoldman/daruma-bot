@@ -51,3 +51,8 @@ export interface ChannelSettings {
   channelId: string
   gameType: GameTypes
 }
+
+export interface WinIndexes {
+  roll: number
+  round: number
+}

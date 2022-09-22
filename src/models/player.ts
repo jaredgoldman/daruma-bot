@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb'
 import Asset from './asset'
 import { completeGameForPlayer } from '../utils/attackUtils'
-import { RollData } from '../types/attack'
+import { PlayerRoundsData, RoundData } from '../types/attack'
 
 /**
  * Player Class
@@ -19,7 +19,7 @@ export default class Player {
     asset: Asset,
     userId: ObjectId
   ) {
-    this.rolls = completeGameForPlayer()
+    this.roundsData = completeGameForPlayer()
     this.username = username
     this.discordId = discordId
     this.address = address
@@ -31,22 +31,23 @@ export default class Player {
   /*
    * Rolls
    */
-  private rolls: RollData[]
-  getRolls() {
-    return this.rolls
+  private roundsData: PlayerRoundsData
+  getRoundsData(): PlayerRoundsData {
+    return this.roundsData
   }
 
-  getRollsLength() {
-    return this.rolls.length
+  getRoundsLength(): number {
+    return this.roundsData.rounds.length
   }
 
-  getRollsUntilIndex(index: number): RollData[] {
-    return this.getRolls().slice(0, index + 1)
+  setRoundsData(roundsData: PlayerRoundsData): void {
+    this.roundsData = roundsData
   }
 
-  setRolls(rolls: RollData[]) {
-    this.rolls = rolls
+  getRounds(): Array<RoundData> {
+    return this.roundsData.rounds
   }
+
   /*
    * Asset
    */
@@ -56,14 +57,14 @@ export default class Player {
   }
 
   /*
-   * isWinner
+   * WIn
    */
   isWinner: boolean
   getIsWinner() {
     return this.isWinner
   }
 
-  setIsWinner() {
+  setIsWinner(): void {
     this.isWinner = true
   }
 
@@ -71,7 +72,7 @@ export default class Player {
    * Username
    */
   private username
-  getUsername() {
+  getUsername(): string {
     return this.username
   }
 }

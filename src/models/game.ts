@@ -101,7 +101,7 @@ export default class Game {
     this.rounds++
   }
 
-  getRounds() {
+  getRoundsData() {
     return this.rounds
   }
 
@@ -199,7 +199,7 @@ export default class Game {
     // find who has the shortest array length
     const winningPlayer = playerArr.reduce(
       (prevPlayer: Player, currentPlayer: Player): Player => {
-        return prevPlayer.getRollsLength() < currentPlayer.getRollsLength()
+        return prevPlayer.getRoundsLength() < currentPlayer.getRoundsLength()
           ? prevPlayer
           : currentPlayer
       }
@@ -209,12 +209,12 @@ export default class Game {
 
     // Prase remaining players for win
     this.getPlayerArray().forEach((player: Player) => {
-      if (player.getRollsLength() && !player.getIsWinner()) {
+      if (player.getRoundsLength() && !player.getIsWinner()) {
         winningPlayers.push(player)
       }
     })
 
-    const winIndex = winningPlayers[0].getRollsLength()
+    const winIndex = winningPlayers[0].getRoundsLength()
     return { winningPlayers, winIndex }
   }
 
@@ -256,7 +256,5 @@ export enum GameStatus {
   waitingRoom = 'waitingRoom',
   activeGame = 'activeGame',
 }
-
-type PlayersRollData = { [key: discordId]: number[] }
 
 type discordId = string

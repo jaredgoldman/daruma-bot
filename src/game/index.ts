@@ -7,6 +7,7 @@ import { getChannelSettings } from '../database/operations/game'
 import { GameStatus } from '../models/game'
 import Player from '../models/player'
 import { renderBoard } from './board'
+import { getWinIndexes } from '../utils/gameUtils'
 
 /**
  * Start game waiting room
@@ -28,7 +29,11 @@ export default async function startWaitingRoom(channel: TextChannel) {
 
     let playerCount = game.getPlayerCount()
 
-    // Waiting room loop
+    /**
+     * *******************
+     * WAITING ROOM LOOP *
+     * *******************
+     */
     while (
       playerCount < maxCapacity &&
       game.getStatus() === GameStatus.waitingRoom
@@ -41,38 +46,52 @@ export default async function startWaitingRoom(channel: TextChannel) {
       await wait(1000)
     }
 
+    console.log('beginning game')
+
     await wait(2000)
 
-    // Active game lopp
+    game.setStatus(GameStatus.activeGame)
+
+    /**
+     * ******************
+     * ACTIVE GAME LOOP *
+     * ******************
+     */
     let rollIndex = 0
-    let roundNumber = 1
+    let roundIndex = 0
     while (game.getStatus() === GameStatus.activeGame && !game.getWin()) {
       // also can think of this as rounds
 
       const playerArr = game.getPlayerArray()
-      if ((rollIndex + 1) % 3 === 0) roundNumber++
-      // for each player
-      await asyncForEach(
-        playerArr,
-        async (player: Player, playerIndex: number) => {
-          // for each roll
-          // call reander board
-          const board = renderBoard(
-            rollIndex,
-            roundNumber,
-            playerIndex,
-            game.getPlayerArray()
-          )
-          // console.log(board)
-          if (game.getWin()) {
-            // handle winning logic
-          }
-          await wait(4000)
-        }
-      )
 
-      rollIndex++
+      const { roll, round } = getWinIndexes(playerArr)
+
+      if (roll === rollIndex && round === roundIndex) {
+        console.log('WINNER')
+        game.setWin(true)
+        break
+      }
+      // for each player
+      playerArr.forEach((player: Player, playerIndex: number) => {
+        // if win
+
+        const board = renderBoard(rollIndex, roundIndex, playerIndex, playerArr)
+        console.log(board)
+      })
+
+      // Wait til round is over to stop game
+      // iterate round index if we're on the third roll and reset rollIndex,
+      // otherwise just increment rollIndex
+      if ((rollIndex + 1) % 3 === 0) {
+        roundIndex++
+        rollIndex = 0
+        // if we're on the third roll and there's a winner, set game win to true
+      } else {
+        rollIndex++
+      }
+      await wait(4000)
     }
+    console.log('game over')
   } catch (error) {
     console.log('****** ERROR STARTING WAITING ROOM ******', error)
   }

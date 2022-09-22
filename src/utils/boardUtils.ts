@@ -40,6 +40,13 @@ export const createCell = (
   return replaceAt(indexToPrintContent, content, whitespace)
 }
 
+/**
+ * Replaces a whitespace string with a string at a given index
+ * @param index
+ * @param replacement
+ * @param string
+ * @returns {string}
+ */
 export const replaceAt = (
   index: number,
   replacement: string = '',
@@ -52,8 +59,17 @@ export const replaceAt = (
   )
 }
 
-export const createWhitespace = (spaces: number): string => {
-  let whitespace = ''
+/**
+ * Creates whitespace string of a given length with optional delimiter
+ * @param spaces
+ * @param delimiter
+ * @returns
+ */
+export const createWhitespace = (
+  spaces: number,
+  delimiter?: string
+): string => {
+  let whitespace = delimiter || ''
   for (let i = 1; i <= spaces; i++) {
     whitespace += ' '
   }
