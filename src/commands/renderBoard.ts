@@ -18,7 +18,7 @@ module.exports = {
    */
   async execute(interaction: Interaction) {
     if (!interaction.isChatInputCommand()) return
-    const board = renderBoard(2, 1, 2, mockPlayers)
+    const board = renderBoard(1, 1, 2, mockPlayers)
     console.log(board)
     interaction.reply(board)
   },

@@ -14,6 +14,8 @@ import { checkIfRegisteredPlayer } from '../utils/gameUtils'
 import { games } from '..'
 import { GameStatus } from '../models/game'
 
+import util from 'util'
+
 const assetDir = process.env.ASSET_DIR as string
 
 module.exports = {
@@ -87,6 +89,7 @@ module.exports = {
         }
 
         const newPlayer = new Player(username, discordId, address, asset, _id)
+        console.log(util.inspect(newPlayer, false, null, true))
         game.addPlayer(newPlayer)
         await interaction.editReply(
           `${asset.alias || asset.name} has entered the game`

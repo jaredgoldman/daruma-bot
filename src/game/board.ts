@@ -30,10 +30,11 @@ export const renderBoard = (
   playerIndex: number,
   players: Player[]
 ): string => {
-  // Round number row
+  // create a row representing the current round
   const roundNumberRow = addLeftColumnCell(createRoundNumberRow(roundIndex, 2))
 
-  // create a row for each player
+  // create a row displaying attack numbers for each player
+  // as well as a row displaying the total
   const attackAndTotalRows = createAttackAndTotalRows(
     players,
     playerIndex,
@@ -153,14 +154,14 @@ export const createAttackRow = (
 
   // add previous round tp string
   if (prevRound) {
-    prevRound.rolls.forEach((roll: RollData) => {
+    prevRound.rolls?.forEach((roll: RollData) => {
       row += createCell(cellWidth, Alignment.centered, roll.damage?.toString())
     })
     // add whitespace
     row += createWhitespace(roundPadding)
   }
   // add current round to string
-  currentRound.rolls.forEach((roll: RollData, index: number) => {
+  currentRound.rolls?.forEach((roll: RollData, index: number) => {
     // if our current player index is higher than the playerindex passed, don't show the latest roll
     if ((isTurn && index === rollIndex) || index < rollIndex) {
       row += createCell(cellWidth, Alignment.centered, roll.damage?.toString())

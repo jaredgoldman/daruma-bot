@@ -66,22 +66,18 @@ export default async function startWaitingRoom(channel: TextChannel) {
     while (game.getStatus() === GameStatus.activeGame && !game.getWin()) {
       const playerArr = game.getPlayerArray()
 
-      if (roll === rollIndex && round === roundIndex) {
-        console.log('WINNER')
-        game.setWin(true)
-        break
-      }
-
       // for each player render new board
       await asyncForEach(
         playerArr,
         async (player: Player, playerIndex: number) => {
           try {
             console.log('*************************')
-            console.log(`player ${playerIndex + 1}s turn`)
+            // console.log(`player ${playerIndex + 1}s turn`)
             console.log('rollIndex', rollIndex)
             console.log('roundIndex', roundIndex)
-            console.log('playerIndex', playerIndex)
+            // console.log('playerIndex', playerIndex)
+            console.log('winning roll index', roll)
+            console.log('winning round index', round)
             console.log('*************************')
 
             const board: string = renderBoard(
@@ -105,6 +101,12 @@ export default async function startWaitingRoom(channel: TextChannel) {
           await wait(1000)
         }
       )
+
+      if (roll === rollIndex && round === roundIndex) {
+        console.log('WINNER')
+        game.setWin(true)
+        break
+      }
 
       // Wait til round is over to stop game
       // iterate round index if we're on the third roll and reset rollIndex,
