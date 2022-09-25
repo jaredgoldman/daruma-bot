@@ -59,37 +59,64 @@ export default async function startWaitingRoom(channel: TextChannel) {
      */
     let rollIndex = 0
     let roundIndex = 0
+    const { roll, round } = getWinIndexes(game.getPlayerArray())
+
+    let channelMessage: any
+
     while (game.getStatus() === GameStatus.activeGame && !game.getWin()) {
-      // also can think of this as rounds
-
       const playerArr = game.getPlayerArray()
-
-      const { roll, round } = getWinIndexes(playerArr)
 
       if (roll === rollIndex && round === roundIndex) {
         console.log('WINNER')
         game.setWin(true)
         break
       }
-      // for each player
-      playerArr.forEach((player: Player, playerIndex: number) => {
-        // if win
 
-        const board = renderBoard(rollIndex, roundIndex, playerIndex, playerArr)
-        console.log(board)
-      })
+      // for each player render new board
+      await asyncForEach(
+        playerArr,
+        async (player: Player, playerIndex: number) => {
+          try {
+            console.log('*************************')
+            console.log(`player ${playerIndex + 1}s turn`)
+            console.log('rollIndex', rollIndex)
+            console.log('roundIndex', roundIndex)
+            console.log('playerIndex', playerIndex)
+            console.log('*************************')
+
+            const board: string = renderBoard(
+              rollIndex,
+              roundIndex,
+              playerIndex,
+              playerArr
+            )
+
+            console.log(board)
+
+            // await game.editEmbed(doEmbed(Embeds.activeGame, game, { board }))
+            if (!channelMessage) {
+              channelMessage = await channel.send(board)
+            } else {
+              channelMessage.edit(board)
+            }
+          } catch (error) {
+            console.log(error)
+          }
+          await wait(1000)
+        }
+      )
 
       // Wait til round is over to stop game
       // iterate round index if we're on the third roll and reset rollIndex,
       // otherwise just increment rollIndex
       if ((rollIndex + 1) % 3 === 0) {
+        // TODO keep track of these values in the game object
         roundIndex++
         rollIndex = 0
         // if we're on the third roll and there's a winner, set game win to true
       } else {
         rollIndex++
       }
-      await wait(4000)
     }
     console.log('game over')
   } catch (error) {

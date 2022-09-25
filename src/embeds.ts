@@ -22,54 +22,67 @@ const defaultEmbedValues: EmbedData = {
     text: 'placeholder',
     iconUrl: '#',
   },
-  rawEmbed: false,
 }
 
-export default function doEmbed(type: Embeds, game: Game): MessageOptions {
-  let data: EmbedData = {}
+export default function doEmbed(
+  type: Embeds,
+  game: Game,
+  options?: EmbedData
+): MessageOptions {
+  let data: EmbedData = defaultEmbedValues
   let components: any = []
 
   const playerArr = game.getPlayerArray()
   const playerCount = playerArr.length
 
-  if (type === Embeds.waitingRoom) {
-    const playerWord = playerCount === 1 ? 'player' : 'players'
-    const hasWord = playerCount === 1 ? 'has' : 'have'
+  switch (type) {
+    case Embeds.waitingRoom:
+      const playerWord = playerCount === 1 ? 'player' : 'players'
+      const hasWord = playerCount === 1 ? 'has' : 'have'
 
-    data = {
-      title: 'Waiting Room',
-      description: `${playerCount} ${playerWord} ${hasWord} joined the game.`,
-      files: [],
-      fields: playerArr.map((player) => {
-        return {
-          name: player.getUsername(),
-          value: player.asset.alias || player.asset.name,
-        }
-      }),
-    }
+      data = {
+        title: 'Waiting Room',
+        description: `${playerCount} ${playerWord} ${hasWord} joined the game.`,
+        files: [],
+        fields: playerArr.map((player) => {
+          return {
+            name: player.getUsername(),
+            value: player.asset.alias || player.asset.name,
+          }
+        }),
+      }
 
-    components.push(
-      new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setCustomId('select-player')
-          .setLabel('Choose your Daruma')
-          .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-          .setCustomId('start-game')
-          .setLabel('Start game')
-          .setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder()
-          .setCustomId('withdraw-player')
-          .setLabel('Withdraw Daruma')
-          .setStyle(ButtonStyle.Danger)
+      components.push(
+        new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId('select-player')
+            .setLabel('Choose your Daruma')
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
+            .setCustomId('start-game')
+            .setLabel('Start game')
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
+            .setCustomId('withdraw-player')
+            .setLabel('Withdraw Daruma')
+            .setStyle(ButtonStyle.Danger)
+        )
       )
-    )
+      break
+    case Embeds.activeGame:
+      console.log(options?.board)
+      data = {
+        title: 'Active Game',
+        description: options?.board,
+      }
+      break
+    default: {
+      data = defaultEmbedValues
+    }
   }
 
-  let { title, description, color, image, thumbNail, fields, footer, files } = {
-    ...defaultEmbedValues,
-    ...data,
-  }
+  let { title, description, color, image, thumbNail, fields, footer, files } =
+    data
 
   const embed = new EmbedBuilder()
 

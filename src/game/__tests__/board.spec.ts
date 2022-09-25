@@ -89,17 +89,6 @@ import { PlayerRoundsData, RollData } from '../../types/attack'
 //     expect(createAttackRow(rolls)).toEqual(expectedResult)
 //   })
 
-//   it('correctly maps out attacks row for less than six attacks', () => {
-//     const rolls = [
-//       { damage: 3, roll: 0, totalScore: 0 },
-//       { damage: 3, roll: 0, totalScore: 0 },
-//       { damage: 3, roll: 0, totalScore: 0 },
-//     ]
-
-//     const expectedResult = `3   3   3               `
-//     expect(createAttackRow(rolls)).toEqual(expectedResult)
-//   })
-
 //   it('makes multiple attack rows', () => {
 //     player1.setRolls(rolls)
 //     player2.setRolls(rolls)
@@ -140,14 +129,22 @@ import { PlayerRoundsData, RollData } from '../../types/attack'
 //     console.log(renderBoard(9, 3, 0, players))
 //   })
 // })
-import { renderBoard } from '../../game/board'
+import { createAttackRow, renderBoard } from '../../game/board'
 import mockPayers from '../../mocks/player'
 
 describe('Board render test suite', () => {
   it('renders a board', () => {
-    const player1 = mockPayers[0]
-    const player2 = mockPayers[1]
-    const players = [player1, player2]
-    console.log(renderBoard(9, 3, 0, players))
+    console.log(renderBoard(2, 2, 0, mockPayers))
   })
 })
+
+// it('correctly maps out attacks row for less than six attacks', () => {
+//   const rolls = [
+//     { damage: 3, roll: 0, totalScore: 0 },
+//     { damage: 3, roll: 0, totalScore: 0 },
+//     { damage: 3, roll: 0, totalScore: 0 },
+//   ]
+
+//   const expectedResult = `3   3   3               `
+//   expect(createAttackRow(rolls)).toEqual(expectedResult)
+// })

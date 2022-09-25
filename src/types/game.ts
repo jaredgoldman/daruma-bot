@@ -16,7 +16,7 @@ export interface EmbedData {
   player?: Player
   winByTimeout?: boolean
   files?: Attachment[]
-  rawEmbed?: boolean
+  board?: string
 }
 
 export type Field = {

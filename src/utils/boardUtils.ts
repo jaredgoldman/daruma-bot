@@ -19,6 +19,7 @@ export const createCell = (
   shift: number = 0
 ): string => {
   let indexToPrintContent
+  // create intial space
   const whitespace = createWhitespace(space)
 
   switch (alignment) {
@@ -30,14 +31,13 @@ export const createCell = (
       break
     case Alignment.centered:
       const median = Math.floor(space / 2)
-      const offSet = Math.floor(content.length / 2)
-      indexToPrintContent = median - offSet - shift
+      indexToPrintContent = median - Math.floor(content.length / 2)
       break
     default:
       indexToPrintContent = 0
   }
 
-  return replaceAt(indexToPrintContent, content, whitespace)
+  return replaceAt(indexToPrintContent + shift, content, whitespace)
 }
 
 /**
@@ -66,12 +66,13 @@ export const replaceAt = (
  * @returns
  */
 export const createWhitespace = (
-  spaces: number,
-  delimiter?: string
+  spaces: number
+  // delimiter?: string
 ): string => {
-  let whitespace = delimiter || ''
+  let whitespace = ''
+  const delimiter = ' '
   for (let i = 1; i <= spaces; i++) {
-    whitespace += ' '
+    whitespace += delimiter
   }
   return whitespace
 }
