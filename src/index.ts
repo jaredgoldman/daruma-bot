@@ -6,6 +6,7 @@ import {
   InteractionType,
   TextChannel,
   Interaction,
+  GuildEmoji,
 } from 'discord.js'
 // Node
 import fs from 'node:fs'
@@ -24,6 +25,7 @@ import { ChannelSettings, GameTypes } from './types/game'
 const token = process.env.DISCORD_TOKEN as string
 const creatorAddresses = process.env.CREATOR_ADDRESSES as string
 export const games: { [key: string]: Game } = {}
+export let emojis: { [key: number | string]: string } = {}
 export const creatorAddressArr = creatorAddresses?.split(',')
 
 const client: Client = new Client({
@@ -39,6 +41,7 @@ client.once('ready', async () => {
   try {
     await connectToDatabase()
     await txnDataSetup()
+    gatherEmojis()
     setupCommands()
     startGame()
     console.log('Daruma Bot - Server ready')
@@ -95,6 +98,29 @@ const setupCommands = () => {
   } catch (error) {
     console.log('****** ERROR SETTING UP COMMANDS ******', error)
   }
+}
+
+const gatherEmojis = () => {
+  console.log(client.emojis.cache.map((emoji) => emoji.toString()).join(' '))
+  const critical = client.emojis.cache.find(
+    (emoji: GuildEmoji) => emoji.name === 'SpinCritical_PNG'
+  )
+  const headButt = client.emojis.cache.find(
+    (emoji: GuildEmoji) => emoji.name === 'SpinHeadButt_PNG'
+  )
+  const ram = client.emojis.cache.find(
+    (emoji: GuildEmoji) => emoji.name === 'SpinHeadRam_PNG'
+  )
+  const diamond = client.emojis.cache.find(
+    (emoji: GuildEmoji) => emoji.name === 'small_orange_diamond'
+  )
+  console.log(diamond)
+  emojis = {
+    3: `${critical}`,
+    2: `${headButt}`,
+    1: `${ram}`,
+    diamond: `${diamond}`,
+  } as { [key: number | string]: string }
 }
 
 /*

@@ -71,14 +71,14 @@ export default async function startWaitingRoom(channel: TextChannel) {
         playerArr,
         async (player: Player, playerIndex: number) => {
           try {
-            console.log('*************************')
-            // console.log(`player ${playerIndex + 1}s turn`)
-            console.log('rollIndex', rollIndex)
-            console.log('roundIndex', roundIndex)
-            // console.log('playerIndex', playerIndex)
-            console.log('winning roll index', roll)
-            console.log('winning round index', round)
-            console.log('*************************')
+            // console.log('*************************')
+            // // console.log(`player ${playerIndex + 1}s turn`)
+            // console.log('rollIndex', rollIndex)
+            // console.log('roundIndex', roundIndex)
+            // // console.log('playerIndex', playerIndex)
+            // console.log('winning roll index', roll)
+            // console.log('winning round index', round)
+            // console.log('*************************')
 
             const board: string = renderBoard(
               rollIndex,
@@ -87,7 +87,7 @@ export default async function startWaitingRoom(channel: TextChannel) {
               playerArr
             )
 
-            console.log(board)
+            // console.log(board)
 
             // await game.editEmbed(doEmbed(Embeds.activeGame, game, { board }))
             if (!channelMessage) {
@@ -98,7 +98,7 @@ export default async function startWaitingRoom(channel: TextChannel) {
           } catch (error) {
             console.log(error)
           }
-          await wait(1000)
+          await wait(2500)
         }
       )
 

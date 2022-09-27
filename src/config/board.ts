@@ -3,20 +3,20 @@ class BoardConfig {
   private roundPadding: number
   private numOfRoundsVisible: number
   private turnsInRound: number
-  private leftColumnWidth: number
+  private emojiPadding: number
 
   constructor(
     cellWidth: number,
     roundPadding: number,
     numberOfRoundsVisible: number,
     turnsInRound: number,
-    leftColumnWidth: number
+    emojiPadding: number
   ) {
     this.cellWidth = cellWidth
     this.roundPadding = roundPadding
     this.numOfRoundsVisible = numberOfRoundsVisible
     this.turnsInRound = turnsInRound
-    this.leftColumnWidth = leftColumnWidth
+    this.emojiPadding = emojiPadding
   }
 
   getRoundWidth() {
@@ -29,9 +29,9 @@ class BoardConfig {
       cellWidth: this.cellWidth,
       roundPadding: this.roundPadding,
       numOfRoundsVisible: this.numOfRoundsVisible,
-      leftColumnWidth: this.leftColumnWidth,
+      emojiPadding: this.emojiPadding,
     }
   }
 }
 
-export default new BoardConfig(8, 3, 2, 3, 3)
+export default new BoardConfig(5, 5, 2, 3, 2)

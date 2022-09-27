@@ -1,9 +1,13 @@
+import board from '../config/board'
+
 export enum Alignment {
   left = 'left',
   centered = 'centered',
   right = 'right',
+  emoji = 'emoji',
 }
 
+const { emojiPadding } = board.getSettings()
 /**
  * function that takes a set length and inserts a string into said length
  * can position the string at start, middle or end
@@ -16,11 +20,12 @@ export const createCell = (
   space: number,
   alignment: Alignment = Alignment.centered,
   content: string = '',
+  delimiter?: string,
   shift: number = 0
 ): string => {
   let indexToPrintContent
   // create intial space
-  const whitespace = createWhitespace(space)
+  const whitespace = createWhitespace(space, delimiter)
 
   switch (alignment) {
     case Alignment.left:
@@ -33,6 +38,8 @@ export const createCell = (
       const median = Math.floor(space / 2)
       indexToPrintContent = median - Math.floor(content.length / 2)
       break
+    case Alignment.emoji:
+      return content + createWhitespace(emojiPadding, ' ')
     default:
       indexToPrintContent = 0
   }
@@ -66,12 +73,11 @@ export const replaceAt = (
  * @returns
  */
 export const createWhitespace = (
-  spaces: number
-  // delimiter?: string
+  spaces: number,
+  delimiter: string = ' '
 ): string => {
   let whitespace = ''
-  const delimiter = ' '
-  for (let i = 1; i <= spaces; i++) {
+  for (let i = 0; i < spaces; i++) {
     whitespace += delimiter
   }
   return whitespace

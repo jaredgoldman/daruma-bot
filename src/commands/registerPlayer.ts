@@ -8,7 +8,7 @@ import { WithId } from 'mongodb'
 import User from '../models/user'
 import Player from '../models/player'
 // Helpers
-import { downloadAssetImage } from '../utils/fileSystemTuils'
+import { downloadAssetImage } from '../utils/fileSystemUtils'
 import { checkIfRegisteredPlayer } from '../utils/gameUtils'
 // Globals
 import { games } from '..'
@@ -89,7 +89,7 @@ module.exports = {
         }
 
         const newPlayer = new Player(username, discordId, address, asset, _id)
-        console.log(util.inspect(newPlayer, false, null, true))
+        // console.log(util.inspect(newPlayer, false, null, true))
         game.addPlayer(newPlayer)
         await interaction.editReply(
           `${asset.alias || asset.name} has entered the game`
