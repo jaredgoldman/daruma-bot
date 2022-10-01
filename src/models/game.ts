@@ -68,7 +68,6 @@ export default class Game {
 
   removePlayers() {
     this.players = {}
-    console.log(this.players)
   }
 
   /*
