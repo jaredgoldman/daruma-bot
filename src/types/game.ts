@@ -16,7 +16,7 @@ export interface EmbedData {
   player?: Player
   winByTimeout?: boolean
   files?: Attachment[]
-  rawEmbed?: boolean
+  board?: string
 }
 
 export type Field = {
@@ -50,4 +50,15 @@ export interface ChannelSettings {
   rollInterval: number
   channelId: string
   gameType: GameTypes
+}
+
+export interface WinIndexes {
+  roll: number
+  round: number
+}
+
+export interface GameRoundState {
+  rollIndex: number
+  roundIndex: number
+  playerIndex: number
 }

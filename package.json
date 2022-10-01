@@ -16,7 +16,7 @@
     "prettier-watch:win32": "onchange \"src/**/*.ts\" -- prettier --write {{changed}}",
     "prettier-watch:darwin:linux": "onchange 'src/**/*.ts' -- prettier --write {{changed}}",
     "prettier-watch:default": "onchange 'src/**/*.ts' -- prettier --write {{changed}}",
-    "test": "jest --coverage",
+    "test": "jest --watch --verbose --coverage",
     "test:dev": "jest --watchAll",
     "commands": "node -r dotenv/config dist/deployCommands.js"
   },

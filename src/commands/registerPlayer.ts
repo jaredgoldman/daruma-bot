@@ -4,12 +4,12 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 // Data
 import { collections } from '../database/database.service'
 // Schemas
-import Asset from '../models/asset'
 import { WithId } from 'mongodb'
 import User from '../models/user'
 import Player from '../models/player'
 // Helpers
-import { checkIfRegisteredPlayer, downloadAssetImage } from '../utils/helpers'
+import { downloadAssetImage } from '../utils/fileSystemUtils'
+import { checkIfRegisteredPlayer } from '../utils/gameUtils'
 // Globals
 import { games } from '..'
 import { GameStatus } from '../models/game'
@@ -53,8 +53,8 @@ module.exports = {
 
         const asset = assets[assetId]
 
+        // Handle cooldown for asset
         const coolDown = coolDowns ? coolDowns[assetId] : null
-
         if (coolDown && coolDown > Date.now()) {
           const minutesLeft = Math.floor((coolDown - Date.now()) / 60000)
           const minuteWord = minutesLeft === 1 ? 'minute' : 'minutes'
@@ -86,6 +86,7 @@ module.exports = {
           )
         }
 
+        // Finally, add player to game
         const newPlayer = new Player(username, discordId, address, asset, _id)
         game.addPlayer(newPlayer)
         await interaction.editReply(

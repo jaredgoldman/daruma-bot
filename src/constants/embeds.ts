@@ -1,3 +1,4 @@
 export enum Embeds {
-  waitingRoom,
+  waitingRoom = 'waitingRoom',
+  activeGame = 'activeGame',
 }

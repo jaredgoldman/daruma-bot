@@ -3,8 +3,8 @@ import { RegistrationResult } from '../types/user'
 import { SlashCommandBuilder } from '@discordjs/builders'
 // Data
 // Helpers
-import { determineOwnership } from '../utils/algorand'
-import { addRole } from '../utils/helpers'
+import { determineOwnership } from '../utils/algorandUtils'
+import { addRole } from '../utils/discordUtils'
 // Schemas
 import User from '../models/user'
 import Asset from '../models/asset'
@@ -31,10 +31,12 @@ module.exports = {
         .setDescription('enter the your wallet address')
         .setRequired(true)
     ),
-  /**
-   * Register player
-   */
   enabled: true,
+  /**
+   * Registers a player and adds a discord role if successful
+   * @param interaction
+   * @returns
+   */
   async execute(interaction: Interaction) {
     if (!interaction.isChatInputCommand()) return
     const { user, options, channelId } = interaction
@@ -78,6 +80,14 @@ module.exports = {
   },
 }
 
+/**
+ * Checks if a user owns wallet, grabs their and saves/updates user
+ * @param username
+ * @param discordId
+ * @param address
+ * @param channelId
+ * @returns {Promise<RegistrationResult>}
+ */
 export const processRegistration = async (
   username: string,
   discordId: string,
@@ -94,7 +104,6 @@ export const processRegistration = async (
       address,
       channelId
     )
-    // console.log(nftsOwned)
 
     const keyedNfts: { [key: string]: Asset } = {}
     nftsOwned.forEach((nft: Asset) => {
