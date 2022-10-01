@@ -1,5 +1,5 @@
 import { TextChannel } from 'discord.js'
-import doEmbed from '../embeds'
+import doEmbed from '../core/embeds'
 import { Embeds } from '../constants/embeds'
 import { games } from '..'
 import { asyncForEach, wait } from '../utils/sharedUtils'
@@ -87,16 +87,16 @@ export default async function startWaitingRoom(channel: TextChannel) {
             console.log(error)
           }
 
-          // if win, stop loop
+          //if win, stop loop
           if (game.getWin()) {
             game.setStatus(GameStatus.win)
           } else {
             await wait(1000)
           }
-
-          // proceed to next round
         }
       )
+      // proceed to next round
+      // OR same game.win to true
       game.incrementRollIndex()
     }
 

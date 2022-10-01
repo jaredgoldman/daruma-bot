@@ -11,6 +11,7 @@ const {
   roundPadding,
   numOfRoundsVisible,
   emojiPadding,
+  turnsInRound,
 } = boardConfig.getSettings()
 
 let boardWidth = 0
@@ -128,7 +129,7 @@ export const createAttackAndTotalRows = (
     // check if it is or has been players turn yet to determine if we should show the attack roll
     const isTurn = index <= playerIndex
 
-    rows += createAttackRow(rounds, roundIndex, rollIndex, isTurn) + '|' + '\n'
+    rows += createAttackRow(rounds, roundIndex, rollIndex, isTurn) + '\n'
 
     const totalRightColumn = createWhitespace(3) + '**Hits**'
     // add round total row
@@ -153,43 +154,59 @@ export const createAttackRow = (
   rollIndex: number,
   isTurn: boolean
 ) => {
-  // let row = createWhitespace(emojiPadding)
-  let row = ''
+  let row = createWhitespace(emojiPadding)
+  // let row = ''
   // grab the previous round
   const prevRound = playerRounds[roundIndex - 1]
   // grab the current round
   const currentRound = playerRounds[roundIndex]
 
-  // add previous round to string
+  // TODO: make this dynamic
+  // ROUND POSITION 0
   if (prevRound) {
-    prevRound.rolls?.forEach((roll: RollData) => {
-      if (roll.damage) {
+    Array.from({ length: turnsInRound }).forEach((_, index: number) => {
+      const roll = prevRound.rolls[index]
+      if (roll?.damage) {
         row += createCell(
           cellWidth,
           Alignment.centered,
           emojis[roll.damage],
           true
         )
+      } else {
+        row += createCell(cellWidth, Alignment.centered, emojis.ph, true)
       }
     })
-    // add whitespace
-    // TODO, make this dynamic
-    row += createWhitespace(4)
+    row += createWhitespace(5)
   }
-  // add current round to string
-  currentRound?.rolls?.forEach((roll: RollData, index: number) => {
-    if (roll.damage) {
-      if ((isTurn && index === rollIndex) || index < rollIndex) {
-        // if it's our turn or has been our turn, add latest roll
-        row += createCell(
-          cellWidth,
-          Alignment.centered,
-          emojis[roll.damage],
-          true
-        )
-      }
+
+  // ROUND POSITION 1
+  Array.from({ length: turnsInRound }).forEach((_, index: number) => {
+    const shouldRenderNextRoll =
+      (isTurn && index === rollIndex) || index < rollIndex
+    const roll = currentRound.rolls[index]
+
+    // if it's our turn or has been our turn, add latest roll
+    if (roll?.damage && shouldRenderNextRoll) {
+      row += createCell(
+        cellWidth,
+        Alignment.centered,
+        emojis[roll.damage],
+        true
+      )
+      // else add placeholder
+    } else {
+      row += createCell(cellWidth, Alignment.centered, emojis.ph, true)
     }
   })
+
+  // ROUND POSITION 1 PLACEHOLDERS
+  if (!prevRound) {
+    row += createWhitespace(5)
+    Array.from({ length: roundPadding }).forEach(() => {
+      row += createCell(cellWidth, Alignment.centered, emojis.ph, true)
+    })
+  }
   return row
 }
 

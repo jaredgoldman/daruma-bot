@@ -8,11 +8,11 @@ import {
   ButtonStyle,
 } from 'discord.js'
 // Types/Constants
-import { EmbedData } from './types/game'
-import { Embeds } from './constants/embeds'
+import { EmbedData } from '../types/game'
+import { Embeds } from '../constants/embeds'
 // Helpers
-import { normalizeIpfsUrl } from './utils/sharedUtils'
-import Game from './models/game'
+import { normalizeIpfsUrl } from '../utils/sharedUtils'
+import Game from '../models/game'
 
 const defaultEmbedValues: EmbedData = {
   title: 'DarumaBot',

@@ -21,6 +21,7 @@ import { asyncForEach } from './utils/sharedUtils'
 import startWaitingRoom from './game'
 import { getSettings } from './database/operations/game'
 import { ChannelSettings, GameTypes } from './types/game'
+import gatherEmojis from './core/emojis'
 
 const token = process.env.DISCORD_TOKEN as string
 const creatorAddresses = process.env.CREATOR_ADDRESSES as string
@@ -41,7 +42,7 @@ client.once('ready', async () => {
   try {
     await connectToDatabase()
     await txnDataSetup()
-    gatherEmojis()
+    emojis = gatherEmojis(client)
     setupCommands()
     startGame()
     console.log('Daruma Bot - Server ready')
@@ -98,29 +99,6 @@ const setupCommands = () => {
   } catch (error) {
     console.log('****** ERROR SETTING UP COMMANDS ******', error)
   }
-}
-
-const gatherEmojis = () => {
-  console.log(client.emojis.cache.map((emoji) => emoji.toString()).join(' '))
-  const critical = client.emojis.cache.find(
-    (emoji: GuildEmoji) => emoji.name === 'SpinCritical_PNG'
-  )
-  const headButt = client.emojis.cache.find(
-    (emoji: GuildEmoji) => emoji.name === 'SpinHeadButt_PNG'
-  )
-  const ram = client.emojis.cache.find(
-    (emoji: GuildEmoji) => emoji.name === 'SpinHeadRam_PNG'
-  )
-  const diamond = client.emojis.cache.find(
-    (emoji: GuildEmoji) => emoji.name === 'small_orange_diamond'
-  )
-  console.log(diamond)
-  emojis = {
-    3: `${critical}`,
-    2: `${headButt}`,
-    1: `${ram}`,
-    diamond: `${diamond}`,
-  } as { [key: number | string]: string }
 }
 
 /*

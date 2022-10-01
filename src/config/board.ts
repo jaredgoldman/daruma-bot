@@ -30,6 +30,7 @@ class BoardConfig {
       roundPadding: this.roundPadding,
       numOfRoundsVisible: this.numOfRoundsVisible,
       emojiPadding: this.emojiPadding,
+      turnsInRound: this.turnsInRound,
     }
   }
 }
