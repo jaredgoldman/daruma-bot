@@ -299,14 +299,6 @@ export default class Game {
     return this.gameRoundState.playerIndex
   }
 
-  // incrementPlayerIndex() {
-  //   if (this.getPlayerCount() - 1 === this.getPlayerIndex()) {
-  //     this.gameRoundState.playerIndex = 0
-  //   } else {
-  //     this.gameRoundState.playerIndex++
-  //   }
-  // }
-
   /*
    * OPERATIONS
    */
@@ -318,39 +310,6 @@ export default class Game {
       new Encounter(this.winnerDiscordId, this.type, Date.now())
     )
   }
-  // /**
-  //  * Finds an array of winningPlayers and the round index that the game was won
-  //  * @returns { winningPlayers: Player[]; winIndex: number }
-  //  */
-  // findWinIndexAndWinners = (): {
-  //   winningPlayers: Player[]
-  //   winIndex: number
-  // } => {
-  //   const winningPlayers: Player[] = []
-  //   const playerArr = this.getPlayerArray()
-
-  //   // find who has the shortest array length
-  //   const winningPlayer = playerArr.reduce(
-  //     (prevPlayer: Player, currentPlayer: Player): Player => {
-  //       return prevPlayer.getRoundsLength() < currentPlayer.getRoundsLength()
-  //         ? prevPlayer
-  //         : currentPlayer
-  //     }
-  //   )
-
-  //   // Assing winner
-  //   winningPlayer.setIsWinner()
-
-  //   // Prase remaining players for win
-  //   this.getPlayerArray().forEach((player: Player) => {
-  //     if (player.getRoundsLength() && !player.getIsWinner()) {
-  //       winningPlayers.push(player)
-  //     }
-  //   })
-
-  //   const winIndex = winningPlayers[0].getRoundsLength()
-  //   return { winningPlayers, winIndex }
-  // }
 
   logState() {
     console.log(`****** ROUND ${this.gameRoundState.roundIndex + 1} ******`)
@@ -388,7 +347,7 @@ export default class Game {
    */
   winGame() {
     this.setWin(true)
-    // saveEncounter()
+    this.saveEncounter()
   }
 
   resetGame() {
