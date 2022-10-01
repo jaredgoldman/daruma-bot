@@ -50,6 +50,7 @@ export interface ChannelSettings {
   rollInterval: number
   channelId: string
   gameType: GameTypes
+  turnRate: number
 }
 
 export interface WinIndexes {

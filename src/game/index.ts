@@ -7,6 +7,7 @@ import { getChannelSettings } from '../database/operations/game'
 import { GameStatus } from '../models/game'
 import Player from '../models/player'
 import { renderBoard } from './board'
+import util from 'util'
 
 /**
  * Start game waiting room
@@ -15,9 +16,11 @@ import { renderBoard } from './board'
 export default async function startWaitingRoom(channel: TextChannel) {
   try {
     const game = games[channel.id]
+    game.resetGame()
+    console.log(util.inspect(game, false, null, true))
     const settings = await getChannelSettings(channel.id)
     game.addSettings(settings)
-    const { maxCapacity } = settings
+    const { maxCapacity, turnRate } = settings
 
     // Send first waiting room embed
     const waitingRoomEmbed = await channel.send(
@@ -64,7 +67,9 @@ export default async function startWaitingRoom(channel: TextChannel) {
       )
       .join('\n')
 
-    while (game.getStatus() === GameStatus.activeGame) {
+    let hasWon = false
+
+    while (!hasWon) {
       const playerArr = game.getPlayerArray()
 
       // for each player render new board
@@ -85,26 +90,27 @@ export default async function startWaitingRoom(channel: TextChannel) {
               channel.send(playerMessage)
               channelMessage = await channel.send(board)
             } else {
-              channelMessage.edit(board)
+              await channelMessage.edit(board)
             }
           } catch (error) {
             console.log(error)
           }
 
-          //if win, stop loop
-          if (game.getWin()) {
-            game.setStatus(GameStatus.win)
-          } else {
-            await wait(1000)
-          }
+          await wait(turnRate * 1000)
         }
       )
-      // proceed to next round
-      // OR same game.win to true
-      game.incrementRollIndex()
+      //if win, stop loop
+      if (game.getWin()) {
+        hasWon = true
+        game.setStatus(GameStatus.win)
+      } else {
+        // proceed to next round
+        game.incrementRollIndex()
+      }
     }
 
-    console.log('game over')
+    await wait(3000)
+    startWaitingRoom(channel)
   } catch (error) {
     console.log('****** ERROR STARTING WAITING ROOM ******', error)
   }
