@@ -7,7 +7,6 @@ import { getChannelSettings } from '../database/operations/game'
 import { GameStatus } from '../models/game'
 import Player from '../models/player'
 import { renderBoard } from './board'
-import { getWinIndexes } from '../utils/gameUtils'
 
 /**
  * Start game waiting room
@@ -46,8 +45,6 @@ export default async function startWaitingRoom(channel: TextChannel) {
       await wait(1000)
     }
 
-    console.log('beginning game')
-
     await wait(2000)
 
     game.setStatus(GameStatus.activeGame)
@@ -67,8 +64,6 @@ export default async function startWaitingRoom(channel: TextChannel) {
       )
       .join('\n')
 
-    console.log('playerMessage', playerMessage)
-
     while (game.getStatus() === GameStatus.activeGame) {
       const playerArr = game.getPlayerArray()
 
@@ -84,11 +79,10 @@ export default async function startWaitingRoom(channel: TextChannel) {
               playerIndex,
               playerArr
             )
-            // console.log(board)
 
             // await game.editEmbed(doEmbed(Embeds.activeGame, game, { board }))
             if (!channelMessage) {
-              channelMessage = await channel.send(playerMessage)
+              channel.send(playerMessage)
               channelMessage = await channel.send(board)
             } else {
               channelMessage.edit(board)

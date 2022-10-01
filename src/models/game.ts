@@ -60,7 +60,7 @@ export default class Game {
   }
 
   addPlayer(player: Player) {
-    this.players[player.discordId] = player
+    this.players[player.getDiscordId()] = player
     // update games winning index
     const { gameWinRollIndex, gameWinRoundIndex, rounds } =
       player.getRoundsData()
