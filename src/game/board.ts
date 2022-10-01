@@ -12,6 +12,7 @@ const {
   numOfRoundsVisible,
   emojiPadding,
   turnsInRound,
+  attackRoundPadidng,
 } = boardConfig.getSettings()
 
 let boardWidth = 0
@@ -177,7 +178,7 @@ export const createAttackRow = (
         row += createCell(cellWidth, Alignment.centered, emojis.ph, true)
       }
     })
-    row += createWhitespace(5)
+    row += createWhitespace(attackRoundPadidng)
   }
 
   // ROUND POSITION 1
@@ -202,25 +203,13 @@ export const createAttackRow = (
 
   // ROUND POSITION 1 PLACEHOLDERS
   if (!prevRound) {
-    row += createWhitespace(5)
+    row += createWhitespace(attackRoundPadidng)
     Array.from({ length: roundPadding }).forEach(() => {
       row += createCell(cellWidth, Alignment.centered, emojis.ph, true)
     })
   }
   return row
 }
-
-// /**
-//  * Creates single cell with attack number
-//  * @param attackNumber
-//  * @returns {string}
-//  */
-// export const createAttackCell = (attackNumber?: number) => {
-//   if (!attackNumber) {
-//     return createWhitespace(cellWidth)
-//   }
-//   return createCell(cellWidth, Alignment.left, attackNumber.toString(), '-')
-// }
 
 /**
  * Creates a row of total damage for each round
