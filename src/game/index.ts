@@ -59,6 +59,15 @@ export default async function startWaitingRoom(channel: TextChannel) {
      */
 
     let channelMessage: any
+    const playerMessage = game
+      .getPlayerArray()
+      .map(
+        (player: Player, index: number) =>
+          `${index + 1} - <@${player.getDiscordId()}>`
+      )
+      .join('\n')
+
+    console.log('playerMessage', playerMessage)
 
     while (game.getStatus() === GameStatus.activeGame) {
       const playerArr = game.getPlayerArray()
@@ -79,6 +88,7 @@ export default async function startWaitingRoom(channel: TextChannel) {
 
             // await game.editEmbed(doEmbed(Embeds.activeGame, game, { board }))
             if (!channelMessage) {
+              channelMessage = await channel.send(playerMessage)
               channelMessage = await channel.send(board)
             } else {
               channelMessage.edit(board)

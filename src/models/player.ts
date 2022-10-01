@@ -8,9 +8,12 @@ import { PlayerRoundsData, RoundData } from '../types/attack'
  * Represents a player registered in an active game
  */
 export default class Player {
-  discordId: string
-  address: string
-  userId: ObjectId
+  private roundsData: PlayerRoundsData
+  private discordId: string
+  private address: string
+  private userId: ObjectId
+  private isWinner: boolean
+  private username
 
   constructor(
     username: string,
@@ -31,7 +34,7 @@ export default class Player {
   /*
    * Rolls
    */
-  private roundsData: PlayerRoundsData
+
   getRoundsData(): PlayerRoundsData {
     return this.roundsData
   }
@@ -59,7 +62,7 @@ export default class Player {
   /*
    * WIn
    */
-  isWinner: boolean
+
   getIsWinner() {
     return this.isWinner
   }
@@ -71,8 +74,19 @@ export default class Player {
   /*
    * Username
    */
-  private username
+
   getUsername(): string {
     return this.username
+  }
+
+  /*
+   * Discord ID
+   */
+  getDiscordId(): string {
+    return this.discordId
+  }
+
+  setDiscordId(discordId: string): void {
+    this.discordId = discordId
   }
 }
