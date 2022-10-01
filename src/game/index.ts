@@ -17,7 +17,7 @@ export default async function startWaitingRoom(channel: TextChannel) {
   try {
     const game = games[channel.id]
     game.resetGame()
-    console.log(util.inspect(game, false, null, true))
+    // console.log(util.inspect(game, false, null, true))
     const settings = await getChannelSettings(channel.id)
     game.addSettings(settings)
     const { maxCapacity, turnRate } = settings
