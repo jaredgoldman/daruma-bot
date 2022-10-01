@@ -70,6 +70,12 @@ export default class Game {
     this.players = {}
   }
 
+  removePlayer(discordId: string) {
+    if (this.players[discordId]) {
+      delete this.players[discordId]
+    }
+  }
+
   /*
    * Capacity
    */
