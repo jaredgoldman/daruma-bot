@@ -7,12 +7,6 @@ import { ChannelSettings } from '../types/game'
 import { MessageOptions } from 'discord.js'
 import util from 'util'
 
-const defaultGameRoundState = {
-  roundIndex: 0,
-  rollIndex: 0,
-  playerIndex: 0,
-}
-
 export default class Game {
   constructor(
     private capacity: number,
@@ -70,6 +64,10 @@ export default class Game {
 
   getPlayerCount() {
     return this.getPlayerArray().length
+  }
+
+  removePlayers() {
+    this.players = {}
   }
 
   /*
@@ -245,6 +243,14 @@ export default class Game {
     return this.gameRoundState
   }
 
+  setGameRoundState(gameRoundState: GameRoundState) {
+    this.gameRoundState = gameRoundState
+  }
+
+  setDefaultGameRoundState() {
+    this.gameRoundState = { ...defaultGameRoundState }
+  }
+
   getRoundIndex() {
     return this.gameRoundState.roundIndex
   }
@@ -263,21 +269,23 @@ export default class Game {
 
   // if it's the third round, reset the round index
   incrementRollIndex() {
-    if ((this.getRollIndex() + 1) % 3 === 0) {
-      this.incrementRoundIndex()
-      this.gameRoundState.rollIndex = 0
-    } else {
-      this.gameRoundState.rollIndex++
-    }
+    if (!this.getWin()) {
+      if ((this.getRollIndex() + 1) % 3 === 0) {
+        this.incrementRoundIndex()
+        this.gameRoundState.rollIndex = 0
+      } else {
+        this.gameRoundState.rollIndex++
+      }
 
-    this.logState()
+      this.logState()
 
-    // handle win if win
-    if (
-      this.gameRoundState.roundIndex === this.winningRoundIndex &&
-      this.gameRoundState.rollIndex === this.winningRollIndex
-    ) {
-      this.winGame()
+      // handle win if win
+      if (
+        this.gameRoundState.roundIndex === this.winningRoundIndex &&
+        this.gameRoundState.rollIndex === this.winningRollIndex
+      ) {
+        this.winGame()
+      }
     }
   }
 
@@ -374,24 +382,27 @@ export default class Game {
    */
   winGame() {
     this.setWin(true)
-    console.log('WIN')
-    // if (!this.winnerDiscordId) {
-    //   throw new Error('the game must have a winner before you trigger win')
-    // }
-    // this.saveEncounter()
+    // saveEncounter()
   }
 
   resetGame() {
-    this.status = GameStatus.waitingRoom
-    this.win = false
+    this.setStatus(GameStatus.waitingRoom)
+    this.setWin(false)
     this.rounds = 0
     this.stopped = false
     this.embed = undefined
     this.doUpdate = false
-    this.players = {}
+    this.removePlayers()
     this.npc = undefined
-    this.settings = defaultSettings
+    this.addSettings(defaultSettings)
+    this.setDefaultGameRoundState()
   }
+}
+
+const defaultGameRoundState = {
+  roundIndex: 0,
+  rollIndex: 0,
+  playerIndex: 0,
 }
 
 const defaultSettings = {
@@ -403,6 +414,7 @@ const defaultSettings = {
   rollInterval: 1000,
   channelId: '1005510693707067402',
   gameType: GameTypes.FourVsNpc,
+  turnRate: 2,
 }
 
 export enum GameStatus {
