@@ -56,3 +56,9 @@ export interface WinIndexes {
   roll: number
   round: number
 }
+
+export interface GameRoundState {
+  rollIndex: number
+  roundIndex: number
+  playerIndex: number
+}

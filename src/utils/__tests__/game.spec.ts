@@ -22,6 +22,24 @@ describe('getWinIndexes', () => {
           gameWinRoundIndex: 0,
         }),
       },
+      {
+        getRoundsData: () => ({
+          gameWinRollIndex: 1,
+          gameWinRoundIndex: 5,
+        }),
+      },
+      {
+        getRoundsData: () => ({
+          gameWinRollIndex: 0,
+          gameWinRoundIndex: 3,
+        }),
+      },
+      {
+        getRoundsData: () => ({
+          gameWinRollIndex: 2,
+          gameWinRoundIndex: 5,
+        }),
+      },
     ] as Player[]
     const winIndexes = getWinIndexes(players)
     expect(winIndexes).toEqual({ roll: 1, round: 1 })

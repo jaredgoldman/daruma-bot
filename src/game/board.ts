@@ -13,6 +13,8 @@ const {
   emojiPadding,
 } = boardConfig.getSettings()
 
+let boardWidth = 0
+
 /**
  * Main round embed building function
  * @param rollIndex
@@ -30,6 +32,8 @@ export const renderBoard = (
   const roundRightColumn = createWhitespace(3) + '**ROUND**'
   // create a row representing the current round
   const roundNumberRow = createRoundNumberRow(roundIndex, 2) + roundRightColumn
+  // utilize round Number row length
+  boardWidth = roundNumberRow.length
 
   // create a row displaying attack numbers for each player
   // as well as a row displaying the total
@@ -66,7 +70,8 @@ export const createRoundNumberRow = (
     if (isFirstRound && i === 1) {
       roundNumberRowLabel += createRoundCell()
     } else if (!isFirstRound && i === 0) {
-      // as long as we're not in the first round, the first round is previous
+      // as long as we're not in the first round, the first round features
+      // the previous round number
       roundNumberRowLabel += createRoundCell(roundNumber - 1)
     } else {
       roundNumberRowLabel += createRoundCell(roundNumber)
@@ -85,14 +90,19 @@ export const createRoundNumberRow = (
  * @returns {number}
  */
 export const createRoundCell = (roundNum?: number): string => {
+  let cell = ''
   if (roundNum) {
     let stringNum = roundNum.toString()
     // if shorter than 2 digits prepend a 0
-    return createCell(roundWidth, Alignment.centered, stringNum, '-')
+    cell += createCell(roundWidth, Alignment.centered, stringNum, false, '-')
+  } else {
+    cell = createWhitespace(roundWidth, '-')
   }
-
   // returb hjust space if no round number
-  return createWhitespace(roundWidth, '-')
+  if (roundNum === 0) {
+    cell += createWhitespace(roundPadding)
+  }
+  return cell
 }
 
 /**
@@ -118,12 +128,7 @@ export const createAttackAndTotalRows = (
     // check if it is or has been players turn yet to determine if we should show the attack roll
     const isTurn = index <= playerIndex
 
-    // const attackRightColumn = createWhitespace(3) + player.getUsername()
-
-    rows +=
-      createAttackRow(rounds, roundIndex, rollIndex, isTurn) +
-      // attackRightColumn +
-      '\n'
+    rows += createAttackRow(rounds, roundIndex, rollIndex, isTurn) + '|' + '\n'
 
     const totalRightColumn = createWhitespace(3) + '**Hits**'
     // add round total row
@@ -138,6 +143,7 @@ export const createAttackAndTotalRows = (
 
 /**
  * Create a row of attacks with blank spaces factored in
+ * Currnetly only works for 2 rounds
  * @param playerRolls
  * @returns {string}
  */
@@ -147,7 +153,8 @@ export const createAttackRow = (
   rollIndex: number,
   isTurn: boolean
 ) => {
-  let row = createWhitespace(emojiPadding)
+  // let row = createWhitespace(emojiPadding)
+  let row = ''
   // grab the previous round
   const prevRound = playerRounds[roundIndex - 1]
   // grab the current round
@@ -157,38 +164,46 @@ export const createAttackRow = (
   if (prevRound) {
     prevRound.rolls?.forEach((roll: RollData) => {
       if (roll.damage) {
-        row += createCell(cellWidth, Alignment.emoji, emojis[roll.damage])
+        row += createCell(
+          cellWidth,
+          Alignment.centered,
+          emojis[roll.damage],
+          true
+        )
       }
     })
     // add whitespace
-    row += createWhitespace(roundPadding)
+    // TODO, make this dynamic
+    row += createWhitespace(4)
   }
   // add current round to string
   currentRound?.rolls?.forEach((roll: RollData, index: number) => {
     if (roll.damage) {
       if ((isTurn && index === rollIndex) || index < rollIndex) {
         // if it's our turn or has been our turn, add latest roll
-        row += createCell(cellWidth, Alignment.emoji, emojis[roll.damage])
-      } else {
-        // if our current player index is higher than the playerindex passed, don't show the latest roll
-        row += createWhitespace(cellWidth)
+        row += createCell(
+          cellWidth,
+          Alignment.centered,
+          emojis[roll.damage],
+          true
+        )
       }
     }
   })
   return row
 }
 
-/**
- * Creates single cell with attack number
- * @param attackNumber
- * @returns {string}
- */
-export const createAttackCell = (attackNumber?: number) => {
-  if (!attackNumber) {
-    return createWhitespace(cellWidth)
-  }
-  return createCell(cellWidth, Alignment.left, attackNumber.toString(), '-')
-}
+// /**
+//  * Creates single cell with attack number
+//  * @param attackNumber
+//  * @returns {string}
+//  */
+// export const createAttackCell = (attackNumber?: number) => {
+//   if (!attackNumber) {
+//     return createWhitespace(cellWidth)
+//   }
+//   return createCell(cellWidth, Alignment.left, attackNumber.toString(), '-')
+// }
 
 /**
  * Creates a row of total damage for each round

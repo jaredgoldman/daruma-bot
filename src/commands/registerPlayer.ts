@@ -14,8 +14,6 @@ import { checkIfRegisteredPlayer } from '../utils/gameUtils'
 import { games } from '..'
 import { GameStatus } from '../models/game'
 
-import util from 'util'
-
 const assetDir = process.env.ASSET_DIR as string
 
 module.exports = {
@@ -55,8 +53,8 @@ module.exports = {
 
         const asset = assets[assetId]
 
+        // Handle cooldown for asset
         const coolDown = coolDowns ? coolDowns[assetId] : null
-
         if (coolDown && coolDown > Date.now()) {
           const minutesLeft = Math.floor((coolDown - Date.now()) / 60000)
           const minuteWord = minutesLeft === 1 ? 'minute' : 'minutes'
@@ -88,8 +86,8 @@ module.exports = {
           )
         }
 
+        // Finally, add player to game
         const newPlayer = new Player(username, discordId, address, asset, _id)
-        // console.log(util.inspect(newPlayer, false, null, true))
         game.addPlayer(newPlayer)
         await interaction.editReply(
           `${asset.alias || asset.name} has entered the game`

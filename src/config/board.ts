@@ -20,7 +20,7 @@ class BoardConfig {
   }
 
   getRoundWidth() {
-    return this.cellWidth * this.turnsInRound
+    return this.cellWidth * this.turnsInRound + this.roundPadding
   }
 
   getSettings() {
@@ -34,4 +34,4 @@ class BoardConfig {
   }
 }
 
-export default new BoardConfig(5, 5, 2, 3, 2)
+export default new BoardConfig(4, 3, 2, 3, 2)
