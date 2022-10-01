@@ -2,20 +2,13 @@ import { ButtonInteraction } from 'discord.js'
 // Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { games } from '..'
-// import { findUserByDiscordId } from '../database/operations/user'
-// import { getChannelSettings } from '../database/operations/game'
-// import { confirmRole } from '../utils/discordUtils'
-// import { GameStatus } from '../models/game'
 
-// const adminId = process.env.ADMIN_ROLE_ID as string
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('withdraw-player')
     .setDescription('withdraw your daruma from the '),
   /**
-   * Response to start game button
-   * If user is admin or active player and enough players are registered
-   * start the game
+   * Command to reemove a registered player from the game
    * @param interaction {ButttonInteraction}
    * @returns {void}
    */
@@ -26,7 +19,6 @@ module.exports = {
       user: { id: discordId },
     } = interaction
     const game = games[channelId]
-    // const { minCapacity } = await getChannelSettings(channelId)
     if (game.getPlayer(discordId)) {
       game.removePlayer(discordId)
       game.updateGame()
