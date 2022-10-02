@@ -1,11 +1,13 @@
 import Player from './player'
 import NPC from './npc'
-import { collections } from '../database/database.service'
 import Encounter from './encounter'
 import { GameRoundState, GameTypes } from '../types/game'
 import { ChannelSettings } from '../types/game'
 import { MessageOptions } from 'discord.js'
 import util from 'util'
+import { PlayerRoundsData } from '../types/attack'
+import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
+import { renderBoard } from '../game/board'
 
 export default class Game {
   constructor(
@@ -14,15 +16,16 @@ export default class Game {
     private type: GameTypes,
     private settings: ChannelSettings // private m
   ) {
+    this.type = type
     this.status = GameStatus.waitingRoom
     this.win = false
     this.rounds = 0
-    this.stopped = false
     this.embed = undefined
     this.doUpdate = false
     this.players = {}
     this.npc = undefined
     this.gameRoundState = defaultGameRoundState
+    this.startTime = Date.now()
   }
 
   private players: { [key: string]: Player }
@@ -30,13 +33,22 @@ export default class Game {
   private win: boolean
   private winningRoundIndex: number | undefined
   private winningRollIndex: number | undefined
-  private winnerDiscordId: number | undefined
+  private winnerDiscordId: string | undefined
   private rounds: number
-  private stopped: boolean
   private doUpdate: boolean
   private embed: any
   private npc: NPC | undefined
   private gameRoundState: GameRoundState
+  private startTime: number
+  private endTime: number | undefined
+
+  /*
+   * GAME TYPE
+   */
+
+  getType() {
+    return this.type
+  }
 
   /*
    * PLAYER OPERATIONS
@@ -94,6 +106,12 @@ export default class Game {
    * Active
    */
   setStatus(statusType: GameStatus) {
+    if (statusType === GameStatus.activeGame) {
+      this.startTime = Date.now()
+    }
+    if (statusType === GameStatus.win) {
+      this.endTime = Date.now()
+    }
     this.status = statusType
   }
 
@@ -112,7 +130,7 @@ export default class Game {
     return this.win
   }
 
-  setWinnerDiscordId(winnerDiscordId: number) {
+  setWinnerDiscordId(winnerDiscordId: string) {
     this.winnerDiscordId = winnerDiscordId
   }
 
@@ -171,18 +189,6 @@ export default class Game {
 
   getRoundsData() {
     return this.rounds
-  }
-
-  /*
-   * Stopped
-   */
-
-  isStopped() {
-    return this.stopped
-  }
-
-  setStopped() {
-    this.stopped = true
   }
 
   /*
@@ -273,6 +279,14 @@ export default class Game {
     this.gameRoundState.rollIndex = rollIndex
   }
 
+  getRoundNumber() {
+    return this.gameRoundState.roundIndex + 1
+  }
+
+  setCurrentPlayer(player: Player) {
+    this.gameRoundState.currentPlayer = player
+  }
+
   // if it's the third round, reset the round index
   incrementRollIndex() {
     if (!this.getWin()) {
@@ -287,9 +301,13 @@ export default class Game {
 
       // handle win if win
       if (
+        this.gameRoundState.currentPlayer &&
         this.gameRoundState.roundIndex === this.winningRoundIndex &&
         this.gameRoundState.rollIndex === this.winningRollIndex
       ) {
+        this.setWinnerDiscordId(
+          this.gameRoundState.currentPlayer.getDiscordId()
+        )
         this.winGame()
       }
     }
@@ -299,13 +317,21 @@ export default class Game {
     return this.gameRoundState.playerIndex
   }
 
-  // incrementPlayerIndex() {
-  //   if (this.getPlayerCount() - 1 === this.getPlayerIndex()) {
-  //     this.gameRoundState.playerIndex = 0
-  //   } else {
-  //     this.gameRoundState.playerIndex++
-  //   }
-  // }
+  /*
+   * Time
+   */
+
+  getStartTime() {
+    return this.startTime
+  }
+
+  setEndTime() {
+    this.endTime = Date.now()
+  }
+
+  getEndTime() {
+    return this.endTime
+  }
 
   /*
    * OPERATIONS
@@ -314,43 +340,19 @@ export default class Game {
     if (!this.winnerDiscordId) {
       throw new Error('the game must have a winner to save an encounter')
     }
-    collections.encounters.insertOne(
-      new Encounter(this.winnerDiscordId, this.type, Date.now())
+    saveEncounterToDb(
+      new Encounter(
+        this.winnerDiscordId,
+        this.type,
+        this.getStartTime(),
+        this.getEndTime() as number,
+        this.getRoundNumber(),
+        this.getPlayersrRoundsData(),
+        this.getGameRoundState(),
+        this.getSettings().channelId
+      )
     )
   }
-  // /**
-  //  * Finds an array of winningPlayers and the round index that the game was won
-  //  * @returns { winningPlayers: Player[]; winIndex: number }
-  //  */
-  // findWinIndexAndWinners = (): {
-  //   winningPlayers: Player[]
-  //   winIndex: number
-  // } => {
-  //   const winningPlayers: Player[] = []
-  //   const playerArr = this.getPlayerArray()
-
-  //   // find who has the shortest array length
-  //   const winningPlayer = playerArr.reduce(
-  //     (prevPlayer: Player, currentPlayer: Player): Player => {
-  //       return prevPlayer.getRoundsLength() < currentPlayer.getRoundsLength()
-  //         ? prevPlayer
-  //         : currentPlayer
-  //     }
-  //   )
-
-  //   // Assing winner
-  //   winningPlayer.setIsWinner()
-
-  //   // Prase remaining players for win
-  //   this.getPlayerArray().forEach((player: Player) => {
-  //     if (player.getRoundsLength() && !player.getIsWinner()) {
-  //       winningPlayers.push(player)
-  //     }
-  //   })
-
-  //   const winIndex = winningPlayers[0].getRoundsLength()
-  //   return { winningPlayers, winIndex }
-  // }
 
   logState() {
     console.log(`****** ROUND ${this.gameRoundState.roundIndex + 1} ******`)
@@ -383,19 +385,37 @@ export default class Game {
     return winIndexes
   }
 
+  getPlayersrRoundsData(): { [key: string]: PlayerRoundsData } {
+    const playerRoundsData: { [key: string]: PlayerRoundsData } = {}
+    this.getPlayerArray().forEach((player) => {
+      playerRoundsData[player.getDiscordId()] = player.getRoundsData()
+    })
+    return playerRoundsData
+  }
+
+  renderBoard() {
+    return renderBoard(
+      this.getRollIndex(),
+      this.getRoundIndex(),
+      this.getGameRoundState().playerIndex,
+      this.getPlayerArray()
+    )
+  }
+
   /**
-   * Saves an encounter
+   *
    */
   winGame() {
+    this.setEndTime()
     this.setWin(true)
-    // saveEncounter()
+    this.setStatus(GameStatus.win)
+    this.saveEncounter()
   }
 
   resetGame() {
     this.setStatus(GameStatus.waitingRoom)
     this.setWin(false)
     this.rounds = 0
-    this.stopped = false
     this.embed = undefined
     this.doUpdate = false
     this.removePlayers()
@@ -409,6 +429,7 @@ const defaultGameRoundState = {
   roundIndex: 0,
   rollIndex: 0,
   playerIndex: 0,
+  currentPlayer: undefined,
 }
 
 const defaultSettings = {
