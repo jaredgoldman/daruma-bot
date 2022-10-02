@@ -62,4 +62,5 @@ export interface GameRoundState {
   rollIndex: number
   roundIndex: number
   playerIndex: number
+  currentPlayer?: Player
 }

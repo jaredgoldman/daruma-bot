@@ -76,24 +76,15 @@ export default async function startWaitingRoom(channel: TextChannel) {
       await asyncForEach(
         playerArr,
         async (player: Player, playerIndex: number) => {
-          const { rollIndex, roundIndex } = game.getGameRoundState()
-          try {
-            const board: string = renderBoard(
-              rollIndex,
-              roundIndex,
-              playerIndex,
-              playerArr
-            )
+          game.setCurrentPlayer(player)
+          const board = game.renderBoard()
 
-            // await game.editEmbed(doEmbed(Embeds.activeGame, game, { board }))
-            if (!channelMessage) {
-              channel.send(playerMessage)
-              channelMessage = await channel.send(board)
-            } else {
-              await channelMessage.edit(board)
-            }
-          } catch (error) {
-            console.log(error)
+          // await game.editEmbed(doEmbed(Embeds.activeGame, game, { board }))
+          if (!channelMessage) {
+            channel.send(playerMessage)
+            channelMessage = await channel.send(board)
+          } else {
+            await channelMessage.edit(board)
           }
 
           await wait(turnRate * 1000)
@@ -102,14 +93,13 @@ export default async function startWaitingRoom(channel: TextChannel) {
       //if win, stop loop
       if (game.getWin()) {
         hasWon = true
-        game.setStatus(GameStatus.win)
       } else {
-        // proceed to next round
+        // proceed to next roll
         game.incrementRollIndex()
       }
     }
 
-    await wait(3000)
+    await wait(2000)
     startWaitingRoom(channel)
   } catch (error) {
     console.log('****** ERROR STARTING WAITING ROOM ******', error)
