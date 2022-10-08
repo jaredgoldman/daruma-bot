@@ -136,7 +136,7 @@ export const processRegistration = async (
       }
     } else {
       const updatedUser = new User(username, discordId, address, keyedNfts)
-      await updateUser(updatedUser, user._id, discordId)
+      await updateUser(updatedUser, discordId)
     }
 
     return {

@@ -3,10 +3,9 @@ import {
   Client,
   GatewayIntentBits,
   Collection,
-  InteractionType,
   TextChannel,
   Interaction,
-  GuildEmoji,
+  InteractionType,
 } from 'discord.js'
 // Node
 import fs from 'node:fs'
@@ -35,6 +34,8 @@ const client: Client = new Client({
     GatewayIntentBits.GuildEmojisAndStickers,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildIntegrations,
+    GatewayIntentBits.DirectMessages,
   ],
 })
 
@@ -47,7 +48,7 @@ client.once('ready', async () => {
     startGame()
     console.log('Daruma Bot - Server ready')
   } catch (error) {
-    console.log('****** CLIENT ERROR ******', error)
+    console.log('****** ****** CLIENT ERROR ****** ******', error)
   }
 })
 
@@ -122,5 +123,4 @@ client.on('interactionCreate', async (interaction: Interaction) => {
     console.log('****** INTERACTION ERROR ******', error)
   }
 })
-
 client.login(token)
