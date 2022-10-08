@@ -3,7 +3,7 @@ export default class Asset {
   public localPath: string | undefined
   public wins: number
   public losses: number
-  public kos: number
+  public gamesPlayed: number
   constructor(
     public url: string,
     public id: number,
@@ -14,6 +14,6 @@ export default class Asset {
     this.localPath = undefined
     this.wins = 0
     this.losses = 0
-    this.kos = 0
+    this.gamesPlayed = 0
   }
 }

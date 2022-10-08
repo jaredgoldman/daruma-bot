@@ -1,4 +1,4 @@
-import { TextChannel } from 'discord.js'
+import { Message, TextChannel } from 'discord.js'
 import doEmbed from '../core/embeds'
 import { Embeds } from '../constants/embeds'
 import { games } from '..'
@@ -58,7 +58,7 @@ export default async function startWaitingRoom(channel: TextChannel) {
      * ******************
      */
 
-    let channelMessage: any
+    let channelMessage: Message
     const playerMessage = game
       .getPlayerArray()
       .map(
@@ -76,12 +76,13 @@ export default async function startWaitingRoom(channel: TextChannel) {
       await asyncForEach(
         playerArr,
         async (player: Player, playerIndex: number) => {
-          game.setCurrentPlayer(player)
+          // TODO: take care of this inside game logic
+          game.setCurrentPlayer(playerIndex)
           const board = game.renderBoard()
 
           // await game.editEmbed(doEmbed(Embeds.activeGame, game, { board }))
           if (!channelMessage) {
-            channel.send(playerMessage)
+            await channel.send(playerMessage)
             channelMessage = await channel.send(board)
           } else {
             await channelMessage.edit(board)
@@ -98,6 +99,8 @@ export default async function startWaitingRoom(channel: TextChannel) {
         game.incrementRollIndex()
       }
     }
+
+    // HANDLE GAME WIN MESSAGE HERE
 
     await wait(2000)
     startWaitingRoom(channel)

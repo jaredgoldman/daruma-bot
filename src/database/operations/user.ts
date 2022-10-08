@@ -12,20 +12,8 @@ export const findUserByDiscordId = async (discordId: string) =>
     discordId,
   })) as WithId<User>
 
-export const updateUser = async (
-  userData: User,
-  _id?: ObjectId | string,
-  discordId?: string
-) => {
-  if (!_id && !discordId) {
-    throw new Error(
-      'you need to provide a discordId or userId to update a user'
-    )
-  }
-  const idObject = _id ? { _id } : { discordId }
-  return await collections.users.findOneAndReplace(idObject, {
-    ...userData,
-  })
+export const updateUser = async (userData: User, discordId: string) => {
+  return await collections.users.findOneAndReplace({ discordId }, userData)
 }
 
 export const saveUser = (userData: User) =>

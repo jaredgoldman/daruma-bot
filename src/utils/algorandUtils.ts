@@ -142,7 +142,7 @@ export const findAsset = async (
   }
 }
 
-export const claimHoot = async (
+export const claimToken = async (
   amount: number,
   receiverAddress: string
 ): Promise<void> => {

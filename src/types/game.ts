@@ -51,6 +51,9 @@ export interface ChannelSettings {
   channelId: string
   gameType: GameTypes
   turnRate: number
+  token: {
+    awardOnWin: number
+  }
 }
 
 export interface WinIndexes {
