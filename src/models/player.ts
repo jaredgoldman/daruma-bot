@@ -34,7 +34,7 @@ export default class Player {
   }
 
   /*
-   * Rolls
+   * Rolls1
    */
 
   getRoundsData(): PlayerRoundsData {
@@ -94,45 +94,41 @@ export default class Player {
   /*
    * Mutations
    */
-  async doEndOfGameMutation() {
-    const user = await findUserByDiscordId(this.getDiscordId())
-    let updatedUserData: User
-    if (user) {
-      // if Win
-      if (this.getIsWinner()) {
-        const karma = user.karma + 1
-        const asset = {
-          ...this.asset,
-          wins: this.asset.wins + 1,
-          gamesPlayed: this.asset.gamesPlayed + 1,
-        }
 
-        updatedUserData = {
-          ...user,
-          karma,
-          assets: {
-            ...user.assets,
-            [this.asset.id]: asset,
-          },
-        }
-        // if ;oss
+  /**
+   *
+   * @param karmaOnWin
+   */
+  async doEndOfGameMutation(karmaOnWin: number): Promise<void> {
+    const user = await findUserByDiscordId(this.getDiscordId())
+    if (user) {
+      let karma = user.karma
+      let wins = this.asset.wins
+      let losses = this.asset.losses
+
+      if (this.getIsWinner()) {
+        karma += karmaOnWin
+        wins = +1
       } else {
-        // update losses
-        // update games lost
-        const asset = {
-          ...this.asset,
-          losses: this.asset.wins + 1,
-          gamesPlayed: this.asset.gamesPlayed + 1,
-        }
-        updatedUserData = {
-          ...user,
-          assets: {
-            ...user.assets,
-            [this.asset.id]: asset,
-          },
-        }
-        await updateUser(updatedUserData, this.getDiscordId())
+        losses = +1
       }
+
+      const asset = {
+        ...this.asset,
+        wins,
+        losses,
+        gamesPlayed: this.asset.gamesPlayed + 1,
+      }
+
+      const updatedUserData = {
+        ...user,
+        karma,
+        assets: {
+          ...user.assets,
+          [this.asset.id]: asset,
+        },
+      }
+      await updateUser(updatedUserData, this.getDiscordId())
     } else {
       console.log('****** NO USER FOUND FOR MUTATION ******', this)
     }

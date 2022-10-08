@@ -23,6 +23,7 @@ declare global {
       TOKEN_CLAWBACK_ADDRESS: string
       TOKEN_MNEMONIC: string
       CREATOR_ADDRESSES: string
+      TOKEN_WITHDRAWALS_COLLECTION_NAME: string
     }
   }
 }

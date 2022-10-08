@@ -434,7 +434,9 @@ export default class Game {
   }
 
   doFinalPlayerMutation() {
-    this.getPlayerArray().forEach((player) => player.doEndOfGameMutation())
+    this.getPlayerArray().forEach((player) =>
+      player.doEndOfGameMutation(this.settings.token.awardOnWin)
+    )
   }
 
   resetGame() {

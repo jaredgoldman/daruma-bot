@@ -18,3 +18,11 @@ export const updateUser = async (userData: User, discordId: string) => {
 
 export const saveUser = (userData: User) =>
   collections.users.insertOne(userData)
+
+export const updateUserKarma = async (discordId: string, karma: number) => {
+  return await collections.users.findOneAndUpdate(
+    { discordId },
+    //@ts-ignore
+    { $set: { karma } }
+  )
+}
