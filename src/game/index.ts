@@ -1,4 +1,4 @@
-import { Message, TextChannel } from 'discord.js'
+import { Embed, Message, TextChannel } from 'discord.js'
 import doEmbed from '../core/embeds'
 import { Embeds } from '../constants/embeds'
 import { games } from '..'
@@ -58,6 +58,7 @@ export default async function startWaitingRoom(channel: TextChannel) {
      * ******************
      */
 
+    //TODO: MAke something better for the player message
     let channelMessage: Message
     const playerMessage = game
       .getPlayerArray()
@@ -77,7 +78,7 @@ export default async function startWaitingRoom(channel: TextChannel) {
         playerArr,
         async (player: Player, playerIndex: number) => {
           // TODO: take care of this inside game logic
-          game.setCurrentPlayer(playerIndex)
+          game.setCurrentPlayer(player, playerIndex)
           const board = game.renderBoard()
 
           // await game.editEmbed(doEmbed(Embeds.activeGame, game, { board }))
@@ -101,7 +102,7 @@ export default async function startWaitingRoom(channel: TextChannel) {
     }
 
     // HANDLE GAME WIN MESSAGE HERE
-
+    await channel.send(doEmbed(Embeds.win, game))
     await wait(2000)
     startWaitingRoom(channel)
   } catch (error) {

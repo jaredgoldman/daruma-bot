@@ -3,7 +3,6 @@ import Asset from './asset'
 import { completeGameForPlayer } from '../utils/attackUtils'
 import { PlayerRoundsData, RoundData } from '../types/attack'
 import { findUserByDiscordId, updateUser } from '../database/operations/user'
-import User from './user'
 
 /**
  * Player Class
@@ -105,6 +104,7 @@ export default class Player {
       let karma = user.karma
       let wins = this.asset.wins
       let losses = this.asset.losses
+      let gamesPlayed = this.asset?.gamesPlayed || 0
 
       if (this.getIsWinner()) {
         karma += karmaOnWin
@@ -117,7 +117,7 @@ export default class Player {
         ...this.asset,
         wins,
         losses,
-        gamesPlayed: this.asset.gamesPlayed + 1,
+        gamesPlayed,
       }
 
       const updatedUserData = {
