@@ -73,7 +73,6 @@ export default function doEmbed(type: Embeds, game: Game): MessageOptions {
       break
     case Embeds.win:
       const winner = game.getWinningPlayer()
-      console.log(normalizeIpfsUrl(winner.getAsset().url))
 
       data = {
         title: 'Game Over',

@@ -4,6 +4,6 @@ export class Withdrawal {
     public amount: number,
     public address: string,
     public txId: string,
-    public timestamp: number
+    public timestamp: string
   ) {}
 }
