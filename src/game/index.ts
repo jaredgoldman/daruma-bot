@@ -1,4 +1,4 @@
-import { TextChannel } from 'discord.js'
+import { Embed, Message, TextChannel } from 'discord.js'
 import doEmbed from '../core/embeds'
 import { Embeds } from '../constants/embeds'
 import { games } from '..'
@@ -7,6 +7,7 @@ import { getChannelSettings } from '../database/operations/game'
 import { GameStatus } from '../models/game'
 import Player from '../models/player'
 import { renderBoard } from './board'
+import util from 'util'
 
 /**
  * Start game waiting room
@@ -15,9 +16,11 @@ import { renderBoard } from './board'
 export default async function startWaitingRoom(channel: TextChannel) {
   try {
     const game = games[channel.id]
+    game.resetGame()
+    // console.log(util.inspect(game, false, null, true))
     const settings = await getChannelSettings(channel.id)
     game.addSettings(settings)
-    const { maxCapacity } = settings
+    const { maxCapacity, turnRate } = settings
 
     // Send first waiting room embed
     const waitingRoomEmbed = await channel.send(
@@ -55,7 +58,8 @@ export default async function startWaitingRoom(channel: TextChannel) {
      * ******************
      */
 
-    let channelMessage: any
+    //TODO: MAke something better for the player message
+    let channelMessage: Message
     const playerMessage = game
       .getPlayerArray()
       .map(
@@ -64,47 +68,43 @@ export default async function startWaitingRoom(channel: TextChannel) {
       )
       .join('\n')
 
-    while (game.getStatus() === GameStatus.activeGame) {
+    let hasWon = false
+
+    while (!hasWon) {
       const playerArr = game.getPlayerArray()
 
       // for each player render new board
       await asyncForEach(
         playerArr,
         async (player: Player, playerIndex: number) => {
-          const { rollIndex, roundIndex } = game.getGameRoundState()
-          try {
-            const board: string = renderBoard(
-              rollIndex,
-              roundIndex,
-              playerIndex,
-              playerArr
-            )
+          // TODO: take care of this inside game logic
+          game.setCurrentPlayer(player, playerIndex)
+          const board = game.renderBoard()
 
-            // await game.editEmbed(doEmbed(Embeds.activeGame, game, { board }))
-            if (!channelMessage) {
-              channel.send(playerMessage)
-              channelMessage = await channel.send(board)
-            } else {
-              channelMessage.edit(board)
-            }
-          } catch (error) {
-            console.log(error)
-          }
-
-          //if win, stop loop
-          if (game.getWin()) {
-            game.setStatus(GameStatus.win)
+          // await game.editEmbed(doEmbed(Embeds.activeGame, game, { board }))
+          if (!channelMessage) {
+            await channel.send(playerMessage)
+            channelMessage = await channel.send(board)
           } else {
-            await wait(1000)
+            await channelMessage.edit(board)
           }
+
+          await wait(turnRate * 1000)
         }
       )
-      // proceed to next round
-      // OR same game.win to true
-      game.incrementRollIndex()
+      //if win, stop loop
+      if (game.getWin()) {
+        hasWon = true
+      } else {
+        // proceed to next roll
+        game.incrementRollIndex()
+      }
     }
 
-    console.log('game over')
+    // HANDLE GAME WIN MESSAGE HERE
+    await channel.send(doEmbed(Embeds.win, game))
+    await wait(2000)
+    startWaitingRoom(channel)
   } catch (error) {
     console.log('****** ERROR STARTING WAITING ROOM ******', error)
   }

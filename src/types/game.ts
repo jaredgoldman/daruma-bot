@@ -50,6 +50,10 @@ export interface ChannelSettings {
   rollInterval: number
   channelId: string
   gameType: GameTypes
+  turnRate: number
+  token: {
+    awardOnWin: number
+  }
 }
 
 export interface WinIndexes {
@@ -61,4 +65,5 @@ export interface GameRoundState {
   rollIndex: number
   roundIndex: number
   playerIndex: number
+  currentPlayer?: Player
 }

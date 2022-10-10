@@ -1,15 +1,15 @@
-import { ObjectId } from 'mongodb'
+import { PlayerRoundsData } from '../types/attack'
+import { GameRoundState } from '../types/game'
 
 export default class Encounter {
-  rounds: number
-  startTime: number
-
   constructor(
-    public winnerDiscordId: number,
+    public winnerDiscordId: string,
     public gameType: string,
-    public endTime: number
-  ) {
-    this.rounds = 0
-    this.startTime = Date.now()
-  }
+    public startTime: number,
+    public endTime: number,
+    public rounds: number,
+    public playerRoundState: { [key: string]: PlayerRoundsData },
+    public endOfGameRoundState: GameRoundState,
+    public channelId: string
+  ) {}
 }

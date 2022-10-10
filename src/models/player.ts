@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb'
 import Asset from './asset'
 import { completeGameForPlayer } from '../utils/attackUtils'
 import { PlayerRoundsData, RoundData } from '../types/attack'
+import { findUserByDiscordId, updateUser } from '../database/operations/user'
 
 /**
  * Player Class
@@ -32,7 +33,7 @@ export default class Player {
   }
 
   /*
-   * Rolls
+   * Rolls1
    */
 
   getRoundsData(): PlayerRoundsData {
@@ -67,14 +68,13 @@ export default class Player {
     return this.isWinner
   }
 
-  setIsWinner(): void {
+  winGame(): void {
     this.isWinner = true
   }
 
   /*
    * Username
    */
-
   getUsername(): string {
     return this.username
   }
@@ -88,5 +88,49 @@ export default class Player {
 
   setDiscordId(discordId: string): void {
     this.discordId = discordId
+  }
+
+  /*
+   * Mutations
+   */
+
+  /**
+   *
+   * @param karmaOnWin
+   */
+  async doEndOfGameMutation(karmaOnWin: number): Promise<void> {
+    const user = await findUserByDiscordId(this.getDiscordId())
+    if (user) {
+      let karma = user.karma
+      let wins = this.asset.wins
+      let losses = this.asset.losses
+      let gamesPlayed = this.asset?.gamesPlayed || 0
+
+      if (this.getIsWinner()) {
+        karma += karmaOnWin
+        wins = +1
+      } else {
+        losses = +1
+      }
+
+      const asset = {
+        ...this.asset,
+        wins,
+        losses,
+        gamesPlayed,
+      }
+
+      const updatedUserData = {
+        ...user,
+        karma,
+        assets: {
+          ...user.assets,
+          [this.asset.id]: asset,
+        },
+      }
+      await updateUser(updatedUserData, this.getDiscordId())
+    } else {
+      console.log('****** NO USER FOUND FOR MUTATION ******', this)
+    }
   }
 }
