@@ -3,9 +3,9 @@ import {
   Client,
   GatewayIntentBits,
   Collection,
-  InteractionType,
   TextChannel,
   Interaction,
+  InteractionType,
 } from 'discord.js'
 // Node
 import fs from 'node:fs'
@@ -15,15 +15,17 @@ import { connectToDatabase } from './database/database.service'
 // Schema
 import Game from './models/game'
 // Helpers
-import { convergeTxnData } from './utils/algorand'
-import { asyncForEach } from './utils/shared'
+import { convergeTxnData } from './utils/algorandUtils'
+import { asyncForEach } from './utils/sharedUtils'
 import startWaitingRoom from './game'
 import { getSettings } from './database/operations/game'
 import { ChannelSettings, GameTypes } from './types/game'
+import gatherEmojis from './core/emojis'
 
 const token = process.env.DISCORD_TOKEN as string
 const creatorAddresses = process.env.CREATOR_ADDRESSES as string
 export const games: { [key: string]: Game } = {}
+export let emojis: { [key: number | string]: string } = {}
 export const creatorAddressArr = creatorAddresses?.split(',')
 
 const client: Client = new Client({
@@ -32,6 +34,8 @@ const client: Client = new Client({
     GatewayIntentBits.GuildEmojisAndStickers,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildIntegrations,
+    GatewayIntentBits.DirectMessages,
   ],
 })
 
@@ -39,11 +43,12 @@ client.once('ready', async () => {
   try {
     await connectToDatabase()
     await txnDataSetup()
+    emojis = gatherEmojis(client)
     setupCommands()
     startGame()
     console.log('Daruma Bot - Server ready')
   } catch (error) {
-    console.log('****** CLIENT ERROR ******', error)
+    console.log('****** ****** CLIENT ERROR ****** ******', error)
   }
 })
 
@@ -118,5 +123,4 @@ client.on('interactionCreate', async (interaction: Interaction) => {
     console.log('****** INTERACTION ERROR ******', error)
   }
 })
-
 client.login(token)

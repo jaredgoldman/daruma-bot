@@ -4,7 +4,7 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 import { games } from '..'
 import { findUserByDiscordId } from '../database/operations/user'
 import { getChannelSettings } from '../database/operations/game'
-import { confirmRole } from '../utils/helpers'
+import { confirmRole } from '../utils/discordUtils'
 import { GameStatus } from '../models/game'
 
 const adminId = process.env.ADMIN_ROLE_ID as string

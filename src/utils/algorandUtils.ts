@@ -1,5 +1,5 @@
 import { AlgoAsset, AlgoAssetData, Txn, TxnData } from '../types/user'
-import { asyncForEach, wait } from './shared'
+import { asyncForEach, wait } from './sharedUtils'
 import algosdk from 'algosdk'
 import fs from 'fs'
 import Asset from '../models/asset'
@@ -8,6 +8,8 @@ import Asset from '../models/asset'
 import { creatorAddressArr } from '..'
 
 import { getChannelSettings } from '../database/operations/game'
+import PendingTransactionInformation from 'algosdk/dist/types/src/client/v2/algod/pendingTransactionInformation'
+import { TxnStatus } from '../types/token'
 
 const algoNode = process.env.ALGO_NODE as string
 const pureStakeApi = process.env.PURESTAKE_API_TOKEN as string
@@ -142,10 +144,10 @@ export const findAsset = async (
   }
 }
 
-export const claimHoot = async (
+export const claimToken = async (
   amount: number,
   receiverAddress: string
-): Promise<void> => {
+): Promise<TxnStatus | undefined> => {
   try {
     const params = await algodClient.getTransactionParams().do()
     const { sk, addr: senderAddress } =
@@ -166,10 +168,17 @@ export const claimHoot = async (
       assetId,
       params
     )
-
     const rawSignedTxn = xtxn.signTxn(sk)
     let xtx = await algodClient.sendRawTransaction(rawSignedTxn).do()
-    await algosdk.waitForConfirmation(algodClient, xtx.txId, 4)
+    const status = (await algosdk.waitForConfirmation(
+      algodClient,
+      xtx.txId,
+      4
+    )) as PendingTransactionInformation
+    return {
+      status,
+      txId: xtx.txId,
+    }
   } catch (error) {
     console.log(error)
   }
