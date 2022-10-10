@@ -53,7 +53,13 @@ module.exports = {
       const txnData = await claimToken(karma, address)
       if (txnData) {
         saveWithdrawal(
-          new Withdrawal(user.id, karma, address, txnData.txId, Date.now())
+          new Withdrawal(
+            user.id,
+            karma,
+            address,
+            txnData.txId,
+            new Date(Date.now()).toTimeString()
+          )
         )
         return interaction.editReply(
           `Congrats, you've just received ${karma} Karma!`
