@@ -13,6 +13,7 @@ import { checkIfRegisteredPlayer } from '../utils/gameUtils'
 // Globals
 import { games } from '..'
 import { GameStatus } from '../models/game'
+import Asset from '../models/asset'
 
 const assetDir = process.env.ASSET_DIR as string
 
@@ -51,7 +52,7 @@ module.exports = {
             discordId: user.id,
           })) as WithId<User>
 
-        const asset = assets[assetId]
+        const asset: Asset = assets[assetId]
 
         // Handle cooldown for asset
         const coolDown = coolDowns ? coolDowns[assetId] : null

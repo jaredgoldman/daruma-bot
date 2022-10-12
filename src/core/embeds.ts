@@ -24,11 +24,7 @@ const defaultEmbedValues: EmbedData = {
   },
 }
 
-export default function doEmbed(
-  type: Embeds,
-  game: Game,
-  options?: EmbedData
-): MessageOptions {
+export default function doEmbed(type: Embeds, game: Game): MessageOptions {
   let data: EmbedData = defaultEmbedValues
   let components: any = []
 
@@ -70,10 +66,18 @@ export default function doEmbed(
       )
       break
     case Embeds.activeGame:
-      console.log(options?.board)
       data = {
         title: 'Active Game',
-        description: options?.board,
+        description: game.getBoard(),
+      }
+      break
+    case Embeds.win:
+      const winner = game.getWinningPlayer()
+
+      data = {
+        title: 'Game Over',
+        description: `Congratulations ${winner.getUsername()}! You won the game!`,
+        image: normalizeIpfsUrl(winner.getAsset().url),
       }
       break
     default: {

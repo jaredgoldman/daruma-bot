@@ -3,6 +3,7 @@ import Encounter from './encounter'
 import { GameRoundState, GameTypes } from '../types/game'
 import { ChannelSettings } from '../types/game'
 import { MessageOptions } from 'discord.js'
+// import util from 'util'
 import { PlayerRoundsData } from '../types/attack'
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { renderBoard } from '../game/board'
@@ -30,6 +31,7 @@ export default class Game {
     this.gameRoundState = defaultGameRoundState
     this.startTime = Date.now()
     this.winnerDiscordId = ''
+    this.board = ''
   }
 
   private players: { [key: string]: Player }
@@ -44,6 +46,7 @@ export default class Game {
   private gameRoundState: GameRoundState
   private startTime: number
   private endTime: number | undefined
+  private board: string
 
   /*
    * GAME TYPE
@@ -69,6 +72,9 @@ export default class Game {
   }
 
   addPlayer(player: Player) {
+    if (!this.getPlayerCount()) {
+      this.setCurrentPlayer(player, 0)
+    }
     this.players[player.getDiscordId()] = player
     // update games winning index
     const { gameWinRollIndex, gameWinRoundIndex, rounds } =
@@ -143,6 +149,10 @@ export default class Game {
 
   getWinnerDiscordId() {
     return this.winnerDiscordId
+  }
+
+  getWinningPlayer() {
+    return this.getPlayer(this.getWinnerDiscordId())
   }
 
   getWinningRoundIndex() {
@@ -311,8 +321,8 @@ export default class Game {
     return this.gameRoundState.roundIndex + 1
   }
 
-  setCurrentPlayer(playerIndex: number) {
-    this.gameRoundState.currentPlayer = this.getPlayerArray()[playerIndex]
+  setCurrentPlayer(player: Player, playerIndex: number) {
+    this.gameRoundState.currentPlayer = player
     this.gameRoundState.playerIndex = playerIndex
   }
 
@@ -421,13 +431,23 @@ export default class Game {
     return playerRoundsData
   }
 
+  setBoard(board: string) {
+    this.board = board
+  }
+
+  getBoard() {
+    return this.board
+  }
+
   renderBoard() {
-    return renderBoard(
+    const board = renderBoard(
       this.getRollIndex(),
       this.getRoundIndex(),
       this.getGameRoundState().playerIndex,
       this.getPlayerArray()
     )
+    this.setBoard(board)
+    return board
   }
 
   /**
