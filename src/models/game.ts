@@ -1,13 +1,14 @@
 import Player from './player'
-import NPC from './npc'
 import Encounter from './encounter'
 import { GameRoundState, GameTypes } from '../types/game'
 import { ChannelSettings } from '../types/game'
 import { MessageOptions } from 'discord.js'
-import util from 'util'
 import { PlayerRoundsData } from '../types/attack'
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { renderBoard } from '../game/board'
+import Asset from './asset'
+import { ObjectId } from 'mongodb'
+// import util from 'util'
 
 /**
  *
@@ -26,7 +27,6 @@ export default class Game {
     this.embed = undefined
     this.doUpdate = false
     this.players = {}
-    this.npc = undefined
     this.gameRoundState = defaultGameRoundState
     this.startTime = Date.now()
     this.winnerDiscordId = ''
@@ -41,7 +41,6 @@ export default class Game {
   private rounds: number
   private doUpdate: boolean
   private embed: any
-  private npc: NPC | undefined
   private gameRoundState: GameRoundState
   private startTime: number
   private endTime: number | undefined
@@ -252,8 +251,18 @@ export default class Game {
    * NPC
    */
 
+  // TODO: add real asset npc, generate random name
   addNpc() {
-    this.npc = new NPC()
+    this.addPlayer(
+      new Player(
+        'npc player',
+        'npcDiscordId',
+        '1234567',
+        new Asset('$', 12345, 'npcasset', 'npcasset'),
+        new ObjectId('123456789012'),
+        true
+      )
+    )
   }
 
   /*
@@ -446,7 +455,6 @@ export default class Game {
     this.embed = undefined
     this.doUpdate = false
     this.removePlayers()
-    this.npc = undefined
     this.addSettings(defaultSettings)
     this.setDefaultGameRoundState()
   }
@@ -463,8 +471,6 @@ const defaultSettings: ChannelSettings = {
   maxAssets: 20,
   minCapacity: 2,
   maxCapacity: 2,
-  npcHp: 100,
-  rollInterval: 1000,
   channelId: '1005510693707067402',
   gameType: GameTypes.FourVsNpc,
   turnRate: 2,

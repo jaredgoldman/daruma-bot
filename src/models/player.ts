@@ -15,14 +15,16 @@ export default class Player {
   private address: string
   private userId: ObjectId
   private isWinner: boolean
-  private username
+  private username: string
+  private isNpc: boolean
 
   constructor(
     username: string,
     discordId: string,
     address: string,
     asset: Asset,
-    userId: ObjectId
+    userId: ObjectId,
+    isNpc: boolean = false
   ) {
     this.roundsData = completeGameForPlayer()
     this.username = username
@@ -31,6 +33,7 @@ export default class Player {
     this.asset = asset
     this.userId = userId
     this.isWinner = false
+    this.isNpc = isNpc
   }
 
   /*
@@ -92,14 +95,22 @@ export default class Player {
   }
 
   /*
+   * NPC
+   */
+
+  getIsNpc(): boolean {
+    return this.isNpc
+  }
+
+  /*
    * Mutations
    */
 
   /**
-   *
    * @param karmaOnWin
    */
   async doEndOfGameMutation(karmaOnWin: number): Promise<void> {
+    if (this.isNpc) return
     const user = await findUserByDiscordId(this.getDiscordId())
     if (user) {
       let karma = user.karma

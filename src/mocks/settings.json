@@ -1,0 +1,35 @@
+[
+  {
+    "maxAssets": 20,
+    "minCapacity": 1,
+    "maxCapacity": 1,
+    "channelId": "1019029489080086570",
+    "gameType": "OneVsNpc",
+    "turnRate": 2,
+    "token": {
+      "awardOnWin": 10
+    }
+  },
+  {
+    "maxAssets": 20,
+    "minCapacity": 1,
+    "maxCapacity": 2,
+    "channelId": "1029589916419625050",
+    "gameType": "OneVsOne",
+    "turnRate": 2,
+    "token": {
+      "awardOnWin": 10
+    }
+  },
+  {
+    "maxAssets": 20,
+    "minCapacity": 4,
+    "maxCapacity": 4,
+    "channelId": "1029589991589949513",
+    "gameType": "FourVsNpc",
+    "turnRate": 2,
+    "token": {
+      "awardOnWin": 10
+    }
+  }
+]

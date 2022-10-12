@@ -56,13 +56,12 @@ const startGame = async () => {
   try {
     const settings = await getSettings()
     // start game for each channel
-    asyncForEach(settings, async (settings: ChannelSettings) => {
+    await asyncForEach(settings, async (settings: ChannelSettings) => {
       const { channelId, maxCapacity, gameType } = settings
       const channel = client.channels.cache.get(channelId) as TextChannel
       const newGame = new Game(maxCapacity, channelId, gameType, settings)
-      if (gameType !== GameTypes.OneVsOne) newGame.addNpc()
       games[settings.channelId] = newGame
-      await startWaitingRoom(channel)
+      startWaitingRoom(channel)
     })
   } catch (error) {
     console.log('****** ERROR STARTING GAMES ******', error)

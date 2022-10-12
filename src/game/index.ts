@@ -8,6 +8,7 @@ import { GameStatus } from '../models/game'
 import Player from '../models/player'
 import { renderBoard } from './board'
 import util from 'util'
+import { GameTypes } from '../types/game'
 
 /**
  * Start game waiting room
@@ -17,6 +18,10 @@ export default async function startWaitingRoom(channel: TextChannel) {
   try {
     const game = games[channel.id]
     game.resetGame()
+
+    if (game.getType() !== GameTypes.OneVsOne) {
+      game.addNpc()
+    }
     // console.log(util.inspect(game, false, null, true))
     const settings = await getChannelSettings(channel.id)
     game.addSettings(settings)

@@ -34,7 +34,7 @@ type Footer = {
  */
 export enum GameTypes {
   OneVsNpc = 'OneVsNpc',
-  OneVsOne = 'OneVSOne',
+  OneVsOne = 'OneVsOne',
   FourVsNpc = 'FourVsNpc',
 }
 
@@ -46,8 +46,6 @@ export interface ChannelSettings {
   maxAssets: number
   minCapacity: number
   maxCapacity: number
-  npcHp: number
-  rollInterval: number
   channelId: string
   gameType: GameTypes
   turnRate: number
