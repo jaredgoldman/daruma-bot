@@ -49,7 +49,7 @@ export interface ChannelSettings {
   channelId: string
   gameType: GameTypes
   turnRate: number
-  cooldown: number
+  coolDown: number
   token: {
     awardOnWin: number
   }

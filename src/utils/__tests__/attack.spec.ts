@@ -1,6 +1,18 @@
 import { PlayerRoundsData } from '../../types/attack'
 import { diceRolls, damageCalc } from '../attackUtils'
+import { rollDice } from '../damageUtils'
 import util from 'util'
+
+describe('RNG test suite', () => {
+  it('produces correct numbers', () => {
+    for (let i = 1; i < 10; i++) {
+      const { diceValue, number } = rollDice()
+      expect(diceValue <= 6).toBeTruthy()
+      expect(number === 1 || number === 2 || number === 3).toBeTruthy()
+    }
+  })
+})
+
 describe('Test Dice Rolls', () => {
   const rolls = diceRolls(100)
   const belowSix = (diceSide: number) => diceSide <= 6

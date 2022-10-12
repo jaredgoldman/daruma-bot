@@ -17,13 +17,14 @@ export default async function startWaitingRoom(channel: TextChannel) {
   try {
     const game = games[channel.id]
     game.resetGame()
+    // console.log(util.inspect(game, false, null, true))
+    const settings = await getChannelSettings(channel.id)
+    game.addSettings(settings)
 
     if (game.getType() !== GameTypes.OneVsOne) {
       game.addNpc()
     }
-    // console.log(util.inspect(game, false, null, true))
-    const settings = await getChannelSettings(channel.id)
-    game.addSettings(settings)
+
     const { maxCapacity, turnRate } = settings
 
     // Send first waiting room embed

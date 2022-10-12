@@ -114,7 +114,7 @@ export default class Player {
     if (this.isNpc) return
     const {
       token: { awardOnWin },
-      cooldown,
+      coolDown,
     } = settings
     const user = await findUserByDiscordId(this.getDiscordId())
     if (user) {
@@ -122,13 +122,13 @@ export default class Player {
       let wins = this.asset.wins
       let losses = this.asset.losses
       let gamesPlayed = this.asset?.gamesPlayed || 0
-      const coolDownDoneDate = Date.now() + cooldown
 
+      const coolDownDoneDate = Date.now() + coolDown
       if (this.getIsWinner()) {
         karma += awardOnWin
-        wins = +1
+        wins = 1
       } else {
-        losses = +1
+        losses += 1
       }
 
       const asset = {
