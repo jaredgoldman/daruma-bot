@@ -3,6 +3,8 @@ import Asset from './asset'
 import { completeGameForPlayer } from '../utils/attackUtils'
 import { PlayerRoundsData, RoundData } from '../types/attack'
 import { findUserByDiscordId, updateUser } from '../database/operations/user'
+import { ChannelSettings } from '../types/game'
+import User from './user'
 
 /**
  * Player Class
@@ -108,17 +110,22 @@ export default class Player {
   /**
    * @param karmaOnWin
    */
-  async doEndOfGameMutation(karmaOnWin: number): Promise<void> {
+  async doEndOfGameMutation(settings: ChannelSettings): Promise<void> {
     if (this.isNpc) return
+    const {
+      token: { awardOnWin },
+      cooldown,
+    } = settings
     const user = await findUserByDiscordId(this.getDiscordId())
     if (user) {
       let karma = user.karma
       let wins = this.asset.wins
       let losses = this.asset.losses
       let gamesPlayed = this.asset?.gamesPlayed || 0
+      const coolDownDoneDate = Date.now() + cooldown
 
       if (this.getIsWinner()) {
-        karma += karmaOnWin
+        karma += awardOnWin
         wins = +1
       } else {
         losses = +1
@@ -131,13 +138,14 @@ export default class Player {
         gamesPlayed,
       }
 
-      const updatedUserData = {
+      const updatedUserData: User = {
         ...user,
         karma,
         assets: {
           ...user.assets,
           [this.asset.id]: asset,
         },
+        coolDowns: { ...user.coolDowns, [this.asset.id]: coolDownDoneDate },
       }
       await updateUser(updatedUserData, this.getDiscordId())
     } else {

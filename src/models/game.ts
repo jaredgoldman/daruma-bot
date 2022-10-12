@@ -32,6 +32,7 @@ export default class Game {
     this.startTime = Date.now()
     this.winnerDiscordId = ''
     this.board = ''
+    this.hasNpc = false
   }
 
   private players: { [key: string]: Player }
@@ -47,6 +48,7 @@ export default class Game {
   private startTime: number
   private endTime: number | undefined
   private board: string
+  private hasNpc: boolean
 
   /*
    * GAME TYPE
@@ -273,6 +275,15 @@ export default class Game {
         true
       )
     )
+    this.setHasNpc(true)
+  }
+
+  getHasNpc() {
+    return this.hasNpc
+  }
+
+  setHasNpc(hasNpc: boolean) {
+    this.hasNpc = hasNpc
   }
 
   /*
@@ -399,29 +410,29 @@ export default class Game {
     console.log('roll index: ', this.gameRoundState.rollIndex)
   }
 
-  /** Returns the win roll and round index of the first player to reach it in game
-   * @param players
-   * @returns
-   */
-  getWinIndexes() {
-    const winIndexes = this.getPlayerArray().reduce(
-      ({ roll, round }, player) => {
-        const { gameWinRollIndex, gameWinRoundIndex } = player.getRoundsData()
+  // /** Returns the win roll and round index of the first player to reach it in game
+  //  * @param players
+  //  * @returns
+  //  */
+  // getWinIndexes() {
+  //   const winIndexes = this.getPlayerArray().reduce(
+  //     ({ roll, round }, player) => {
+  //       const { gameWinRollIndex, gameWinRoundIndex } = player.getRoundsData()
 
-        // if round is highter replace
-        if (gameWinRoundIndex > round) {
-          return { roll: gameWinRollIndex, round: gameWinRoundIndex }
-        }
+  //       // if round is highter replace
+  //       if (gameWinRoundIndex > round) {
+  //         return { roll: gameWinRollIndex, round: gameWinRoundIndex }
+  //       }
 
-        if (gameWinRoundIndex === round && gameWinRollIndex > roll) {
-          return { roll: gameWinRollIndex, round: gameWinRoundIndex }
-        }
-        return { roll, round }
-      },
-      { roll: 0, round: 0 }
-    )
-    return winIndexes
-  }
+  //       if (gameWinRoundIndex === round && gameWinRollIndex > roll) {
+  //         return { roll: gameWinRollIndex, round: gameWinRoundIndex }
+  //       }
+  //       return { roll, round }
+  //     },
+  //     { roll: 0, round: 0 }
+  //   )
+  //   return winIndexes
+  // }
 
   getPlayersRoundsData(): { [key: string]: PlayerRoundsData } {
     const playerRoundsData: { [key: string]: PlayerRoundsData } = {}
@@ -464,7 +475,7 @@ export default class Game {
 
   doFinalPlayerMutation() {
     this.getPlayerArray().forEach((player) =>
-      player.doEndOfGameMutation(this.settings.token.awardOnWin)
+      player.doEndOfGameMutation(this.settings)
     )
   }
 
@@ -494,6 +505,7 @@ const defaultSettings: ChannelSettings = {
   channelId: '1005510693707067402',
   gameType: GameTypes.FourVsNpc,
   turnRate: 2,
+  cooldown: 0,
   token: {
     awardOnWin: 10,
   },

@@ -6,6 +6,7 @@
     "channelId": "1019029489080086570",
     "gameType": "OneVsNpc",
     "turnRate": 2,
+    "coolDown": 2700000,
     "token": {
       "awardOnWin": 10
     }
@@ -17,6 +18,7 @@
     "channelId": "1029589916419625050",
     "gameType": "OneVsOne",
     "turnRate": 2,
+    "coolDown": 3600000,
     "token": {
       "awardOnWin": 10
     }
@@ -28,6 +30,7 @@
     "channelId": "1029589991589949513",
     "gameType": "FourVsNpc",
     "turnRate": 2,
+    "coolDown": 28800000,
     "token": {
       "awardOnWin": 10
     }

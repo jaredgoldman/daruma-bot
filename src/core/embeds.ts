@@ -29,7 +29,7 @@ export default function doEmbed(type: Embeds, game: Game): MessageOptions {
   let components: any = []
 
   const playerArr = game.getPlayerArray()
-  const playerCount = playerArr.length
+  const playerCount = game.getHasNpc() ? playerArr.length - 1 : playerArr.length
 
   switch (type) {
     case Embeds.waitingRoom:
@@ -40,12 +40,17 @@ export default function doEmbed(type: Embeds, game: Game): MessageOptions {
         title: 'Waiting Room',
         description: `${playerCount} ${playerWord} ${hasWord} joined the game.`,
         files: [],
-        fields: playerArr.map((player) => {
-          return {
-            name: player.getUsername(),
-            value: player.asset.alias || player.asset.name,
-          }
-        }),
+        fields: playerArr
+          .map((player) => {
+            if (player.getIsNpc()) {
+              // do nothing
+            }
+            return {
+              name: player.getUsername(),
+              value: player.asset.alias || player.asset.name,
+            }
+          })
+          .filter(Boolean),
       }
 
       components.push(
