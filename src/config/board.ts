@@ -39,4 +39,5 @@ class BoardConfig {
   }
 }
 
+// TODO: fetch this from db
 export default new BoardConfig(4, 3, 2, 3, 2, 5)

@@ -6,8 +6,8 @@ import { asyncForEach, wait } from '../utils/sharedUtils'
 import { getChannelSettings } from '../database/operations/game'
 import { GameStatus } from '../models/game'
 import Player from '../models/player'
-import { renderBoard } from './board'
-import util from 'util'
+// import util from 'util'
+import { GameTypes } from '../types/game'
 
 /**
  * Start game waiting room
@@ -20,6 +20,11 @@ export default async function startWaitingRoom(channel: TextChannel) {
     // console.log(util.inspect(game, false, null, true))
     const settings = await getChannelSettings(channel.id)
     game.addSettings(settings)
+
+    if (game.getType() !== GameTypes.OneVsOne) {
+      game.addNpc()
+    }
+
     const { maxCapacity, turnRate } = settings
 
     // Send first waiting room embed

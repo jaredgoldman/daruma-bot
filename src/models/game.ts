@@ -1,5 +1,4 @@
 import Player from './player'
-import NPC from './npc'
 import Encounter from './encounter'
 import { GameRoundState, GameTypes } from '../types/game'
 import { ChannelSettings } from '../types/game'
@@ -8,6 +7,10 @@ import { MessageOptions } from 'discord.js'
 import { PlayerRoundsData } from '../types/attack'
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { renderBoard } from '../game/board'
+import Asset from './asset'
+import { ObjectId } from 'mongodb'
+import { throws } from 'assert'
+// import util from 'util'
 
 /**
  *
@@ -16,21 +19,18 @@ export default class Game {
   constructor(
     private capacity: number,
     private channelId: string,
-    private type: GameTypes,
     private settings: ChannelSettings // private m
   ) {
-    this.type = type
     this.status = GameStatus.waitingRoom
     this.win = false
     this.rounds = 0
     this.embed = undefined
     this.doUpdate = false
     this.players = {}
-    this.npc = undefined
     this.gameRoundState = defaultGameRoundState
     this.startTime = Date.now()
-    this.winnerDiscordId = ''
     this.board = ''
+    this.hasNpc = false
   }
 
   private players: { [key: string]: Player }
@@ -38,15 +38,16 @@ export default class Game {
   private win: boolean
   private winningRoundIndex: number | undefined
   private winningRollIndex: number | undefined
-  private winnerDiscordId: string
   private rounds: number
   private doUpdate: boolean
   private embed: any
-  private npc: NPC | undefined
   private gameRoundState: GameRoundState
   private startTime: number
   private endTime: number | undefined
   private board: string
+  private hasNpc: boolean
+  private type: GameTypes = GameTypes.OneVsNpc
+  private winnerDiscordIds: Player[] = []
 
   /*
    * GAME TYPE
@@ -54,6 +55,10 @@ export default class Game {
 
   getType() {
     return this.type
+  }
+
+  setGameType(type: GameTypes) {
+    this.type = type
   }
 
   /*
@@ -80,11 +85,7 @@ export default class Game {
     const { gameWinRollIndex, gameWinRoundIndex, rounds } =
       player.getRoundsData()
     // console.log(util.inspect(rounds, false, null, true))
-    this.compareAndSetWinningIndexes(
-      gameWinRollIndex,
-      gameWinRoundIndex,
-      player
-    )
+    this.compareAndSetWinningIndexes(gameWinRollIndex, gameWinRoundIndex)
   }
 
   getPlayerCount() {
@@ -121,6 +122,7 @@ export default class Game {
   setStatus(statusType: GameStatus) {
     if (statusType === GameStatus.activeGame) {
       this.startTime = Date.now()
+      this.storeWinningPlayerDiscordIds()
     }
     if (statusType === GameStatus.win) {
       this.endTime = Date.now()
@@ -143,20 +145,20 @@ export default class Game {
     return this.win
   }
 
-  setWinnerDiscordId(winnerDiscordId: string) {
-    this.winnerDiscordId = winnerDiscordId
-  }
+  // setWinnerDiscordId(winnerDiscordId: string) {
+  //   this.winnerDiscordId = winnerDiscordId
+  // }
 
-  getWinnerDiscordId() {
-    return this.winnerDiscordId
-  }
+  // getWinnerDiscordId() {
+  //   return this.winnerDiscordId
+  // }
 
-  getWinningPlayer() {
-    return this.getPlayer(this.getWinnerDiscordId())
-  }
+  // getWinningPlayer() {
+  //   return this.getPlayer(this.getWinnerDiscordId())
+  // }
 
   getWinningRoundIndex() {
-    return this.winningRoundIndex
+    return this.winningRoundIndex || Infinity
   }
 
   setWiningRoundIndex(roundIndex: number) {
@@ -164,11 +166,19 @@ export default class Game {
   }
 
   getWinningRollIndex() {
-    return this.winningRollIndex
+    return this.winningRollIndex || Infinity
   }
 
   setWinningRollIndex(rollIndex: number) {
     this.winningRollIndex = rollIndex
+  }
+
+  addWinningPlayer(player: Player) {
+    this.winnerDiscordIds.push(player)
+  }
+
+  getWinningPlayerDiscordIds() {
+    return this.winnerDiscordIds
   }
 
   /**
@@ -178,32 +188,22 @@ export default class Game {
    * @param roundIndex
    * @param player
    */
-  compareAndSetWinningIndexes(
-    rollIndex: number,
-    roundIndex: number,
-    player: Player
-  ) {
+  compareAndSetWinningIndexes(rollIndex: number, roundIndex: number) {
     // if no winning indexes set yet
-    if (!this.winningRollIndex || !this.winningRoundIndex) {
-      this.winningRollIndex = rollIndex
-      this.winningRoundIndex = roundIndex
-      this.setWinnerDiscordId(player.getDiscordId())
-    }
-
-    // if the round index is lower  than the current orund index, change it
-    if (roundIndex < this.winningRoundIndex) {
-      this.winningRoundIndex = roundIndex
-      this.winningRollIndex = rollIndex
-      this.setWinnerDiscordId(player.getDiscordId())
-    }
-    // if the round index is the same, but the roll index is lower, change it
-    if (
-      roundIndex === this.winningRoundIndex &&
-      rollIndex < this.winningRollIndex
+    if (!this.getWinningRollIndex() || !this.getWinningRoundIndex()) {
+      this.setWinningRollIndex(rollIndex)
+      this.setWiningRoundIndex(roundIndex)
+      // if the incoming round index is lower than the current ruund index, change it
+    } else if (roundIndex < this.getWinningRoundIndex()) {
+      this.setWinningRollIndex(rollIndex)
+      this.setWiningRoundIndex(roundIndex)
+      // if the round index is the same, but the roll index is lower, change it
+    } else if (
+      roundIndex === this.getWinningRoundIndex() &&
+      rollIndex < this.getWinningRollIndex()
     ) {
-      this.winningRollIndex = rollIndex
-      this.winningRoundIndex = roundIndex
-      this.setWinnerDiscordId(player.getDiscordId())
+      this.setWinningRollIndex(rollIndex)
+      this.setWiningRoundIndex(roundIndex)
     }
   }
 
@@ -261,8 +261,27 @@ export default class Game {
    * NPC
    */
 
+  // TODO: add real asset npc, generate random name
   addNpc() {
-    this.npc = new NPC()
+    this.addPlayer(
+      new Player(
+        'npc player',
+        'npcDiscordId',
+        '1234567',
+        new Asset('$', 12345, 'npcasset', 'npcasset'),
+        new ObjectId('123456789012'),
+        true
+      )
+    )
+    this.setHasNpc(true)
+  }
+
+  getHasNpc() {
+    return this.hasNpc
+  }
+
+  setHasNpc(hasNpc: boolean) {
+    this.hasNpc = hasNpc
   }
 
   /*
@@ -270,6 +289,7 @@ export default class Game {
    */
   addSettings(settings: ChannelSettings) {
     this.settings = settings
+    this.setGameType(settings.gameType)
   }
 
   getSettings() {
@@ -363,12 +383,14 @@ export default class Game {
    * OPERATIONS
    */
   saveEncounter() {
-    if (!this.winnerDiscordId) {
+    console.log(this.winnerDiscordIds)
+    if (!this.winnerDiscordIds.length) {
       throw new Error('the game must have a winner to save an encounter')
     }
+
     saveEncounterToDb(
       new Encounter(
-        this.winnerDiscordId,
+        this.winnerDiscordIds,
         this.type,
         this.getStartTime(),
         this.getEndTime() as number,
@@ -381,37 +403,56 @@ export default class Game {
   }
 
   logState() {
-    console.log(`****** ROUND ${this.gameRoundState.roundIndex + 1} ******`)
+    // console.log(`****** ROUND ${this.gameRoundState.roundIndex + 1} ******`)
     // console.log('winning round index', this.winningRoundIndex)
     // console.log('winning roll index', this.winningRollIndex)
-    console.log('player index', this.gameRoundState.playerIndex)
-    console.log('round index: ', this.gameRoundState.roundIndex)
-    console.log('roll index: ', this.gameRoundState.rollIndex)
+    // console.log('player index', this.gameRoundState.playerIndex)
+    // console.log('round index: ', this.gameRoundState.roundIndex)
+    // console.log('roll index: ', this.gameRoundState.rollIndex)
   }
 
-  /** Returns the win roll and round index of the first player to reach it in game
-   * @param players
-   * @returns
-   */
-  getWinIndexes() {
-    const winIndexes = this.getPlayerArray().reduce(
-      ({ roll, round }, player) => {
-        const { gameWinRollIndex, gameWinRoundIndex } = player.getRoundsData()
-
-        // if round is highter replace
-        if (gameWinRoundIndex > round) {
-          return { roll: gameWinRollIndex, round: gameWinRoundIndex }
-        }
-
-        if (gameWinRoundIndex === round && gameWinRollIndex > roll) {
-          return { roll: gameWinRollIndex, round: gameWinRoundIndex }
-        }
-        return { roll, round }
-      },
-      { roll: 0, round: 0 }
-    )
-    return winIndexes
+  storeWinningPlayerDiscordIds() {
+    if (!this.getWinningRollIndex() || !this.getWinningRoundIndex()) return
+    // loop through players
+    this.getPlayerArray().forEach((player: Player) => {
+      const winningRollIndex = player.getRoundsData().gameWinRollIndex
+      const winningRoundIndex = player.getRoundsData().gameWinRoundIndex
+      console.log('winning roll index', winningRollIndex)
+      console.log('winning round index', winningRoundIndex)
+      if (
+        winningRollIndex === this.getWinningRollIndex() &&
+        winningRoundIndex === this.getWinningRoundIndex()
+      ) {
+        player.winGame()
+        this.winnerDiscordIds.push(player)
+      }
+    })
+    console.log('winning ids', this.winnerDiscordIds)
   }
+
+  // /** Returns the win roll and round index of the first player to reach it in game
+  //  * @param players
+  //  * @returns
+  //  */
+  // getWinIndexes() {
+  //   const winIndexes = this.getPlayerArray().reduce(
+  //     ({ roll, round }, player) => {
+  //       const { gameWinRollIndex, gameWinRoundIndex } = player.getRoundsData()
+
+  //       // if round is highter replace
+  //       if (gameWinRoundIndex > round) {
+  //         return { roll: gameWinRollIndex, round: gameWinRoundIndex }
+  //       }
+
+  //       if (gameWinRoundIndex === round && gameWinRollIndex > roll) {
+  //         return { roll: gameWinRollIndex, round: gameWinRoundIndex }
+  //       }
+  //       return { roll, round }
+  //     },
+  //     { roll: 0, round: 0 }
+  //   )
+  //   return winIndexes
+  // }
 
   getPlayersRoundsData(): { [key: string]: PlayerRoundsData } {
     const playerRoundsData: { [key: string]: PlayerRoundsData } = {}
@@ -444,7 +485,7 @@ export default class Game {
    * Win logic
    */
   winGame() {
-    this.getPlayer(this.getWinnerDiscordId()).winGame()
+    // this.getPlayer(this.getWinnerDiscordId()).winGame()
     this.setWin(true)
     this.setEndTime()
     this.setStatus(GameStatus.win)
@@ -454,7 +495,7 @@ export default class Game {
 
   doFinalPlayerMutation() {
     this.getPlayerArray().forEach((player) =>
-      player.doEndOfGameMutation(this.settings.token.awardOnWin)
+      player.doEndOfGameMutation(this.settings)
     )
   }
 
@@ -465,8 +506,6 @@ export default class Game {
     this.embed = undefined
     this.doUpdate = false
     this.removePlayers()
-    this.npc = undefined
-    this.addSettings(defaultSettings)
     this.setDefaultGameRoundState()
   }
 }
@@ -482,11 +521,10 @@ const defaultSettings: ChannelSettings = {
   maxAssets: 20,
   minCapacity: 2,
   maxCapacity: 2,
-  npcHp: 100,
-  rollInterval: 1000,
   channelId: '1005510693707067402',
   gameType: GameTypes.FourVsNpc,
   turnRate: 2,
+  coolDown: 0,
   token: {
     awardOnWin: 10,
   },

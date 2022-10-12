@@ -1,9 +1,10 @@
 import { PlayerRoundsData } from '../types/attack'
 import { GameRoundState } from '../types/game'
+import Player from './player'
 
 export default class Encounter {
   constructor(
-    public winnerDiscordId: string,
+    public winnerDiscordIds: Player[],
     public gameType: string,
     public startTime: number,
     public endTime: number,

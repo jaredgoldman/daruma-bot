@@ -3,6 +3,8 @@ import Asset from './asset'
 import { completeGameForPlayer } from '../utils/attackUtils'
 import { PlayerRoundsData, RoundData } from '../types/attack'
 import { findUserByDiscordId, updateUser } from '../database/operations/user'
+import { ChannelSettings } from '../types/game'
+import User from './user'
 
 /**
  * Player Class
@@ -14,14 +16,16 @@ export default class Player {
   private address: string
   private userId: ObjectId
   private isWinner: boolean
-  private username
+  private username: string
+  private isNpc: boolean
 
   constructor(
     username: string,
     discordId: string,
     address: string,
     asset: Asset,
-    userId: ObjectId
+    userId: ObjectId,
+    isNpc: boolean = false
   ) {
     this.roundsData = completeGameForPlayer()
     this.username = username
@@ -30,6 +34,7 @@ export default class Player {
     this.asset = asset
     this.userId = userId
     this.isWinner = false
+    this.isNpc = isNpc
   }
 
   /*
@@ -91,14 +96,26 @@ export default class Player {
   }
 
   /*
+   * NPC
+   */
+
+  getIsNpc(): boolean {
+    return this.isNpc
+  }
+
+  /*
    * Mutations
    */
 
   /**
-   *
    * @param karmaOnWin
    */
-  async doEndOfGameMutation(karmaOnWin: number): Promise<void> {
+  async doEndOfGameMutation(settings: ChannelSettings): Promise<void> {
+    if (this.isNpc) return
+    const {
+      token: { awardOnWin },
+      coolDown,
+    } = settings
     const user = await findUserByDiscordId(this.getDiscordId())
     if (user) {
       let karma = user.karma
@@ -106,11 +123,12 @@ export default class Player {
       let losses = this.asset.losses
       let gamesPlayed = this.asset?.gamesPlayed || 0
 
+      const coolDownDoneDate = Date.now() + coolDown
       if (this.getIsWinner()) {
-        karma += karmaOnWin
-        wins = +1
+        karma += awardOnWin
+        wins = 1
       } else {
-        losses = +1
+        losses += 1
       }
 
       const asset = {
@@ -120,13 +138,14 @@ export default class Player {
         gamesPlayed,
       }
 
-      const updatedUserData = {
+      const updatedUserData: User = {
         ...user,
         karma,
         assets: {
           ...user.assets,
           [this.asset.id]: asset,
         },
+        coolDowns: { ...user.coolDowns, [this.asset.id]: coolDownDoneDate },
       }
       await updateUser(updatedUserData, this.getDiscordId())
     } else {

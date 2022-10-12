@@ -13,6 +13,7 @@ import { Embeds } from '../constants/embeds'
 // Helpers
 import { normalizeIpfsUrl } from '../utils/sharedUtils'
 import Game from '../models/game'
+import Player from '../models/player'
 
 const defaultEmbedValues: EmbedData = {
   title: 'DarumaBot',
@@ -29,7 +30,7 @@ export default function doEmbed(type: Embeds, game: Game): MessageOptions {
   let components: any = []
 
   const playerArr = game.getPlayerArray()
-  const playerCount = playerArr.length
+  const playerCount = game.getHasNpc() ? playerArr.length - 1 : playerArr.length
 
   switch (type) {
     case Embeds.waitingRoom:
@@ -40,12 +41,15 @@ export default function doEmbed(type: Embeds, game: Game): MessageOptions {
         title: 'Waiting Room',
         description: `${playerCount} ${playerWord} ${hasWord} joined the game.`,
         files: [],
-        fields: playerArr.map((player) => {
-          return {
-            name: player.getUsername(),
-            value: player.asset.alias || player.asset.name,
-          }
-        }),
+        fields: playerArr
+          .map((player) => {
+            if (player.getIsNpc()) return
+            return {
+              name: player.getUsername(),
+              value: player.asset.alias || player.asset.name,
+            }
+          })
+          .filter(Boolean) as { name: string; value: string }[],
       }
 
       components.push(
@@ -72,12 +76,16 @@ export default function doEmbed(type: Embeds, game: Game): MessageOptions {
       }
       break
     case Embeds.win:
-      const winner = game.getWinningPlayer()
-
+      const winners = game.getWinningPlayerDiscordIds()
       data = {
         title: 'Game Over',
-        description: `Congratulations ${winner.getUsername()}! You won the game!`,
-        image: normalizeIpfsUrl(winner.getAsset().url),
+        description: `Win desciption placeholder`,
+        fields: winners.map((winner: Player) => {
+          return {
+            name: winner.getUsername(),
+            value: winner.asset.alias || winner.asset.name,
+          }
+        }),
       }
       break
     default: {
