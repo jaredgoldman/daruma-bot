@@ -1,6 +1,5 @@
 import { PlayerRoundsData } from '../../types/attack'
-import { diceRolls, damageCalc } from '../attackUtils'
-import { rollDice } from '../damageUtils'
+import { diceRolls, damageCalc, rollDice } from '../attackUtils'
 // import util from 'util'
 
 describe('RNG test suite', () => {

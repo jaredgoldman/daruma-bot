@@ -1,8 +1,6 @@
-import util from 'util'
-import { RollData, RoundData, PlayerRoundsData } from '../types/attack'
+import { RollData, PlayerRoundsData } from '../types/attack'
 import { randomNumber } from './sharedUtils'
-
-const emptyRoll: RollData = { damage: 0, roll: 0, totalScore: 0 }
+// import util from 'util'
 
 const diceValues: { [key: number]: number } = {
   1: 1,
@@ -11,6 +9,18 @@ const diceValues: { [key: number]: number } = {
   4: 2,
   5: 3,
   6: 3,
+}
+
+/**
+ * Returns a random number between 1 and 6
+ * @returns {number}
+ */
+export const rollDice = (): { number: number; diceValue: number } => {
+  const ref = Math.floor(Math.random() * 6) + 1
+  return {
+    number: diceValues[ref],
+    diceValue: ref,
+  }
 }
 
 /**
@@ -41,7 +51,6 @@ export const damageCalc = (diceRolls: Array<number>): PlayerRoundsData => {
     gameWinRoundIndex: 0,
   }
 
-  // diceRolls.forEach((roll: number, index: number) => {
   for (let index = 0; index < diceRolls.length; index++) {
     const roll = diceRolls[index]
     // grab damage value

@@ -57,9 +57,10 @@ const startGame = async () => {
     const settings = await getSettings()
     // start game for each channel
     await asyncForEach(settings, async (settings: ChannelSettings) => {
-      const { channelId, maxCapacity } = settings
-      const channel = client.channels.cache.get(channelId) as TextChannel
-      const newGame = new Game(maxCapacity, channelId, settings)
+      const channel = client.channels.cache.get(
+        settings.channelId
+      ) as TextChannel
+      const newGame = new Game(settings)
       games[settings.channelId] = newGame
       startWaitingRoom(channel)
     })

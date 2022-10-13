@@ -61,7 +61,7 @@ export default class Player {
    * Asset
    */
   asset: Asset
-  getAsset() {
+  getAsset(): Asset {
     return this.asset
   }
 
@@ -69,7 +69,7 @@ export default class Player {
    * WIn
    */
 
-  getIsWinner() {
+  getIsWinner(): boolean {
     return this.isWinner
   }
 
@@ -131,7 +131,7 @@ export default class Player {
         losses += 1
       }
 
-      const asset = {
+      const asset: Asset = {
         ...this.asset,
         wins,
         losses,

@@ -4,7 +4,7 @@ import Player from './player'
 
 export default class Encounter {
   constructor(
-    public winnerDiscordIds: Player[],
+    public winningPlayers: Player[],
     public gameType: string,
     public startTime: number,
     public endTime: number,
