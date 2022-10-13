@@ -1,7 +1,7 @@
 import { PlayerRoundsData } from '../../types/attack'
 import { diceRolls, damageCalc } from '../attackUtils'
 import { rollDice } from '../damageUtils'
-import util from 'util'
+// import util from 'util'
 
 describe('RNG test suite', () => {
   it('produces correct numbers', () => {
@@ -25,35 +25,39 @@ describe('Test Dice Rolls', () => {
 describe('Damage Calc Logic ', () => {
   const rolls = diceRolls(100)
   const playerRoundsData: PlayerRoundsData = damageCalc(rolls)
-  util.inspect(playerRoundsData, {
-    showHidden: false,
-    depth: null,
-    colors: true,
-  })
 
-  expect(playerRoundsData.gameWinRoundIndex).toBeGreaterThan(0)
+  it('saves the correct round and roll index', () => {
+    const lastRoundIndex = playerRoundsData.rounds.length - 1
+    const lastRollIndex =
+      playerRoundsData.rounds[lastRoundIndex].rolls.length - 1
+    expect(playerRoundsData.gameWinRoundIndex).toEqual(lastRoundIndex)
+    expect(playerRoundsData.gameWinRollIndex).toEqual(lastRollIndex)
+  })
 })
 
-// describe('Test Damage Win Index', () => {
-//   const rollsWin = damageCalc([6, 6, 6, 6, 6, 6, 6])
+describe('Test Damage Win Index', () => {
+  const rollsWin = damageCalc([6, 6, 6, 6, 6, 6, 6])
 
-//   it('Tests damage array has the correct win index', () => {
-//     expect(rollsWin.length).toBe(7)
-//   })
-// })
+  it('Tests damage array has the correct win index', () => {
+    expect(rollsWin.gameWinRollIndex).toBe(0)
+    expect(rollsWin.gameWinRoundIndex).toBe(2)
+  })
+})
 
-// describe('Test Damage Reset Win Index', () => {
-//   const rollsWinReset = damageCalc([6, 6, 6, 6, 6, 6, 4, 3, 6, 6])
+describe('Test Damage Reset Win Index', () => {
+  const rollsWinReset = damageCalc([6, 6, 6, 6, 6, 6, 4, 3, 6, 6])
 
-//   it('Tests damage array has the correct win index if there is a bust', () => {
-//     expect(rollsWinReset.length).toBe(10)
-//   })
-// })
+  it('Tests damage array has the correct win index if there is a bust', () => {
+    expect(rollsWinReset.gameWinRollIndex).toBe(0)
+    expect(rollsWinReset.gameWinRoundIndex).toBe(3)
+  })
+})
 
-// describe('Test Damage No Win', () => {
-//   const rollsWinReset = damageCalc([6, 6, 6, 6, 6, 6, 4, 3, 6, 3])
+describe('Test Damage No Win', () => {
+  const rollsWinReset = damageCalc([6, 6, 6, 6, 6, 6, 4, 3, 6, 3])
 
-//   it('Tests if damage array correctly identifies a no-win', () => {
-//     expect(rollsWinReset.length).toBe(0)
-//   })
-// })
+  it('Tests if damage array correctly identifies a no-win', () => {
+    expect(rollsWinReset.gameWinRollIndex).toBe(0)
+    expect(rollsWinReset.gameWinRoundIndex).toBe(0)
+  })
+})
