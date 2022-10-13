@@ -76,7 +76,7 @@ export default function doEmbed(type: Embeds, game: Game): MessageOptions {
       }
       break
     case Embeds.win:
-      const winners = game.getWinningPlayerDiscordIds()
+      const winners = game.getWinningPlayers()
       data = {
         title: 'Game Over',
         description: `Win desciption placeholder`,

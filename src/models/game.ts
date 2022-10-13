@@ -3,22 +3,18 @@ import Encounter from './encounter'
 import { GameRoundState, GameTypes } from '../types/game'
 import { ChannelSettings } from '../types/game'
 import { MessageOptions } from 'discord.js'
-// import util from 'util'
 import { PlayerRoundsData } from '../types/attack'
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { renderBoard } from '../game/board'
 import Asset from './asset'
 import { ObjectId } from 'mongodb'
-import { throws } from 'assert'
-// import util from 'util'
+import util from 'util'
 
 /**
  *
  */
 export default class Game {
   constructor(
-    private capacity: number,
-    private channelId: string,
     private settings: ChannelSettings // private m
   ) {
     this.status = GameStatus.waitingRoom
@@ -47,7 +43,7 @@ export default class Game {
   private board: string
   private hasNpc: boolean
   private type: GameTypes = GameTypes.OneVsNpc
-  private winnerDiscordIds: Player[] = []
+  private winningPlayers: Player[] = []
 
   /*
    * GAME TYPE
@@ -77,13 +73,15 @@ export default class Game {
   }
 
   addPlayer(player: Player) {
-    if (!this.getPlayerCount()) {
+    if (this.getPlayerCount() < 1) {
+      // console.log('******************************\n')
       this.setCurrentPlayer(player, 0)
     }
     this.players[player.getDiscordId()] = player
     // update games winning index
     const { gameWinRollIndex, gameWinRoundIndex, rounds } =
       player.getRoundsData()
+
     // console.log(util.inspect(rounds, false, null, true))
     this.compareAndSetWinningIndexes(gameWinRollIndex, gameWinRoundIndex)
   }
@@ -103,26 +101,13 @@ export default class Game {
   }
 
   /*
-   * Capacity
-   */
-  getCapacity() {
-    return this.capacity
-  }
-
-  /*
-   * ChannelID
-   */
-  getChannelId() {
-    return this.channelId
-  }
-
-  /*
    * Active
    */
   setStatus(statusType: GameStatus) {
     if (statusType === GameStatus.activeGame) {
       this.startTime = Date.now()
-      this.storeWinningPlayerDiscordIds()
+      // store winning platy
+      this.storeWinningPlayers()
     }
     if (statusType === GameStatus.win) {
       this.endTime = Date.now()
@@ -145,40 +130,32 @@ export default class Game {
     return this.win
   }
 
-  // setWinnerDiscordId(winnerDiscordId: string) {
-  //   this.winnerDiscordId = winnerDiscordId
-  // }
-
-  // getWinnerDiscordId() {
-  //   return this.winnerDiscordId
-  // }
-
-  // getWinningPlayer() {
-  //   return this.getPlayer(this.getWinnerDiscordId())
-  // }
-
   getWinningRoundIndex() {
-    return this.winningRoundIndex || Infinity
+    return this.winningRoundIndex
   }
 
-  setWiningRoundIndex(roundIndex: number) {
+  setWinningRoundIndex(roundIndex: number | undefined) {
     this.winningRoundIndex = roundIndex
   }
 
   getWinningRollIndex() {
-    return this.winningRollIndex || Infinity
+    return this.winningRollIndex
   }
 
-  setWinningRollIndex(rollIndex: number) {
+  setWinningRollIndex(rollIndex: number | undefined) {
     this.winningRollIndex = rollIndex
   }
 
   addWinningPlayer(player: Player) {
-    this.winnerDiscordIds.push(player)
+    this.winningPlayers.push(player)
   }
 
-  getWinningPlayerDiscordIds() {
-    return this.winnerDiscordIds
+  getWinningPlayers() {
+    return this.winningPlayers
+  }
+
+  removeWinningPlayers() {
+    this.winningPlayers = []
   }
 
   /**
@@ -190,20 +167,24 @@ export default class Game {
    */
   compareAndSetWinningIndexes(rollIndex: number, roundIndex: number) {
     // if no winning indexes set yet
-    if (!this.getWinningRollIndex() || !this.getWinningRoundIndex()) {
-      this.setWinningRollIndex(rollIndex)
-      this.setWiningRoundIndex(roundIndex)
-      // if the incoming round index is lower than the current ruund index, change it
-    } else if (roundIndex < this.getWinningRoundIndex()) {
-      this.setWinningRollIndex(rollIndex)
-      this.setWiningRoundIndex(roundIndex)
-      // if the round index is the same, but the roll index is lower, change it
-    } else if (
-      roundIndex === this.getWinningRoundIndex() &&
-      rollIndex < this.getWinningRollIndex()
+    if (
+      this.winningRollIndex === undefined ||
+      this.winningRoundIndex === undefined
     ) {
       this.setWinningRollIndex(rollIndex)
-      this.setWiningRoundIndex(roundIndex)
+      this.setWinningRoundIndex(roundIndex)
+      // if the incoming round index is lower than the current ruund index, change it
+    } else if (this.winningRoundIndex && roundIndex < this.winningRoundIndex) {
+      this.setWinningRollIndex(rollIndex)
+      this.setWinningRoundIndex(roundIndex)
+      // if the round index is the same, but the roll index is lower, change it
+    } else if (
+      this.winningRollIndex &&
+      roundIndex === this.winningRoundIndex &&
+      rollIndex < this.winningRollIndex
+    ) {
+      this.setWinningRollIndex(rollIndex)
+      this.setWinningRoundIndex(roundIndex)
     }
   }
 
@@ -336,6 +317,10 @@ export default class Game {
     this.gameRoundState.playerIndex = playerIndex
   }
 
+  getCurrentPlayer() {
+    return this.gameRoundState.currentPlayer
+  }
+
   // if it's the third round, reset the round index
   incrementRollIndex() {
     this.logState()
@@ -383,14 +368,13 @@ export default class Game {
    * OPERATIONS
    */
   saveEncounter() {
-    console.log(this.winnerDiscordIds)
-    if (!this.winnerDiscordIds.length) {
+    if (!this.winningPlayers.length) {
       throw new Error('the game must have a winner to save an encounter')
     }
 
     saveEncounterToDb(
       new Encounter(
-        this.winnerDiscordIds,
+        this.winningPlayers,
         this.type,
         this.getStartTime(),
         this.getEndTime() as number,
@@ -411,23 +395,30 @@ export default class Game {
     // console.log('roll index: ', this.gameRoundState.rollIndex)
   }
 
-  storeWinningPlayerDiscordIds() {
-    if (!this.getWinningRollIndex() || !this.getWinningRoundIndex()) return
-    // loop through players
+  /**
+   * Compares the stored round and roll index to each players winnning round and roll index
+   * Stores winning players in an array
+   */
+  storeWinningPlayers() {
+    if (
+      this.getWinningRollIndex() === undefined ||
+      this.getWinningRoundIndex() === undefined
+    ) {
+      return
+    }
+
     this.getPlayerArray().forEach((player: Player) => {
       const winningRollIndex = player.getRoundsData().gameWinRollIndex
       const winningRoundIndex = player.getRoundsData().gameWinRoundIndex
-      console.log('winning roll index', winningRollIndex)
-      console.log('winning round index', winningRoundIndex)
+
       if (
         winningRollIndex === this.getWinningRollIndex() &&
         winningRoundIndex === this.getWinningRoundIndex()
       ) {
         player.winGame()
-        this.winnerDiscordIds.push(player)
+        this.winningPlayers.push(player)
       }
     })
-    console.log('winning ids', this.winnerDiscordIds)
   }
 
   // /** Returns the win roll and round index of the first player to reach it in game
@@ -485,7 +476,6 @@ export default class Game {
    * Win logic
    */
   winGame() {
-    // this.getPlayer(this.getWinnerDiscordId()).winGame()
     this.setWin(true)
     this.setEndTime()
     this.setStatus(GameStatus.win)
@@ -507,6 +497,9 @@ export default class Game {
     this.doUpdate = false
     this.removePlayers()
     this.setDefaultGameRoundState()
+    this.setWinningRoundIndex(undefined)
+    this.setWinningRollIndex(undefined)
+    this.removeWinningPlayers()
   }
 }
 
