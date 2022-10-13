@@ -86,10 +86,14 @@ export default async function startWaitingRoom(channel: TextChannel) {
           game.setCurrentPlayer(player, playerIndex)
           const board = game.renderBoard()
 
-          // await game.editEmbed(doEmbed(Embeds.activeGame, game, { board }))
+          // if it's the first roll
           if (!channelMessage) {
             await channel.send(playerMessage)
             channelMessage = await channel.send(board)
+
+            // if there's a win
+          } else if (game.getWin()) {
+            await channelMessage.edit(game.renderBoard(true))
           } else {
             await channelMessage.edit(board)
           }
@@ -108,7 +112,7 @@ export default async function startWaitingRoom(channel: TextChannel) {
 
     // HANDLE GAME WIN MESSAGE HERE
     await channel.send(doEmbed(Embeds.win, game))
-    await wait(2000)
+    await wait(4000)
     startWaitingRoom(channel)
   } catch (error) {
     console.log('****** ERROR STARTING WAITING ROOM ******', error)

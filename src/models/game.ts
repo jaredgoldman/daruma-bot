@@ -8,10 +8,9 @@ import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { renderBoard } from '../game/board'
 import Asset from './asset'
 import { ObjectId } from 'mongodb'
-import util from 'util'
 
 /**
- *
+ * Main game class
  */
 export default class Game {
   constructor(
@@ -461,12 +460,13 @@ export default class Game {
     return this.board
   }
 
-  renderBoard() {
+  renderBoard(isLastRender: boolean = false) {
     const board = renderBoard(
       this.getRollIndex(),
       this.getRoundIndex(),
       this.getGameRoundState().playerIndex,
-      this.getPlayerArray()
+      this.getPlayerArray(),
+      isLastRender
     )
     this.setBoard(board)
     return board

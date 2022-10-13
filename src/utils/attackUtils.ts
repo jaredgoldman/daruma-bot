@@ -95,13 +95,6 @@ export const damageCalc = (diceRolls: Array<number>): PlayerRoundsData => {
       break
     }
   }
-  // console.log(
-  //   util.inspect(roundsData, {
-  //     showHidden: false,
-  //     depth: null,
-  //     colors: true,
-  //   })
-  // )
   return roundsData
 }
 
