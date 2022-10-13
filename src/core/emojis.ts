@@ -5,6 +5,9 @@ const emojiConfig = {
   2: 'SpinHeadButt_PNG',
   1: 'SpinHeadRam_PNG',
   ph: 'PH',
+  '1_': '1_',
+  '2_': '2_',
+  '3_': '3_',
 }
 
 const gatherEmojis = (client: Client): Emojis => {

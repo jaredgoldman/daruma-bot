@@ -29,7 +29,8 @@ export const renderBoard = (
   rollIndex: number,
   roundIndex: number,
   playerIndex: number,
-  players: Player[]
+  players: Player[],
+  isLastRender: boolean
 ): string => {
   const roundRightColumn = createWhitespace(3) + '**ROUND**'
   // create a row representing the current round
@@ -43,7 +44,8 @@ export const renderBoard = (
     players,
     playerIndex,
     rollIndex,
-    roundIndex
+    roundIndex,
+    isLastRender
   )
 
   const board = roundNumberRow + '\n' + attackAndTotalRows
@@ -120,7 +122,8 @@ export const createAttackAndTotalRows = (
   players: Player[],
   playerIndex: number,
   rollIndex: number,
-  roundIndex: number
+  roundIndex: number,
+  isLastRender: boolean
 ) => {
   let rows = ``
   // For each player
@@ -130,7 +133,9 @@ export const createAttackAndTotalRows = (
     // check if it is or has been players turn yet to determine if we should show the attack roll
     const isTurn = index <= playerIndex
 
-    rows += createAttackRow(rounds, roundIndex, rollIndex, isTurn) + '\n'
+    rows +=
+      createAttackRow(rounds, roundIndex, rollIndex, isTurn, isLastRender) +
+      '\n'
 
     const totalRightColumn = createWhitespace(3) + '**Hits**'
     // add round total row
@@ -153,7 +158,8 @@ export const createAttackRow = (
   playerRounds: RoundData[],
   roundIndex: number,
   rollIndex: number,
-  isTurn: boolean
+  isTurn: boolean,
+  isLastRender: boolean
 ) => {
   let row = createWhitespace(emojiPadding)
   // let row = ''
@@ -183,18 +189,19 @@ export const createAttackRow = (
 
   // ROUND POSITION 1
   Array.from({ length: turnsInRound }).forEach((_, index: number) => {
+    // if it is the current players turn, and we are on the current round
     const shouldRenderNextRoll =
       (isTurn && index === rollIndex) || index < rollIndex
     const roll = currentRound.rolls[index]
 
     // if it's our turn or has been our turn, add latest roll
-    if (roll?.damage && shouldRenderNextRoll) {
-      row += createCell(
-        cellWidth,
-        Alignment.centered,
-        emojis[roll.damage],
-        true
-      )
+    if (roll.damage && shouldRenderNextRoll) {
+      const isMostRecentRoll = index === rollIndex
+      const shouldRenderGif = isMostRecentRoll && !isLastRender
+      // if most recent roll and it's not the last render, render a gif instead of an emoji
+      const emoji = shouldRenderGif ? `${roll.damage}_` : roll.damage
+      row += createCell(cellWidth, Alignment.centered, emojis[emoji], true)
+
       // else add placeholder
     } else {
       row += createCell(cellWidth, Alignment.centered, emojis.ph, true)
