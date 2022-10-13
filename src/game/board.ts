@@ -195,7 +195,7 @@ export const createAttackRow = (
     const roll = currentRound.rolls[index]
 
     // if it's our turn or has been our turn, add latest roll
-    if (roll.damage && shouldRenderNextRoll) {
+    if (roll?.damage && shouldRenderNextRoll) {
       const isMostRecentRoll = index === rollIndex
       const shouldRenderGif = isMostRecentRoll && !isLastRender
       // if most recent roll and it's not the last render, render a gif instead of an emoji
