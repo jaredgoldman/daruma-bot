@@ -5,7 +5,7 @@ import fs from 'fs'
 import Asset from '../models/asset'
 
 // import txnDataJson from '../txnData/txnData.json'
-import { creatorAddressArr } from '..'
+import { creatorAddressArr, txnDataJSON } from '..'
 
 import { getChannelSettings } from '../database/operations/game'
 import PendingTransactionInformation from 'algosdk/dist/types/src/client/v2/algod/pendingTransactionInformation'
@@ -26,7 +26,6 @@ const port = ''
 
 const algodClient = new algosdk.Algodv2(token, server, port)
 const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
-
 export const determineOwnership = async function (
   address: string,
   channelId: string
@@ -37,7 +36,7 @@ export const determineOwnership = async function (
   try {
     // First update transactions
     const txnData = await convergeTxnData(creatorAddressArr, true)
-    fs.writeFileSync('dist/txnData/txnData.json', JSON.stringify(txnData))
+    fs.writeFileSync(txnDataJSON, JSON.stringify(txnData))
 
     let { assets } = await algoIndexer
       .lookupAccountAssets(address)
@@ -255,7 +254,7 @@ const reduceTxnData = (txnDataArray: TxnData[]) => {
 
 const getTxnData = (): TxnData | undefined => {
   try {
-    return JSON.parse(fs.readFileSync('dist/txnData/txnData.json', 'utf-8'))
+    return JSON.parse(fs.readFileSync(txnDataJSON, 'utf-8'))
   } catch (e) {
     ///
   }
