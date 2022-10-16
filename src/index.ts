@@ -8,6 +8,7 @@ import {
   InteractionType,
 } from 'discord.js'
 // Node
+import os from 'node:os'
 import fs from 'node:fs'
 import path from 'node:path'
 // Helpers
@@ -27,6 +28,8 @@ const creatorAddresses = process.env.CREATOR_ADDRESSES as string
 export const games: { [key: string]: Game } = {}
 export let emojis: { [key: number | string]: string } = {}
 export const creatorAddressArr = creatorAddresses?.split(',')
+const txnDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'daruma-bot'))
+export const txnDataJSON = path.join(txnDataDir, 'txnData.json')
 
 const client: Client = new Client({
   intents: [
@@ -72,12 +75,12 @@ const startGame = async () => {
 const txnDataSetup = async () => {
   try {
     let update = true
-    if (!fs.existsSync('dist/txnData/txnData.json')) {
+    if (!fs.existsSync(txnDataJSON)) {
       update = false
-      fs.writeFileSync('dist/txnData/txnData.json', '')
+      fs.writeFileSync(txnDataJSON, '')
     }
     const txnData = await convergeTxnData(creatorAddressArr, update)
-    fs.writeFileSync('dist/txnData/txnData.json', JSON.stringify(txnData))
+    fs.writeFileSync(txnDataJSON, JSON.stringify(txnData))
   } catch (error) {
     console.log('****** ERROR SETTING UP TXN DATA ******', error)
   }
