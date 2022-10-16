@@ -25,7 +25,11 @@ const defaultEmbedValues: EmbedData = {
   },
 }
 
-export default function doEmbed(type: Embeds, game: Game): MessageOptions {
+export default function doEmbed(
+  type: Embeds,
+  game: Game,
+  options?: any
+): MessageOptions {
   let data: EmbedData = defaultEmbedValues
   let components: any = []
 

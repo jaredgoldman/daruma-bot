@@ -131,16 +131,23 @@ export const createAttackAndTotalRows = (
     const { rounds } = player.getRoundsData()
 
     // check if it is or has been players turn yet to determine if we should show the attack roll
-    const isTurn = index <= playerIndex
+    const isTurn = index === playerIndex
+    const hasBeenTurn = index <= playerIndex
 
     rows +=
-      createAttackRow(rounds, roundIndex, rollIndex, isTurn, isLastRender) +
-      '\n'
+      createAttackRow(
+        rounds,
+        roundIndex,
+        rollIndex,
+        isTurn,
+        hasBeenTurn,
+        isLastRender
+      ) + '\n'
 
     const totalRightColumn = createWhitespace(3) + '**Hits**'
     // add round total row
     rows +=
-      createTotalRow(roundIndex, rollIndex, rounds, isTurn) +
+      createTotalRow(roundIndex, rollIndex, rounds, hasBeenTurn, isLastRender) +
       totalRightColumn +
       '\n'
   })
@@ -159,6 +166,7 @@ export const createAttackRow = (
   roundIndex: number,
   rollIndex: number,
   isTurn: boolean,
+  hasBeenTurn: boolean,
   isLastRender: boolean
 ) => {
   let row = createWhitespace(emojiPadding)
@@ -191,7 +199,7 @@ export const createAttackRow = (
   Array.from({ length: turnsInRound }).forEach((_, index: number) => {
     // if it is the current players turn, and we are on the current round
     const shouldRenderNextRoll =
-      (isTurn && index === rollIndex) || index < rollIndex
+      (hasBeenTurn && index === rollIndex) || index < rollIndex
     const roll = currentRound.rolls[index]
 
     // if it's our turn or has been our turn, add latest roll
@@ -199,7 +207,7 @@ export const createAttackRow = (
       const isMostRecentRoll = index === rollIndex
       const shouldRenderGif = isMostRecentRoll && !isLastRender
       // if most recent roll and it's not the last render, render a gif instead of an emoji
-      const emoji = shouldRenderGif ? `${roll.damage}_` : roll.damage
+      const emoji = shouldRenderGif && isTurn ? `${roll.damage}_` : roll.damage
       row += createCell(cellWidth, Alignment.centered, emojis[emoji], true)
 
       // else add placeholder
@@ -230,17 +238,18 @@ export const createTotalRow = (
   roundIndex: number,
   rollIndex: number,
   rounds: RoundData[],
-  isTurn: boolean
+  hasBeenTurn: boolean,
+  isLastRender: boolean
 ) => {
   const isFirstRound = roundIndex === 0
   let totalRowLabel = ''
-  // for each row
+  // for each round
   for (let i = 0; i <= numOfRoundsVisible - 1; i++) {
     // previous total is static as round has been completed
     const prevRoundTotal = rounds[roundIndex - 1]?.totalDamageSoFar
     // current total is dynamic as round is still in progress and it may not be time to
     // render the players score yet
-    const currRoundRollIndex = isTurn ? rollIndex : rollIndex - 1
+    const currRoundRollIndex = isLastRender ? rollIndex : rollIndex - 1
     const currRoundTotal =
       rounds[roundIndex]?.rolls[currRoundRollIndex]?.totalScore
     // TODO, make this dynamic
