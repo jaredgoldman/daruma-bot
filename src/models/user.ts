@@ -1,8 +1,9 @@
 import { ObjectId } from 'mongodb'
+import { UserEnhancer } from '../types/enhancers'
 import Asset from './asset'
 
 export default class User {
-  public enhancers: { [key: string]: Enhancer }
+  public enhancers: { [key: string]: UserEnhancer }
   public totalBattles: number
   public karma: number
   public coolDowns: { [key: string]: number } // timestamp
@@ -22,16 +23,4 @@ export default class User {
     this.karma = 0
     this.created = Date.now()
   }
-}
-
-export interface Enhancer {
-  type: EnhancerType
-  owned: boolean
-  // Can add modifiers here
-}
-
-enum EnhancerType {
-  arms,
-  legs,
-  meditation,
 }

@@ -15,6 +15,8 @@ const encountersCollectionName = process.env
 const settingsCollectionName = process.env.SETTINGS_COLLECTION_NAME as string
 const tokeeWithdrawalsCollectionName = process.env
   .TOKEN_WITHDRAWALS_COLLECTION_NAME as string
+const enhancerSettingsCollectionName = process.env
+  .ENANCER_SETTINGS_COLLECTION_NAME as string
 
 // Initialize Connection
 export async function connectToDatabase() {
@@ -35,11 +37,15 @@ export async function connectToDatabase() {
   const tokenWithdrawalsCollection: mongoDB.Collection = db.collection(
     tokeeWithdrawalsCollectionName
   )
+  const enhancerSettingsCollection: mongoDB.Collection = db.collection(
+    enhancerSettingsCollectionName
+  )
 
   collections.users = usersCollection
   collections.encounters = encountersCollection
   collections.settings = settingsCollection
   collections.tokenWithdrawals = tokenWithdrawalsCollection
+  collections.enhancerSettings = enhancerSettingsCollection
 
   console.log(`Successfully connected to database: ${db.databaseName}`)
 }

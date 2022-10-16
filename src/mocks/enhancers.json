@@ -1,0 +1,22 @@
+{
+  "ARMS": {
+    "type": "ARMS",
+    "karmaRequired": 100,
+    "description": "arms placeholder"
+  },
+  "LEGS": {
+    "type": "LEGS",
+    "karmaRequired": 100,
+    "description": "legs placeholder"
+  },
+  "MEDITATION": {
+    "type": "MEDITIATION",
+    "karmaRequired": 100,
+    "description": "meditation placeholder"
+  },
+  "NIRVANA": {
+    "type": "NIRVANA",
+    "karmaRequired": 100,
+    "description": "nirvana placeholder"
+  }
+}

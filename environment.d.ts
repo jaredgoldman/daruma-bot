@@ -24,6 +24,7 @@ declare global {
       TOKEN_MNEMONIC: string
       CREATOR_ADDRESSES: string
       TOKEN_WITHDRAWALS_COLLECTION_NAME: string
+      ENANCER_SETTINGS_COLLECTION_NAME: string
     }
   }
 }
