@@ -1,3 +1,4 @@
+import { EnvVariables } from '../types/shared'
 const ipfsGateway = process.env.IPFS_GATEWAY || 'https://dweb.link/ipfs/'
 
 export const asyncForEach = async (array: Array<any>, callback: Function) => {
@@ -40,5 +41,17 @@ export const normalizeIpfsUrl = (url: string): string => {
     return `${ipfsGateway}${ifpsHash}`
   } else {
     return url
+  }
+}
+
+export const checkEnv = () => {
+  const envKeys = Object.values(EnvVariables).filter(
+    (value) => typeof value === 'string'
+  ) as (keyof typeof EnvVariables)[]
+
+  for (const envKey of envKeys) {
+    if (process.env[envKey] === undefined) {
+      throw new Error(`Env variable "${envKey}" not set`)
+    }
   }
 }

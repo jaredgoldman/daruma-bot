@@ -13,7 +13,7 @@ export const downloadAssetImage = async (
     const url = asset.url
     if (url) {
       const normalizedUrl = normalizeIpfsUrl(url) as string
-      const path = `${directory}${username
+      const path = `${directory}/${username
         .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
         .trim()}.jpg`
       const writer = fs.createWriteStream(path)

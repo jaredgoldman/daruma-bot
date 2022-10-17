@@ -1,4 +1,4 @@
-enum EnvVariables {
+export enum EnvVariables {
   // #MongoDb
   DB_CONN_STRING = 'DB_CONN_STRING',
   DB_NAME = 'DB_NAME',
@@ -23,20 +23,4 @@ enum EnvVariables {
   // #IPFS
   IPFS_GATEWAY = 'IPFS_GATEWAY',
   TOKEN_MNEMONIC = 'TOKEN_MNEMONIC',
-}
-
-type EnvVariablesType = {
-  [K in keyof typeof EnvVariables]: string
-}
-
-const envKeys = Object.values(EnvVariables).filter(
-  (value) => typeof value === 'string'
-) as (keyof typeof EnvVariables)[]
-
-export const checkEnv = () => {
-  for (const envKey of envKeys) {
-    if (process.env[envKey] === undefined) {
-      throw new Error(`Env variable "${envKey}" not set`)
-    }
-  }
 }
