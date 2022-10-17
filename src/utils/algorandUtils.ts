@@ -192,6 +192,7 @@ export const searchForTransactions = async (
     .searchForTransactions()
     .address(address)
     .txType(type)
+    .limit(50000)
     .do()) as TxnData
 
   return txns
