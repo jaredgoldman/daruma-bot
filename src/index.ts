@@ -45,11 +45,18 @@ const client: Client = new Client({
 
 client.once('ready', async () => {
   try {
+    console.log('READY')
+    // Ensure all env variables are set
     checkEnv()
+    // Connect to db instance
     await connectToDatabase()
+    // Update txnData for registration/confirmation purposes
     await txnDataSetup()
+    // Grab emojis from cache
     emojis = gatherEmojis(client)
+    // Register discord commands
     setupCommands()
+    // Start game for each channel
     startGame()
     console.log('Daruma Bot - Server ready')
   } catch (error) {

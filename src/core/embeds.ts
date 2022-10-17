@@ -25,10 +25,12 @@ const defaultEmbedValues: EmbedData = {
   },
 }
 
+type EmbedOptions = { player?: Player }
+
 export default function doEmbed(
   type: Embeds,
   game: Game,
-  options?: any
+  options: EmbedOptions = {}
 ): MessageOptions {
   let data: EmbedData = defaultEmbedValues
   let components: any = []
@@ -80,16 +82,11 @@ export default function doEmbed(
       }
       break
     case Embeds.win:
-      const winners = game.getWinningPlayers()
+      const player = options.player as Player
       data = {
         title: 'Game Over',
-        description: `Win desciption placeholder`,
-        fields: winners.map((winner: Player) => {
-          return {
-            name: winner.getUsername(),
-            value: winner.asset.alias || winner.asset.name,
-          }
-        }),
+        description: `${player.getUsername()} won the game!`,
+        image: normalizeIpfsUrl(player.asset.url),
       }
       break
     default: {

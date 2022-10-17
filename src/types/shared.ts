@@ -1,4 +1,4 @@
-enum EnvVariables {
+export enum EnvVariables {
   // #MongoDb
   DB_CONN_STRING = 'DB_CONN_STRING',
   DB_NAME = 'DB_NAME',

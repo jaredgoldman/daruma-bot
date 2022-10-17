@@ -8,6 +8,7 @@ import { GameStatus } from '../models/game'
 import Player from '../models/player'
 // import util from 'util'
 import { GameTypes } from '../types/game'
+import win from './win'
 
 /**
  * Start game waiting room
@@ -111,7 +112,8 @@ export default async function startWaitingRoom(channel: TextChannel) {
     }
 
     // HANDLE GAME WIN MESSAGE HERE
-    await channel.send(doEmbed(Embeds.win, game))
+    // await channel.send(doEmbed(Embeds.win, game))
+    await win(game, channel)
     await wait(4000)
     startWaitingRoom(channel)
   } catch (error) {

@@ -1,3 +1,4 @@
+import { EnvVariables } from '../types/shared'
 const ipfsGateway = process.env.IPFS_GATEWAY || 'https://dweb.link/ipfs/'
 
 export const asyncForEach = async (array: Array<any>, callback: Function) => {
