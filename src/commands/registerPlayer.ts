@@ -58,9 +58,18 @@ module.exports = {
         const coolDown = coolDowns ? coolDowns[assetId] : null
         if (coolDown && coolDown > Date.now()) {
           const minutesLeft = Math.floor((coolDown - Date.now()) / 60000)
-          const minuteWord = minutesLeft === 1 ? 'minute' : 'minutes'
+          let timeUnit = ''
+          let timeUnitType = ''
+          if (minutesLeft >= 60) {
+            const hoursLeft = Math.floor(minutesLeft / 60)
+            timeUnit = `${hoursLeft} hours`
+            timeUnitType = hoursLeft > 1 ? 'hours' : 'hour'
+          } else {
+            timeUnit = `${minutesLeft} minutes`
+            timeUnitType = minutesLeft > 1 ? 'minutes' : 'minute'
+          }
           return interaction.editReply({
-            content: `Please wait ${minutesLeft} ${minuteWord} before playing ${asset.name} again`,
+            content: `Please wait ${timeUnit} ${timeUnitType} before playing ${asset.name} again`,
           })
         }
 
