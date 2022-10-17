@@ -20,8 +20,9 @@ import { convergeTxnData } from './utils/algorandUtils'
 import { asyncForEach } from './utils/sharedUtils'
 import startWaitingRoom from './game'
 import { getSettings } from './database/operations/game'
-import { ChannelSettings, GameTypes } from './types/game'
+import { ChannelSettings } from './types/game'
 import gatherEmojis from './core/emojis'
+import { checkEnv } from './types/shared'
 
 const token = process.env.DISCORD_TOKEN as string
 const creatorAddresses = process.env.CREATOR_ADDRESSES as string
@@ -44,6 +45,7 @@ const client: Client = new Client({
 
 client.once('ready', async () => {
   try {
+    checkEnv()
     await connectToDatabase()
     await txnDataSetup()
     emojis = gatherEmojis(client)
