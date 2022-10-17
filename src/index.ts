@@ -8,15 +8,12 @@ import {
   InteractionType,
 } from 'discord.js'
 // Node
-import os from 'node:os'
 import fs from 'node:fs'
-import path from 'node:path'
 // Helpers
 import { connectToDatabase } from './database/database.service'
 // Schema
 import Game from './models/game'
 // Helpers
-import { convergeTxnData } from './utils/algorandUtils'
 import { asyncForEach } from './utils/sharedUtils'
 import startWaitingRoom from './game'
 import { getSettings } from './database/operations/game'
@@ -29,8 +26,6 @@ const creatorAddresses = process.env.CREATOR_ADDRESSES as string
 export const games: { [key: string]: Game } = {}
 export let emojis: { [key: number | string]: string } = {}
 export const creatorAddressArr = creatorAddresses?.split(',')
-const txnDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'daruma-bot'))
-export const txnDataJSON = path.join(txnDataDir, 'txnData.json')
 
 const client: Client = new Client({
   intents: [
@@ -47,7 +42,6 @@ client.once('ready', async () => {
   try {
     checkEnv()
     await connectToDatabase()
-    await txnDataSetup()
     emojis = gatherEmojis(client)
     setupCommands()
     startGame()
@@ -74,39 +68,22 @@ const startGame = async () => {
   }
 }
 
-const txnDataSetup = async () => {
-  try {
-    let update = true
-    if (!fs.existsSync(txnDataJSON)) {
-      update = false
-      fs.writeFileSync(txnDataJSON, '')
-    }
-    const txnData = await convergeTxnData(creatorAddressArr, update)
-    fs.writeFileSync(txnDataJSON, JSON.stringify(txnData))
-  } catch (error) {
-    console.log('****** ERROR SETTING UP TXN DATA ******', error)
-  }
-}
-
 const setupCommands = () => {
   try {
     client.commands = new Collection()
-
-    const commandsPath = path.join(__dirname, 'commands')
-    const commandFiles = fs
-      .readdirSync(commandsPath)
-      .filter((file) => file.endsWith('.js'))
-
+    const commandFiles = fs.readdirSync('./src/commands')
     for (const file of commandFiles) {
-      const filePath = path.join(commandsPath, file)
-      const command = require(filePath)
+      const name = file.endsWith('.ts')
+        ? file.replace('.ts', '')
+        : file.replace('.js', '')
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const command = require(`./commands/${name}`)
       client.commands.set(command.data.name, command)
     }
   } catch (error) {
     console.log('****** ERROR SETTING UP COMMANDS ******', error)
   }
 }
-
 /*
  *****************
  * COMMAND SERVER *

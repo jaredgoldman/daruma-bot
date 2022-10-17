@@ -1,7 +1,7 @@
 // Discord
 import {
   ColorResolvable,
-  MessageOptions,
+  BaseMessageOptions,
   EmbedBuilder,
   ButtonBuilder,
   ActionRowBuilder,
@@ -29,9 +29,9 @@ export default function doEmbed(
   type: Embeds,
   game: Game,
   options?: any
-): MessageOptions {
+): BaseMessageOptions {
   let data: EmbedData = defaultEmbedValues
-  let components: any = []
+  const components: any = []
 
   const playerArr = game.getPlayerArray()
   const playerCount = game.getHasNpc() ? playerArr.length - 1 : playerArr.length
@@ -97,7 +97,7 @@ export default function doEmbed(
     }
   }
 
-  let { title, description, color, image, thumbNail, fields, footer, files } =
+  const { title, description, color, image, thumbNail, fields, footer, files } =
     data
 
   const embed = new EmbedBuilder()

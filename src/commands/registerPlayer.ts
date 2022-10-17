@@ -73,10 +73,8 @@ module.exports = {
           })
         }
 
-        let localPath
-
         // Download nft asset to local dir
-        localPath = await downloadAssetImage(
+        const localPath = await downloadAssetImage(
           asset,
           username,
           `${assetDir}${channelId}`

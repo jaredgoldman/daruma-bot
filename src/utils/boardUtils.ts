@@ -20,10 +20,10 @@ const { emojiPadding } = board.getSettings()
 export const createCell = (
   space: number,
   alignment: Alignment = Alignment.centered,
-  content: string = '',
+  content = '',
   emoji: boolean,
   delimiter?: string,
-  shift: number = 0
+  shift = 0
 ): string => {
   let indexToPrintContent
   // create intial space
@@ -57,7 +57,7 @@ export const createCell = (
  */
 export const replaceAt = (
   index: number,
-  replacement: string = '',
+  replacement = '',
   string: string
 ): string => {
   return (
@@ -73,10 +73,7 @@ export const replaceAt = (
  * @param delimiter
  * @returns
  */
-export const createWhitespace = (
-  spaces: number,
-  delimiter: string = ' '
-): string => {
+export const createWhitespace = (spaces: number, delimiter = ' '): string => {
   let whitespace = ''
   for (let i = 0; i < spaces; i++) {
     whitespace += delimiter

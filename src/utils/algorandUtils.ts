@@ -1,15 +1,18 @@
 import { AlgoAsset, AlgoAssetData, Txn, TxnData } from '../types/user'
 import { asyncForEach, wait } from './sharedUtils'
 import algosdk from 'algosdk'
-import fs from 'fs'
 import Asset from '../models/asset'
 
 // import txnDataJson from '../txnData/txnData.json'
-import { creatorAddressArr, txnDataJSON } from '..'
+import { creatorAddressArr } from '..'
 
 import { getChannelSettings } from '../database/operations/game'
 import PendingTransactionInformation from 'algosdk/dist/types/src/client/v2/algod/pendingTransactionInformation'
 import { TxnStatus } from '../types/token'
+import Redis from 'ioredis'
+const redisUrl = process.env.REDIS_URL as string
+const redisClient = new Redis(redisUrl)
+redisClient.on('error', (err) => console.log('Redis Client Error', err))
 
 const algoNode = process.env.ALGO_NODE as string
 const pureStakeApi = process.env.PURESTAKE_API_TOKEN as string
@@ -26,6 +29,7 @@ const port = ''
 
 const algodClient = new algosdk.Algodv2(token, server, port)
 const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
+
 export const determineOwnership = async function (
   address: string,
   channelId: string
@@ -35,10 +39,8 @@ export const determineOwnership = async function (
 }> {
   try {
     // First update transactions
-    const txnData = await convergeTxnData(creatorAddressArr, true)
-    fs.writeFileSync(txnDataJSON, JSON.stringify(txnData))
-
-    let { assets } = await algoIndexer
+    const data = await getTxnData()
+    const { assets } = await algoIndexer
       .lookupAccountAssets(address)
       .limit(10000)
       .do()
@@ -67,7 +69,6 @@ export const determineOwnership = async function (
 
     // console.log(uniqueAssets)
 
-    const data = getTxnData() as TxnData
     const assetIdArr = getAssetIdArrayFromTxnData(data)
     // Determine which assets are part of bot collection
     let collectionAssetLength = 0
@@ -109,7 +110,7 @@ export const determineOwnership = async function (
 }
 
 // get array of unique assetIds from txnData
-export const getAssetIdArrayFromTxnData = (txnData: TxnData): number[] => {
+const getAssetIdArrayFromTxnData = (txnData: TxnData): number[] => {
   const assetIdArr: number[] = []
 
   txnData.transactions.forEach((txn: Txn) => {
@@ -127,12 +128,12 @@ export const getAssetIdArrayFromTxnData = (txnData: TxnData): number[] => {
   return assetIdArr
 }
 
-export const isAssetCollectionAsset = (
+const isAssetCollectionAsset = (
   assetId: number,
   assetIdArr: number[]
 ): boolean => assetIdArr.includes(assetId)
 
-export const findAsset = async (
+const findAsset = async (
   assetId: number
 ): Promise<AlgoAssetData | undefined> => {
   try {
@@ -157,7 +158,7 @@ export const claimToken = async (
     const note = undefined
     const assetId = optInAssetId
 
-    let xtxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
+    const xtxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
       senderAddress,
       receiverAddress,
       closeRemainderTo,
@@ -168,7 +169,7 @@ export const claimToken = async (
       params
     )
     const rawSignedTxn = xtxn.signTxn(sk)
-    let xtx = await algodClient.sendRawTransaction(rawSignedTxn).do()
+    const xtx = await algodClient.sendRawTransaction(rawSignedTxn).do()
     const status = (await algosdk.waitForConfirmation(
       algodClient,
       xtx.txId,
@@ -184,9 +185,7 @@ export const claimToken = async (
 }
 
 // Finds all transactions from address
-export const searchForTransactions = async (
-  address: string
-): Promise<TxnData> => {
+const searchForTransactions = async (address: string): Promise<TxnData> => {
   const type = 'acfg'
   const txns = (await algoIndexer
     .searchForTransactions()
@@ -198,7 +197,7 @@ export const searchForTransactions = async (
   return txns
 }
 
-export const updateTransactions = async (
+const updateTransactions = async (
   accountAddress: string,
   currentRound: number
 ): Promise<TxnData> => {
@@ -216,11 +215,11 @@ export const convergeTxnData = async (
   creatorAddresses: string[],
   update: boolean
 ) => {
-  const updateCalls: any[] = []
-  const txnData = getTxnData() as TxnData
+  console.log('Gathering txnData')
+  const updateCalls: Promise<TxnData>[] = []
+  const currentRound = await getCurrentRound()
   creatorAddresses.forEach((address: string) => {
-    if (update) {
-      const currentRound = txnData['current-round']
+    if (currentRound > 0) {
       updateCalls.push(updateTransactions(address, currentRound))
     } else {
       updateCalls.push(searchForTransactions(address))
@@ -228,8 +227,8 @@ export const convergeTxnData = async (
   })
   const txnDataArr = await Promise.all(updateCalls)
   const reduceArr = [...txnDataArr]
-  if (update) {
-    const currentTxnData = getTxnData() as TxnData
+  if (update && currentRound > 0) {
+    const currentTxnData = await getTxnData()
     reduceArr.push(currentTxnData)
   }
 
@@ -253,10 +252,31 @@ const reduceTxnData = (txnDataArray: TxnData[]) => {
   return reducedData
 }
 
-const getTxnData = (): TxnData | undefined => {
-  try {
-    return JSON.parse(fs.readFileSync(txnDataJSON, 'utf-8'))
-  } catch (e) {
-    ///
+export const getTxnData = async (): Promise<TxnData> => {
+  const defaultExpiration = 3600
+  const redisKey = 'txnData'
+  const redisCurrentRound = 'txnData.current-round'
+  let txnData: TxnData
+  const value = await redisClient.get(redisKey)
+  if (value) {
+    txnData = JSON.parse(value)
+  } else {
+    txnData = await convergeTxnData(creatorAddressArr, false)
+    redisClient.setex(redisKey, defaultExpiration, JSON.stringify(txnData))
+    redisClient.setex(
+      redisCurrentRound,
+      defaultExpiration,
+      txnData['current-round'].toString()
+    )
   }
+  return txnData
+}
+
+export const getCurrentRound = async (): Promise<number> => {
+  const redisCurrentRound = 'txnData.current-round'
+  const value = await redisClient.get(redisCurrentRound)
+  if (value) {
+    return Number(value)
+  }
+  return 0
 }
