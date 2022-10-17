@@ -24,19 +24,3 @@ enum EnvVariables {
   IPFS_GATEWAY = 'IPFS_GATEWAY',
   TOKEN_MNEMONIC = 'TOKEN_MNEMONIC',
 }
-
-type EnvVariablesType = {
-  [K in keyof typeof EnvVariables]: string
-}
-
-const envKeys = Object.values(EnvVariables).filter(
-  (value) => typeof value === 'string'
-) as (keyof typeof EnvVariables)[]
-
-export const checkEnv = () => {
-  for (const envKey of envKeys) {
-    if (process.env[envKey] === undefined) {
-      throw new Error(`Env variable "${envKey}" not set`)
-    }
-  }
-}

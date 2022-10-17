@@ -22,7 +22,7 @@ import startWaitingRoom from './game'
 import { getSettings } from './database/operations/game'
 import { ChannelSettings } from './types/game'
 import gatherEmojis from './core/emojis'
-import { checkEnv } from './types/shared'
+import { checkEnv } from './utils/sharedUtils'
 
 const token = process.env.DISCORD_TOKEN as string
 const creatorAddresses = process.env.CREATOR_ADDRESSES as string

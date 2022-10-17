@@ -42,3 +42,15 @@ export const normalizeIpfsUrl = (url: string): string => {
     return url
   }
 }
+
+export const checkEnv = () => {
+  const envKeys = Object.values(EnvVariables).filter(
+    (value) => typeof value === 'string'
+  ) as (keyof typeof EnvVariables)[]
+
+  for (const envKey of envKeys) {
+    if (process.env[envKey] === undefined) {
+      throw new Error(`Env variable "${envKey}" not set`)
+    }
+  }
+}
