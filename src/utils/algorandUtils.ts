@@ -10,9 +10,30 @@ import { getChannelSettings } from '../database/operations/game'
 import PendingTransactionInformation from 'algosdk/dist/types/src/client/v2/algod/pendingTransactionInformation'
 import { TxnStatus } from '../types/token'
 import Redis from 'ioredis'
-const redisUrl = process.env.REDIS_URL as string
-const redisClient = new Redis(redisUrl)
-redisClient.on('error', (err) => console.log('Redis Client Error', err))
+
+// workaround since type declarations of ioredis-mock do not exist
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const RedisMock = require('ioredis-mock')
+
+function getRedisClient() {
+  switch (process.env.NODE_ENV) {
+    case 'test': {
+      console.log('Mocking Redis')
+      return new RedisMock()
+    }
+    case 'dev': {
+      console.log('Redis is in Local Dev Mode')
+
+      return new Redis()
+    }
+    default: {
+      const redisUrl = process.env.REDIS_URL as string
+      console.log('Redis has been configured ', redisUrl)
+      return new Redis(redisUrl)
+    }
+  }
+}
+const redisClient = getRedisClient()
 
 const algoNode = process.env.ALGO_NODE as string
 const pureStakeApi = process.env.PURESTAKE_API_TOKEN as string
