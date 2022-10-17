@@ -17,7 +17,7 @@ import {
 } from '../database/operations/user'
 // Globals
 
-const optInAssetId: number = Number(process.env.OPT_IN_ASSET_ID)
+const optInAssetId = Number(process.env.OPT_IN_ASSET_ID)
 const unitName = process.env.UNIT_NAME as string
 const registeredRoleId = process.env.REGISTERED_ID as string
 

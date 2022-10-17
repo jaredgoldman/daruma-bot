@@ -109,3 +109,4 @@ typings/
 dist/*
 dist/txnData
 dist/nftAssets
+/*.jpg

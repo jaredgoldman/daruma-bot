@@ -96,7 +96,7 @@ export const createRoundNumberRow = (
 export const createRoundCell = (roundNum?: number): string => {
   let cell = ''
   if (roundNum) {
-    let stringNum = roundNum.toString()
+    const stringNum = roundNum.toString()
     // if shorter than 2 digits prepend a 0
     cell += createCell(roundWidth, Alignment.centered, stringNum, false, '-')
   } else {

@@ -2,7 +2,7 @@ import Player from './player'
 import Encounter from './encounter'
 import { GameRoundState, GameTypes } from '../types/game'
 import { ChannelSettings } from '../types/game'
-import { MessageOptions } from 'discord.js'
+import { BaseMessageOptions } from 'discord.js'
 import { PlayerRoundsData } from '../types/attack'
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { renderBoard } from '../game/board'
@@ -229,7 +229,7 @@ export default class Game {
     return this.embed
   }
 
-  async editEmbed(options: MessageOptions) {
+  async editEmbed(options: BaseMessageOptions) {
     if (!this.embed) {
       throw new Error('No embed stored in game')
     }
@@ -464,7 +464,7 @@ export default class Game {
     return this.board
   }
 
-  renderBoard(isLastRender: boolean = false) {
+  renderBoard(isLastRender = false) {
     const board = renderBoard(
       this.getRollIndex(),
       this.getRoundIndex(),

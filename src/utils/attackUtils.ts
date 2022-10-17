@@ -45,7 +45,7 @@ export const damageCalc = (diceRolls: Array<number>): PlayerRoundsData => {
   // temp storage for round roills
   let roundRolls: Array<RollData> = []
   // set up retrun value
-  let roundsData: PlayerRoundsData = {
+  const roundsData: PlayerRoundsData = {
     rounds: [],
     gameWinRollIndex: 0,
     gameWinRoundIndex: 0,

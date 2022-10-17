@@ -25,7 +25,7 @@ export default class Player {
     address: string,
     asset: Asset,
     userId: ObjectId,
-    isNpc: boolean = false
+    isNpc = false
   ) {
     this.roundsData = completeGameForPlayer()
     this.username = username
@@ -121,7 +121,7 @@ export default class Player {
       let karma = user.karma
       let wins = this.asset.wins
       let losses = this.asset.losses
-      let gamesPlayed = this.asset?.gamesPlayed || 0
+      const gamesPlayed = this.asset?.gamesPlayed || 0
 
       const coolDownDoneDate = Date.now() + coolDown
       if (this.getIsWinner()) {
