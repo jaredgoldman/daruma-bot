@@ -1,7 +1,6 @@
 import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
-import Game from '../models/game'
 import Asset from '../models/asset'
 import { normalizeIpfsUrl } from './sharedUtils'
 
