@@ -19,7 +19,7 @@ import startWaitingRoom from './game'
 import { getSettings } from './database/operations/game'
 import { ChannelSettings } from './types/game'
 import gatherEmojis from './core/emojis'
-import { checkEnv } from './types/shared'
+import { checkEnv } from './utils/sharedUtils'
 
 const token = process.env.DISCORD_TOKEN as string
 const creatorAddresses = process.env.CREATOR_ADDRESSES as string
@@ -40,10 +40,16 @@ const client: Client = new Client({
 
 client.once('ready', async () => {
   try {
+    console.log('READY')
+    // Ensure all env variables are set
     checkEnv()
+    // Connect to db instance
     await connectToDatabase()
+    // Grab emojis from cache
     emojis = gatherEmojis(client)
+    // Register discord commands
     setupCommands()
+    // Start game for each channel
     startGame()
     console.log('Daruma Bot - Server ready')
   } catch (error) {

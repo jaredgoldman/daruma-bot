@@ -73,7 +73,6 @@ export default class Game {
 
   addPlayer(player: Player) {
     if (this.getPlayerCount() < 1) {
-      // console.log('******************************\n')
       this.setCurrentPlayer(player, 0)
     }
     this.players[player.getDiscordId()] = player
@@ -248,7 +247,12 @@ export default class Game {
         'npc player',
         'npcDiscordId',
         '1234567',
-        new Asset('$', 12345, 'npcasset', 'npcasset'),
+        new Asset(
+          'https://upload.wikimedia.org/wikipedia/en/1/1b/NPC_wojak_meme.png',
+          12345,
+          'npcasset',
+          'npcasset'
+        ),
         new ObjectId('123456789012'),
         true
       )
@@ -510,7 +514,7 @@ const defaultGameRoundState = {
   currentPlayer: undefined,
 }
 
-const defaultSettings: ChannelSettings = {
+export const defaultSettings: ChannelSettings = {
   maxAssets: 20,
   minCapacity: 2,
   maxCapacity: 2,

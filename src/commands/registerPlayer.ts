@@ -8,14 +8,11 @@ import { WithId } from 'mongodb'
 import User from '../models/user'
 import Player from '../models/player'
 // Helpers
-import { downloadAssetImage } from '../utils/fileSystemUtils'
 import { checkIfRegisteredPlayer } from '../utils/gameUtils'
 // Globals
 import { games } from '..'
 import { GameStatus } from '../models/game'
 import Asset from '../models/asset'
-
-const assetDir = process.env.ASSET_DIR as string
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -71,17 +68,6 @@ module.exports = {
           return interaction.editReply({
             content: `Please wait ${timeUnit} ${timeUnitType} before playing ${asset.name} again`,
           })
-        }
-
-        // Download nft asset to local dir
-        const localPath = await downloadAssetImage(
-          asset,
-          username,
-          `${assetDir}${channelId}`
-        )
-
-        if (!localPath) {
-          return
         }
 
         // check again for capacity once added
