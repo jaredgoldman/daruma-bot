@@ -1,18 +1,15 @@
 // Discord
-import {
-  ActionRowBuilder,
-  ButtonInteraction,
-  SelectMenuBuilder,
-} from 'discord.js'
 import { SlashCommandBuilder } from '@discordjs/builders'
+import { ActionRowBuilder, ButtonInteraction, SelectMenuBuilder } from 'discord.js'
 // Data
-import { collections } from '../database/database.service'
-import User from '../models/user'
 // Schemas
 import { WithId } from 'mongodb'
+
 // Globals
-import { games } from '..'
+import { collections } from '../database/database.service'
+import { games } from '../index'
 import Asset from '../models/asset'
+import User from '../models/user'
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -40,7 +37,7 @@ module.exports = {
       })) as WithId<User>
 
       if (user === null) {
-        return interaction.editReply({
+        return await interaction.editReply({
           content: 'You are not registered. Use the /register command',
         })
       }
@@ -48,7 +45,7 @@ module.exports = {
       const userAssetsArr = Object.values(user.assets)
 
       if (!userAssetsArr.length) {
-        return interaction.editReply({
+        return await interaction.editReply({
           content: 'You have no Darumas to select!',
         })
       }

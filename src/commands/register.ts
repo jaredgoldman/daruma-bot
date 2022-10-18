@@ -1,35 +1,32 @@
 // Discord
-import { RegistrationResult } from '../types/user'
 import { SlashCommandBuilder } from '@discordjs/builders'
-// Data
-// Helpers
-import { determineOwnership } from '../utils/algorandUtils'
-import { addRole } from '../utils/discordUtils'
-// Schemas
-import User from '../models/user'
-import Asset from '../models/asset'
 import { Interaction } from 'discord.js'
+
 import {
   findUserByDiscordId,
   findUserById,
   saveUser,
   updateUser,
 } from '../database/operations/user'
+import Asset from '../models/asset'
+import User from '../models/user'
+import { RegistrationResult } from '../types/user'
+// Data
+// Helpers
+import { determineOwnership, optInAssetId, unitName } from '../utils/algorandUtils'
+import { addRole } from '../utils/discordUtils'
+// Schemas
+
 // Globals
 
-const optInAssetId = Number(process.env.OPT_IN_ASSET_ID)
-const unitName = process.env.UNIT_NAME as string
-const registeredRoleId = process.env.REGISTERED_ID as string
+const registeredRoleId = process.env.REGISTERED_ID
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('register')
-    .setDescription('register for When Darumas Attack')
-    .addStringOption((option) =>
-      option
-        .setName('address')
-        .setDescription('enter the your wallet address')
-        .setRequired(true)
+    .setDescription('Register for When Darumas Attack')
+    .addStringOption(option =>
+      option.setName('address').setDescription('enter the your wallet address').setRequired(true)
     ),
   enabled: true,
   /**
@@ -45,7 +42,7 @@ module.exports = {
     const address = options.getString('address')
 
     if (address && !/^[a-zA-Z0-9]{58}$/.test(address)) {
-      return interaction.reply({
+      return await interaction.reply({
         content: 'Please enter a valid Algorand wallet address',
         ephemeral: true,
       })
@@ -54,21 +51,15 @@ module.exports = {
     await interaction.deferReply({ ephemeral: true })
 
     await interaction.followUp({
-      content:
-        'Thanks for registering! This might take a while! Please check back in a few minutes',
+      content: 'This might take a while! Please be patient.',
       ephemeral: true,
     })
 
     if (address) {
-      const { status, registeredUser, asset } = await processRegistration(
-        username,
-        id,
-        address,
-        channelId
-      )
+      const { status, registeredUser } = await processRegistration(username, id, address, channelId)
 
-      // add permissions if succesful
-      if (registeredUser && asset) {
+      // add permissions if successful
+      if (registeredUser && registeredRoleId) {
         addRole(interaction, registeredRoleId, registeredUser)
       }
 
@@ -99,11 +90,8 @@ export const processRegistration = async (
     let user: User | null = await findUserByDiscordId(discordId)
 
     // Check to see if wallet has opt-in asset
-    // Retreive assetIds from specific collections
-    const { walletOwned, nftsOwned } = await determineOwnership(
-      address,
-      channelId
-    )
+    // Retrieve assetIds from specific collections
+    const { walletOwned, nftsOwned } = await determineOwnership(address, channelId)
 
     const keyedNfts: { [key: string]: Asset } = {}
     nftsOwned.forEach((nft: Asset) => {
@@ -140,7 +128,7 @@ export const processRegistration = async (
     }
 
     return {
-      status: `Registration complete! Enjoy the game.`,
+      status: `Registration complete! Enjoy the game. -- You can always register again if you are missing some NFT's`,
       registeredUser: user,
     }
   } catch (error) {

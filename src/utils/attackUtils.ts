@@ -1,4 +1,4 @@
-import { RollData, PlayerRoundsData } from '../types/attack'
+import { PlayerRoundsData, RollData } from '../types/attack'
 import { randomNumber } from './sharedUtils'
 // import util from 'util'
 

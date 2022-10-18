@@ -4,7 +4,7 @@ class BoardConfig {
   private numOfRoundsVisible: number
   private turnsInRound: number
   private emojiPadding: number
-  private attackRoundPadidng: number
+  private attackRoundPadding: number
 
   constructor(
     cellWidth: number,
@@ -19,10 +19,10 @@ class BoardConfig {
     this.numOfRoundsVisible = numberOfRoundsVisible
     this.turnsInRound = turnsInRound
     this.emojiPadding = emojiPadding
-    this.attackRoundPadidng = attackRoundPadding
+    this.attackRoundPadding = attackRoundPadding
   }
 
-  getRoundWidth() {
+  getRoundWidth(): number {
     return this.cellWidth * this.turnsInRound + this.roundPadding
   }
 
@@ -34,7 +34,7 @@ class BoardConfig {
       numOfRoundsVisible: this.numOfRoundsVisible,
       emojiPadding: this.emojiPadding,
       turnsInRound: this.turnsInRound,
-      attackRoundPadidng: this.attackRoundPadidng,
+      attackRoundPadding: this.attackRoundPadding,
     }
   }
 }

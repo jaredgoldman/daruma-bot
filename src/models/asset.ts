@@ -4,12 +4,7 @@ export default class Asset {
   public wins: number
   public losses: number
   public gamesPlayed: number
-  constructor(
-    public url: string,
-    public id: number,
-    public name: string,
-    public unitName: string
-  ) {
+  constructor(public url: string, public id: number, public name: string, public unitName: string) {
     this.alias = undefined
     this.localPath = undefined
     this.wins = 0

@@ -4,7 +4,7 @@ export const checkIfRegisteredPlayer = (
   games: { [key: string]: Game },
   assetId: string,
   discordId: string
-) => {
+): boolean => {
   let gameCount = 0
   const gameArray = Object.values(games)
   gameArray.forEach((game: Game) => {

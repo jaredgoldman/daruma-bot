@@ -1,11 +1,12 @@
 import { TextChannel } from 'discord.js'
-import Game from '../models/game'
-import { asyncForEach } from '../utils/sharedUtils'
-import doEmbed from '../core/embeds'
-import { Embeds } from '../constants/embeds'
-import Player from '../models/player'
 
-export default async function win(game: Game, channel: TextChannel) {
+import { Embeds } from '../constants/embeds'
+import doEmbed from '../core/embeds'
+import Game from '../models/game'
+import Player from '../models/player'
+import { asyncForEach } from '../utils/sharedUtils'
+
+export default async function win(game: Game, channel: TextChannel): Promise<void> {
   // handle win here
   const winningPlayers = game.getWinningPlayers()
   await asyncForEach(winningPlayers, async (player: Player) => {

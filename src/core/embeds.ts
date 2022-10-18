@@ -1,19 +1,19 @@
 // Discord
 import {
-  ColorResolvable,
-  BaseMessageOptions,
-  EmbedBuilder,
-  ButtonBuilder,
   ActionRowBuilder,
+  BaseMessageOptions,
+  ButtonBuilder,
   ButtonStyle,
+  EmbedBuilder,
 } from 'discord.js'
+
 // Types/Constants
-import { EmbedData } from '../types/game'
 import { Embeds } from '../constants/embeds'
 // Helpers
-import { normalizeIpfsUrl } from '../utils/sharedUtils'
 import Game from '../models/game'
 import Player from '../models/player'
+import { EmbedData } from '../types/game'
+import { normalizeIpfsUrl } from '../utils/sharedUtils'
 
 const defaultEmbedValues: EmbedData = {
   title: 'DarumaBot',
@@ -25,13 +25,9 @@ const defaultEmbedValues: EmbedData = {
   },
 }
 
-type EmbedOptions = { player?: Player }
+//type EmbedOptions = { player?: Player };
 
-export default function doEmbed(
-  type: Embeds,
-  game: Game,
-  options?: any
-): BaseMessageOptions {
+export default function doEmbed(type: Embeds, game: Game, options?: any): BaseMessageOptions {
   let data: EmbedData = defaultEmbedValues
   const components: any = []
 
@@ -48,7 +44,7 @@ export default function doEmbed(
         description: `${playerCount} ${playerWord} ${hasWord} joined the game.`,
         files: [],
         fields: playerArr
-          .map((player) => {
+          .map(player => {
             if (player.getIsNpc()) return
             return {
               name: player.getUsername(),
@@ -94,8 +90,7 @@ export default function doEmbed(
     }
   }
 
-  const { title, description, color, image, thumbNail, fields, footer, files } =
-    data
+  const { title, description, color, image, thumbNail, fields, footer, files } = data
 
   const embed = new EmbedBuilder()
 
@@ -107,7 +102,7 @@ export default function doEmbed(
 
   title && embed.setTitle(title)
   description && embed.setDescription(description)
-  color && embed.setColor(color as ColorResolvable)
+  color && embed.setColor(color)
   image && embed.setImage(image)
   thumbNailUrl && embed.setThumbnail(thumbNailUrl)
   fields?.length && embed.addFields(fields)

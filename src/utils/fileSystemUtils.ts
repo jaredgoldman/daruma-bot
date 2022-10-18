@@ -1,6 +1,7 @@
-import fs from 'fs'
-import path from 'path'
 import axios from 'axios'
+import fs from 'node:fs'
+import path from 'node:path'
+
 import Asset from '../models/asset'
 import { normalizeIpfsUrl } from './sharedUtils'
 
@@ -12,21 +13,19 @@ export const downloadAssetImage = async (
   try {
     const url = asset.url
     if (url) {
-      const normalizedUrl = normalizeIpfsUrl(url) as string
-      const path = `${directory}/${username
-        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
-        .trim()}.jpg`
+      const normalizedUrl = normalizeIpfsUrl(url)
+      const path = `${directory}/${username.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '').trim()}.jpg`
       const writer = fs.createWriteStream(path)
       const res = await axios.get(normalizedUrl, {
         responseType: 'stream',
       })
       res.data.pipe(writer)
 
-      return new Promise((resolve, reject) => {
+      return await new Promise((resolve, reject) => {
         writer.on('finish', () => {
           return resolve(path)
         })
-        writer.on('error', (err) => console.log(err))
+        writer.on('error', err => console.log(err))
       })
     }
   } catch (error) {
@@ -37,7 +36,7 @@ export const downloadAssetImage = async (
 export const emptyDir = (dirPath: string): void => {
   try {
     const dirContents = fs.readdirSync(dirPath)
-    dirContents.forEach((filePath) => {
+    dirContents.forEach(filePath => {
       const fullPath = path.join(dirPath, filePath)
       const stat = fs.statSync(fullPath)
       if (stat.isDirectory()) {

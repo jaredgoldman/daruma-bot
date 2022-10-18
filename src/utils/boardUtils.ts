@@ -26,7 +26,7 @@ export const createCell = (
   shift = 0
 ): string => {
   let indexToPrintContent
-  // create intial space
+  // create initial space
   const whitespace = createWhitespace(space, delimiter)
 
   switch (alignment) {
@@ -55,16 +55,8 @@ export const createCell = (
  * @param string
  * @returns {string}
  */
-export const replaceAt = (
-  index: number,
-  replacement = '',
-  string: string
-): string => {
-  return (
-    string.substring(0, index) +
-    replacement +
-    string.substring(index + replacement.length)
-  )
+export const replaceAt = (index: number, replacement = '', string: string): string => {
+  return string.substring(0, index) + replacement + string.substring(index + replacement.length)
 }
 
 /**

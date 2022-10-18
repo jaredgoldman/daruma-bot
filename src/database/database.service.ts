@@ -8,32 +8,27 @@ export const collections: {
 
 let db: mongoDB.Db
 
-const connectionString = process.env.DB_CONN_STRING as string
-const usersCollectionName = process.env.USERS_COLLECTION_NAME as string
-const encountersCollectionName = process.env
-  .ENCOUNTERS_COLLECTION_NAME as string
-const settingsCollectionName = process.env.SETTINGS_COLLECTION_NAME as string
-const tokeeWithdrawalsCollectionName = process.env
-  .TOKEN_WITHDRAWALS_COLLECTION_NAME as string
-
+const connectionString = process.env.MONGO_URL || 'mongodb://localhost:27017'
+const usersCollectionName = process.env.USERS_COLLECTION_NAME || 'users'
+const encountersCollectionName = process.env.ENCOUNTERS_COLLECTION_NAME || 'encounters'
+const settingsCollectionName = process.env.SETTINGS_COLLECTION_NAME || 'settings'
+const tokenWithdrawalsCollectionName =
+  process.env.TOKEN_WITHDRAWALS_COLLECTION_NAME || 'token_withdrawals'
+const mongoDBName = process.env.DB_NAME || 'daruma-bot'
 // Initialize Connection
-export async function connectToDatabase() {
+export async function connectToDatabase(): Promise<void> {
   const client: mongoDB.MongoClient = new mongoDB.MongoClient(connectionString)
 
   await client.connect()
 
-  db = client.db(process.env.DB_NAME)
+  db = client.db(mongoDBName)
 
   const usersCollection: mongoDB.Collection = db.collection(usersCollectionName)
 
-  const encountersCollection: mongoDB.Collection = db.collection(
-    encountersCollectionName
-  )
-  const settingsCollection: mongoDB.Collection = db.collection(
-    settingsCollectionName
-  )
+  const encountersCollection: mongoDB.Collection = db.collection(encountersCollectionName)
+  const settingsCollection: mongoDB.Collection = db.collection(settingsCollectionName)
   const tokenWithdrawalsCollection: mongoDB.Collection = db.collection(
-    tokeeWithdrawalsCollectionName
+    tokenWithdrawalsCollectionName
   )
 
   collections.users = usersCollection

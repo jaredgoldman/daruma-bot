@@ -3,19 +3,18 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction, InteractionType } from 'discord.js'
 // Schemas
 import { WithId } from 'mongodb'
-import User from '../models/user'
+
 // Data
-import { claimToken } from '../utils/algorandUtils'
 import { collections } from '../database/database.service'
-import { updateUserKarma } from '../database/operations/user'
 import { saveWithdrawal } from '../database/operations/token'
+import { updateUserKarma } from '../database/operations/user'
+import User from '../models/user'
 import { Withdrawal } from '../models/withdrawal'
+import { claimToken } from '../utils/algorandUtils'
 // Helpers
 
 module.exports = {
-  data: new SlashCommandBuilder()
-    .setName('claim')
-    .setDescription('claim your hoot!'),
+  data: new SlashCommandBuilder().setName('claim').setDescription('claim your hoot!'),
 
   enabled: true,
   /**
@@ -35,7 +34,7 @@ module.exports = {
       })) as WithId<User>
 
       if (!userData) {
-        return interaction.editReply({
+        return await interaction.editReply({
           content: 'You are not in the database',
         })
       }
@@ -43,7 +42,7 @@ module.exports = {
       const { karma, address } = userData
 
       if (!karma) {
-        return interaction.editReply({
+        return await interaction.editReply({
           content: 'You have no hoot to claim',
         })
       }
@@ -53,20 +52,12 @@ module.exports = {
       const txnData = await claimToken(karma, address)
       if (txnData) {
         saveWithdrawal(
-          new Withdrawal(
-            user.id,
-            karma,
-            address,
-            txnData.txId,
-            new Date(Date.now()).toTimeString()
-          )
+          new Withdrawal(user.id, karma, address, txnData.txId, new Date(Date.now()).toTimeString())
         )
-        return interaction.editReply(
-          `Congrats, you've just received ${karma} Karma!`
-        )
+        return await interaction.editReply(`Congrats, you've just received ${karma} Karma!`)
       }
     } catch (error) {
-      return interaction.editReply(
+      return await interaction.editReply(
         'Something went wrong with your claim :( - please try again'
       )
     }

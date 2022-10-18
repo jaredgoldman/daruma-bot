@@ -1,13 +1,13 @@
-import Player from './player'
-import Encounter from './encounter'
-import { GameRoundState, GameTypes } from '../types/game'
-import { ChannelSettings } from '../types/game'
 import { BaseMessageOptions } from 'discord.js'
-import { PlayerRoundsData } from '../types/attack'
+import { ObjectId } from 'mongodb'
+
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { renderBoard } from '../game/board'
+import { PlayerRoundsData } from '../types/attack'
+import { ChannelSettings, GameRoundState, GameTypes } from '../types/game'
 import Asset from './asset'
-import { ObjectId } from 'mongodb'
+import Encounter from './encounter'
+import Player from './player'
 
 /**
  * Main game class
@@ -77,8 +77,7 @@ export default class Game {
     }
     this.players[player.getDiscordId()] = player
     // update games winning index
-    const { gameWinRollIndex, gameWinRoundIndex, rounds } =
-      player.getRoundsData()
+    const { gameWinRollIndex, gameWinRoundIndex, rounds } = player.getRoundsData()
 
     // console.log(util.inspect(rounds, false, null, true))
     this.compareAndSetWinningIndexes(gameWinRollIndex, gameWinRoundIndex)
@@ -165,10 +164,7 @@ export default class Game {
    */
   compareAndSetWinningIndexes(rollIndex: number, roundIndex: number) {
     // if no winning indexes set yet
-    if (
-      this.winningRollIndex === undefined ||
-      this.winningRoundIndex === undefined
-    ) {
+    if (this.winningRollIndex === undefined || this.winningRoundIndex === undefined) {
       this.setWinningRollIndex(rollIndex)
       this.setWinningRoundIndex(roundIndex)
       // if the incoming round index is lower than the current ruund index, change it
@@ -403,10 +399,7 @@ export default class Game {
    * Stores winning players in an array
    */
   storeWinningPlayers() {
-    if (
-      this.getWinningRollIndex() === undefined ||
-      this.getWinningRoundIndex() === undefined
-    ) {
+    if (this.getWinningRollIndex() === undefined || this.getWinningRoundIndex() === undefined) {
       return
     }
 
@@ -450,7 +443,7 @@ export default class Game {
 
   getPlayersRoundsData(): { [key: string]: PlayerRoundsData } {
     const playerRoundsData: { [key: string]: PlayerRoundsData } = {}
-    this.getPlayerArray().forEach((player) => {
+    this.getPlayerArray().forEach(player => {
       playerRoundsData[player.getDiscordId()] = player.getRoundsData()
     })
     return playerRoundsData
@@ -488,9 +481,7 @@ export default class Game {
   }
 
   doFinalPlayerMutation() {
-    this.getPlayerArray().forEach((player) =>
-      player.doEndOfGameMutation(this.settings)
-    )
+    this.getPlayerArray().forEach(player => player.doEndOfGameMutation(this.settings))
   }
 
   resetGame() {
