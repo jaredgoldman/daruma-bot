@@ -10,7 +10,9 @@ const commands = []
 
 const commandFiles = fs.readdirSync('./src/commands')
 for (const file of commandFiles) {
-  const name = file.endsWith('.ts') ? file.replace('.ts', '') : file.replace('.js', '')
+  const name = file.endsWith('.ts')
+    ? file.replace('.ts', '')
+    : file.replace('.js', '')
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const command = require(`../commands/${name}`)
   if (command.enabled) {

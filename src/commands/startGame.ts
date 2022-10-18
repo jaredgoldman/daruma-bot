@@ -10,7 +10,9 @@ import { confirmRole } from '../utils/discordUtils'
 
 const adminId = process.env.ADMIN_ROLE_ID || ''
 module.exports = {
-  data: new SlashCommandBuilder().setName('start-game').setDescription('start the game'),
+  data: new SlashCommandBuilder()
+    .setName('start-game')
+    .setDescription('start the game'),
   /**
    * Response to start game button
    * If user is admin or active player and enough players are registered

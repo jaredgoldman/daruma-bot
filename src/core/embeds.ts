@@ -27,7 +27,11 @@ const defaultEmbedValues: EmbedData = {
 
 //type EmbedOptions = { player?: Player };
 
-export default function doEmbed(type: Embeds, game: Game, options?: any): BaseMessageOptions {
+export default function doEmbed(
+  type: Embeds,
+  game: Game,
+  options?: any
+): BaseMessageOptions {
   let data: EmbedData = defaultEmbedValues
   const components: any = []
 
@@ -90,7 +94,8 @@ export default function doEmbed(type: Embeds, game: Game, options?: any): BaseMe
     }
   }
 
-  const { title, description, color, image, thumbNail, fields, footer, files } = data
+  const { title, description, color, image, thumbNail, fields, footer, files } =
+    data
 
   const embed = new EmbedBuilder()
 

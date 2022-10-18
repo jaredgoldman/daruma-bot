@@ -58,7 +58,10 @@ export const renderBoard = (
  * @param isFirstRound
  * @returns {string}
  */
-export const createRoundNumberRow = (roundIndex: number, roundsOnEmbed: number): string => {
+export const createRoundNumberRow = (
+  roundIndex: number,
+  roundsOnEmbed: number
+): string => {
   const isFirstRound = roundIndex === 0
   const roundNumber = roundIndex + 1
   let roundNumberRowLabel = ''
@@ -129,7 +132,15 @@ export const createAttackAndTotalRows = (
     const isTurn = index === playerIndex
     const hasBeenTurn = index <= playerIndex
 
-    rows += createAttackRow(rounds, roundIndex, rollIndex, isTurn, hasBeenTurn, isLastRender) + '\n'
+    rows +=
+      createAttackRow(
+        rounds,
+        roundIndex,
+        rollIndex,
+        isTurn,
+        hasBeenTurn,
+        isLastRender
+      ) + '\n'
 
     const totalRightColumn = createWhitespace(3) + '**Hits**'
     // add round total row
@@ -169,7 +180,12 @@ export const createAttackRow = (
     Array.from({ length: turnsInRound }).forEach((_, index: number) => {
       const roll = prevRound.rolls[index]
       if (roll?.damage) {
-        row += createCell(cellWidth, Alignment.centered, emojis[roll.damage], true)
+        row += createCell(
+          cellWidth,
+          Alignment.centered,
+          emojis[roll.damage],
+          true
+        )
       } else {
         row += createCell(cellWidth, Alignment.centered, emojis.ph, true)
       }
@@ -180,7 +196,8 @@ export const createAttackRow = (
   // ROUND POSITION 1
   Array.from({ length: turnsInRound }).forEach((_, index: number) => {
     // if it is the current players turn, and we are on the current round
-    const shouldRenderNextRoll = (hasBeenTurn && index === rollIndex) || index < rollIndex
+    const shouldRenderNextRoll =
+      (hasBeenTurn && index === rollIndex) || index < rollIndex
     const roll = currentRound.rolls[index]
 
     // if it's our turn or has been our turn, add latest roll
@@ -231,7 +248,8 @@ export const createTotalRow = (
     // current total is dynamic as round is still in progress and it may not be time to
     // render the players score yet
     const currRoundRollIndex = isLastRender ? rollIndex : rollIndex - 1
-    const currRoundTotal = rounds[roundIndex]?.rolls[currRoundRollIndex]?.totalScore
+    const currRoundTotal =
+      rounds[roundIndex]?.rolls[currRoundRollIndex]?.totalScore
     // TODO, make this dynamic
     // if first round, only the first element should have a label
     if (isFirstRound && i === 1) {
@@ -257,9 +275,12 @@ export const createTotalRow = (
  * @returns {string}
  */
 export const findRoundTotal = (rolls: RollData[]): number => {
-  const roundTotal = rolls.reduce((prevTotal: number, currentRoll: RollData) => {
-    const currentRollValue = currentRoll.damage || 0
-    return prevTotal + currentRollValue
-  }, 0)
+  const roundTotal = rolls.reduce(
+    (prevTotal: number, currentRoll: RollData) => {
+      const currentRollValue = currentRoll.damage || 0
+      return prevTotal + currentRollValue
+    },
+    0
+  )
   return roundTotal
 }

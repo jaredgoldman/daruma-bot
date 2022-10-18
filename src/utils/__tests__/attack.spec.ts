@@ -27,7 +27,8 @@ describe('Damage Calc Logic ', () => {
 
   it('saves the correct round and roll index', () => {
     const lastRoundIndex = playerRoundsData.rounds.length - 1
-    const lastRollIndex = playerRoundsData.rounds[lastRoundIndex].rolls.length - 1
+    const lastRollIndex =
+      playerRoundsData.rounds[lastRoundIndex].rolls.length - 1
     expect(playerRoundsData.gameWinRoundIndex).toEqual(lastRoundIndex)
     expect(playerRoundsData.gameWinRollIndex).toEqual(lastRollIndex)
   })

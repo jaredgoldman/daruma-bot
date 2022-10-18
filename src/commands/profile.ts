@@ -9,7 +9,9 @@ import { findUserByDiscordId } from '../database/operations/user'
 // Helpers
 
 module.exports = {
-  data: new SlashCommandBuilder().setName('profile').setDescription('show user profile!'),
+  data: new SlashCommandBuilder()
+    .setName('profile')
+    .setDescription('show user profile!'),
   enabled: true,
   /**
    * Allows user to initiate transfer oftoken to own wallet

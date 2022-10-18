@@ -15,7 +15,9 @@ import win from './win'
  * Start game waiting room
  * @param channel {TextChannel}
  */
-export default async function startWaitingRoom(channel: TextChannel): Promise<void> {
+export default async function startWaitingRoom(
+  channel: TextChannel
+): Promise<void> {
   try {
     const game = games[channel.id]
     game.resetGame()
@@ -30,7 +32,9 @@ export default async function startWaitingRoom(channel: TextChannel): Promise<vo
     const { maxCapacity, turnRate } = settings
 
     // Send first waiting room embed
-    const waitingRoomEmbed = await channel.send(doEmbed(Embeds.waitingRoom, game))
+    const waitingRoomEmbed = await channel.send(
+      doEmbed(Embeds.waitingRoom, game)
+    )
 
     game.setEmbed(waitingRoomEmbed)
 
@@ -41,7 +45,10 @@ export default async function startWaitingRoom(channel: TextChannel): Promise<vo
      * WAITING ROOM LOOP *
      * *******************
      */
-    while (playerCount < maxCapacity && game.getStatus() === GameStatus.waitingRoom) {
+    while (
+      playerCount < maxCapacity &&
+      game.getStatus() === GameStatus.waitingRoom
+    ) {
       // If game is in updating state, update embed
       if (game.isUpdating()) {
         await game.editEmbed(doEmbed(Embeds.waitingRoom, game))
@@ -64,7 +71,10 @@ export default async function startWaitingRoom(channel: TextChannel): Promise<vo
     let channelMessage: Message
     const playerMessage = game
       .getPlayerArray()
-      .map((player: Player, index: number) => `${index + 1} - <@${player.getDiscordId()}>`)
+      .map(
+        (player: Player, index: number) =>
+          `${index + 1} - <@${player.getDiscordId()}>`
+      )
       .join('\n')
 
     let hasWon = false
@@ -73,25 +83,28 @@ export default async function startWaitingRoom(channel: TextChannel): Promise<vo
       const playerArr = game.getPlayerArray()
 
       // for each player render new board
-      await asyncForEach(playerArr, async (player: Player, playerIndex: number) => {
-        // TODO: take care of this inside game logic
-        game.setCurrentPlayer(player, playerIndex)
-        const board = game.renderBoard()
+      await asyncForEach(
+        playerArr,
+        async (player: Player, playerIndex: number) => {
+          // TODO: take care of this inside game logic
+          game.setCurrentPlayer(player, playerIndex)
+          const board = game.renderBoard()
 
-        // if it's the first roll
-        if (!channelMessage) {
-          await channel.send(playerMessage)
-          channelMessage = await channel.send(board)
+          // if it's the first roll
+          if (!channelMessage) {
+            await channel.send(playerMessage)
+            channelMessage = await channel.send(board)
 
-          // if there's a win
-        } else if (game.getWin()) {
-          await channelMessage.edit(game.renderBoard(true))
-        } else {
-          await channelMessage.edit(board)
+            // if there's a win
+          } else if (game.getWin()) {
+            await channelMessage.edit(game.renderBoard(true))
+          } else {
+            await channelMessage.edit(board)
+          }
+
+          await wait(turnRate * 1000)
         }
-
-        await wait(turnRate * 1000)
-      })
+      )
       //if win, stop loop
       if (game.getWin()) {
         hasWon = true

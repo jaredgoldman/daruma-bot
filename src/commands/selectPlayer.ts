@@ -1,6 +1,10 @@
 // Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { ActionRowBuilder, ButtonInteraction, SelectMenuBuilder } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonInteraction,
+  SelectMenuBuilder,
+} from 'discord.js'
 // Data
 // Schemas
 import { WithId } from 'mongodb'

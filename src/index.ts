@@ -62,7 +62,9 @@ const startGame = async (): Promise<void> => {
     const settings = await getSettings()
     // start game for each channel
     await asyncForEach(settings, async (settings: ChannelSettings) => {
-      const channel = client.channels.cache.get(settings.channelId) as TextChannel
+      const channel = client.channels.cache.get(
+        settings.channelId
+      ) as TextChannel
       const newGame = new Game(settings)
       games[settings.channelId] = newGame
       startWaitingRoom(channel)
@@ -77,7 +79,9 @@ const setupCommands = (): void => {
     client.commands = new Collection()
     const commandFiles = fs.readdirSync('./src/commands')
     for (const file of commandFiles) {
-      const name = file.endsWith('.ts') ? file.replace('.ts', '') : file.replace('.js', '')
+      const name = file.endsWith('.ts')
+        ? file.replace('.ts', '')
+        : file.replace('.js', '')
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const command = require(`./commands/${name}`)
       client.commands.set(command.data.name, command)

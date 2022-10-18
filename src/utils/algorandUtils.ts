@@ -35,9 +35,11 @@ const creatorAddresses = process.env.CREATOR_ADDRESSES as string
 const creatorAddressArr = creatorAddresses?.split(',')
 
 const pureStakeApi = process.env.PURESTAKE_API_TOKEN as string
-const algoNode = process.env.ALGO_NODE || 'https://mainnet-algorand.api.purestake.io/ps2'
+const algoNode =
+  process.env.ALGO_NODE || 'https://mainnet-algorand.api.purestake.io/ps2'
 const algoIndexerNode =
-  process.env.ALGO_INDEXER_NODE || 'https://mainnet-algorand.api.purestake.io/idx2'
+  process.env.ALGO_INDEXER_NODE ||
+  'https://mainnet-algorand.api.purestake.io/idx2'
 export const optInAssetId = Number(process.env.OPT_IN_ASSET_ID) || 832356628 // This is the Daruma opt-in
 export const unitName = process.env.UNIT_NAME || 'Daruma'
 
@@ -63,7 +65,10 @@ export const determineOwnership = async function (
   try {
     // First update transactions
     const data = await getTxnData()
-    const { assets } = await algoIndexer.lookupAccountAssets(address).limit(10000).do()
+    const { assets } = await algoIndexer
+      .lookupAccountAssets(address)
+      .limit(10000)
+      .do()
 
     const settings = await getChannelSettings(channelId)
 
@@ -79,7 +84,9 @@ export const determineOwnership = async function (
         walletOwned = true
       }
       // ensure no duplicate assets
-      const result = uniqueAssets.findIndex(item => asset['asset-id'] === item['asset-id'])
+      const result = uniqueAssets.findIndex(
+        item => asset['asset-id'] === item['asset-id']
+      )
       if (result <= -1 && asset.amount > 0) {
         uniqueAssets.push(asset)
       }
@@ -146,10 +153,14 @@ const getAssetIdArrayFromTxnData = (txnData: TxnData): number[] => {
   return assetIdArr
 }
 
-const isAssetCollectionAsset = (assetId: number, assetIdArr: number[]): boolean =>
-  assetIdArr.includes(assetId)
+const isAssetCollectionAsset = (
+  assetId: number,
+  assetIdArr: number[]
+): boolean => assetIdArr.includes(assetId)
 
-const findAsset = async (assetId: number): Promise<AlgoAssetData | undefined> => {
+const findAsset = async (
+  assetId: number
+): Promise<AlgoAssetData | undefined> => {
   try {
     const assetData = await algoIndexer.searchForAssets().index(assetId).do()
     if (assetData?.assets) return assetData.assets[0]
@@ -164,7 +175,8 @@ export const claimToken = async (
 ): Promise<TxnStatus | undefined> => {
   try {
     const params = await algodClient.getTransactionParams().do()
-    const { sk, addr: senderAddress } = algosdk.mnemonicToSecretKey(tokenMnemonic)
+    const { sk, addr: senderAddress } =
+      algosdk.mnemonicToSecretKey(tokenMnemonic)
 
     const revocationTarget = undefined
     const closeRemainderTo = undefined
@@ -249,16 +261,18 @@ export const convergeTxnData = async (
 }
 
 const reduceTxnData = (txnDataArray: TxnData[]): TxnData => {
-  const reducedData = txnDataArray.reduce((prevTxnData: TxnData, txnData: TxnData) => {
-    return {
-      ['current-round']:
-        prevTxnData['current-round'] < txnData['current-round']
-          ? prevTxnData['current-round']
-          : txnData['current-round'],
-      ['next-token']: prevTxnData['next-token'],
-      transactions: [...prevTxnData.transactions, ...txnData.transactions],
+  const reducedData = txnDataArray.reduce(
+    (prevTxnData: TxnData, txnData: TxnData) => {
+      return {
+        ['current-round']:
+          prevTxnData['current-round'] < txnData['current-round']
+            ? prevTxnData['current-round']
+            : txnData['current-round'],
+        ['next-token']: prevTxnData['next-token'],
+        transactions: [...prevTxnData.transactions, ...txnData.transactions],
+      }
     }
-  })
+  )
   // console.log(util.inspect(reducedData, { depth: 1 }))
   return reducedData
 }
@@ -274,7 +288,11 @@ export const getTxnData = async (): Promise<TxnData> => {
   } else {
     txnData = await convergeTxnData(creatorAddressArr, false)
     redisClient.setex(redisKey, defaultExpiration, JSON.stringify(txnData))
-    redisClient.setex(redisCurrentRound, defaultExpiration, txnData['current-round'].toString())
+    redisClient.setex(
+      redisCurrentRound,
+      defaultExpiration,
+      txnData['current-round'].toString()
+    )
   }
   return txnData
 }

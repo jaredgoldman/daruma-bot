@@ -14,7 +14,9 @@ import { claimToken } from '../utils/algorandUtils'
 // Helpers
 
 module.exports = {
-  data: new SlashCommandBuilder().setName('claim').setDescription('claim your hoot!'),
+  data: new SlashCommandBuilder()
+    .setName('claim')
+    .setDescription('claim your hoot!'),
 
   enabled: true,
   /**
@@ -52,9 +54,17 @@ module.exports = {
       const txnData = await claimToken(karma, address)
       if (txnData) {
         saveWithdrawal(
-          new Withdrawal(user.id, karma, address, txnData.txId, new Date(Date.now()).toTimeString())
+          new Withdrawal(
+            user.id,
+            karma,
+            address,
+            txnData.txId,
+            new Date(Date.now()).toTimeString()
+          )
         )
-        return await interaction.editReply(`Congrats, you've just received ${karma} Karma!`)
+        return await interaction.editReply(
+          `Congrats, you've just received ${karma} Karma!`
+        )
       }
     } catch (error) {
       return await interaction.editReply(

@@ -9,7 +9,9 @@ export const addRole = async (
 ): Promise<void> => {
   try {
     const role = interaction.guild?.roles.cache.find(role => role.id === roleId)
-    const member = interaction.guild?.members.cache.find(member => member.id === user.discordId)
+    const member = interaction.guild?.members.cache.find(
+      member => member.id === user.discordId
+    )
     role && (await member?.roles.add(role.id))
   } catch (error) {
     console.log('Error adding role', error)
@@ -22,7 +24,9 @@ export const removeRole = async (
   discordId: string
 ): Promise<void> => {
   const role = interaction.guild?.roles.cache.find(role => role.id === roleId)
-  const member = interaction.guild?.members.cache.find(member => member.id === discordId)
+  const member = interaction.guild?.members.cache.find(
+    member => member.id === discordId
+  )
   role && (await member?.roles.remove(role.id))
 }
 
@@ -31,6 +35,8 @@ export const confirmRole = async (
   interaction: Interaction,
   discordId: string
 ): Promise<boolean | undefined> => {
-  const member = interaction.guild?.members.cache.find(member => member.id === discordId)
+  const member = interaction.guild?.members.cache.find(
+    member => member.id === discordId
+  )
   return member?.roles.cache.has(roleId)
 }

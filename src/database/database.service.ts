@@ -10,8 +10,10 @@ let db: mongoDB.Db
 
 const connectionString = process.env.MONGO_URL || 'mongodb://localhost:27017'
 const usersCollectionName = process.env.USERS_COLLECTION_NAME || 'users'
-const encountersCollectionName = process.env.ENCOUNTERS_COLLECTION_NAME || 'encounters'
-const settingsCollectionName = process.env.SETTINGS_COLLECTION_NAME || 'settings'
+const encountersCollectionName =
+  process.env.ENCOUNTERS_COLLECTION_NAME || 'encounters'
+const settingsCollectionName =
+  process.env.SETTINGS_COLLECTION_NAME || 'settings'
 const tokenWithdrawalsCollectionName =
   process.env.TOKEN_WITHDRAWALS_COLLECTION_NAME || 'token_withdrawals'
 const mongoDBName = process.env.DB_NAME || 'daruma-bot'
@@ -25,8 +27,12 @@ export async function connectToDatabase(): Promise<void> {
 
   const usersCollection: mongoDB.Collection = db.collection(usersCollectionName)
 
-  const encountersCollection: mongoDB.Collection = db.collection(encountersCollectionName)
-  const settingsCollection: mongoDB.Collection = db.collection(settingsCollectionName)
+  const encountersCollection: mongoDB.Collection = db.collection(
+    encountersCollectionName
+  )
+  const settingsCollection: mongoDB.Collection = db.collection(
+    settingsCollectionName
+  )
   const tokenWithdrawalsCollection: mongoDB.Collection = db.collection(
     tokenWithdrawalsCollectionName
   )

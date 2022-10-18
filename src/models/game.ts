@@ -77,7 +77,8 @@ export default class Game {
     }
     this.players[player.getDiscordId()] = player
     // update games winning index
-    const { gameWinRollIndex, gameWinRoundIndex, rounds } = player.getRoundsData()
+    const { gameWinRollIndex, gameWinRoundIndex, rounds } =
+      player.getRoundsData()
 
     // console.log(util.inspect(rounds, false, null, true))
     this.compareAndSetWinningIndexes(gameWinRollIndex, gameWinRoundIndex)
@@ -164,7 +165,10 @@ export default class Game {
    */
   compareAndSetWinningIndexes(rollIndex: number, roundIndex: number) {
     // if no winning indexes set yet
-    if (this.winningRollIndex === undefined || this.winningRoundIndex === undefined) {
+    if (
+      this.winningRollIndex === undefined ||
+      this.winningRoundIndex === undefined
+    ) {
       this.setWinningRollIndex(rollIndex)
       this.setWinningRoundIndex(roundIndex)
       // if the incoming round index is lower than the current ruund index, change it
@@ -399,7 +403,10 @@ export default class Game {
    * Stores winning players in an array
    */
   storeWinningPlayers() {
-    if (this.getWinningRollIndex() === undefined || this.getWinningRoundIndex() === undefined) {
+    if (
+      this.getWinningRollIndex() === undefined ||
+      this.getWinningRoundIndex() === undefined
+    ) {
       return
     }
 
@@ -481,7 +488,9 @@ export default class Game {
   }
 
   doFinalPlayerMutation() {
-    this.getPlayerArray().forEach(player => player.doEndOfGameMutation(this.settings))
+    this.getPlayerArray().forEach(player =>
+      player.doEndOfGameMutation(this.settings)
+    )
   }
 
   resetGame() {

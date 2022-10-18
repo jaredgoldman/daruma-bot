@@ -13,7 +13,11 @@ import User from '../models/user'
 import { RegistrationResult } from '../types/user'
 // Data
 // Helpers
-import { determineOwnership, optInAssetId, unitName } from '../utils/algorandUtils'
+import {
+  determineOwnership,
+  optInAssetId,
+  unitName,
+} from '../utils/algorandUtils'
 import { addRole } from '../utils/discordUtils'
 // Schemas
 
@@ -26,7 +30,10 @@ module.exports = {
     .setName('register')
     .setDescription('Register for When Darumas Attack')
     .addStringOption(option =>
-      option.setName('address').setDescription('enter the your wallet address').setRequired(true)
+      option
+        .setName('address')
+        .setDescription('enter the your wallet address')
+        .setRequired(true)
     ),
   enabled: true,
   /**
@@ -56,7 +63,12 @@ module.exports = {
     })
 
     if (address) {
-      const { status, registeredUser } = await processRegistration(username, id, address, channelId)
+      const { status, registeredUser } = await processRegistration(
+        username,
+        id,
+        address,
+        channelId
+      )
 
       // add permissions if successful
       if (registeredUser && registeredRoleId) {
@@ -91,7 +103,10 @@ export const processRegistration = async (
 
     // Check to see if wallet has opt-in asset
     // Retrieve assetIds from specific collections
-    const { walletOwned, nftsOwned } = await determineOwnership(address, channelId)
+    const { walletOwned, nftsOwned } = await determineOwnership(
+      address,
+      channelId
+    )
 
     const keyedNfts: { [key: string]: Asset } = {}
     nftsOwned.forEach((nft: Asset) => {
