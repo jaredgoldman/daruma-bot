@@ -6,9 +6,11 @@ import { asyncForEach, wait } from '../utils/sharedUtils'
 import { getChannelSettings } from '../database/operations/game'
 import Game, { GameStatus } from '../models/game'
 import Player from '../models/player'
+import { RenderPhases } from '../types/board'
 // import util from 'util'
 import { GameTypes } from '../types/game'
 import win from './win'
+import { renderConfig } from '../config/board'
 
 /**
  * Start game waiting room
@@ -93,23 +95,25 @@ const handleGameLoop = async (
     await asyncForEach(
       playerArr,
       async (player: Player, playerIndex: number) => {
-        // TODO: take care of this inside game logic
         game.setCurrentPlayer(player, playerIndex)
-        const board = game.renderBoard()
+        // for each render phase, pass enum to baord
+        for (const phase in RenderPhases) {
+          const board = game.renderBoard(false, phase as RenderPhases)
 
-        // if it's the first roll
-        if (!channelMessage) {
-          await channel.send(playerMessage)
-          channelMessage = await channel.send(board)
+          // if it's the first roll
+          if (!channelMessage) {
+            await channel.send(playerMessage)
+            channelMessage = await channel.send(board)
 
-          // if there's a win
-        } else if (game.getWin()) {
-          await channelMessage.edit(game.renderBoard(true))
-        } else {
-          await channelMessage.edit(board)
+            // if there's a win
+          } else if (game.getWin()) {
+            hasWon = true
+            // await channelMessage.edit(game.renderBoard(true))
+          } else {
+            await channelMessage.edit(board)
+          }
+          await wait(renderConfig[phase].duration)
         }
-
-        await wait(turnRate * 1000)
       }
     )
     //if win, stop loop
