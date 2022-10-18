@@ -14,6 +14,6 @@ export const findAsset = async (assetId: string) => {
   try {
     return await collections.assets.findOne({ assetId })
   } catch (error) {
-    console.log("****** CAN'T FIND ASSET ******", error)
+    console.log('****** CANNOT FIND ASSET ******', error)
   }
 }

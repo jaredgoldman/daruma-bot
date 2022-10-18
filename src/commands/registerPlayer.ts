@@ -1,18 +1,19 @@
 // Discord
-import { SelectMenuInteraction } from 'discord.js'
 import { SlashCommandBuilder } from '@discordjs/builders'
+import { SelectMenuInteraction } from 'discord.js'
 // Data
+import { WithId } from 'mongodb'
+
 import { collections } from '../database/database.service'
 // Schemas
-import { WithId } from 'mongodb'
-import User from '../models/user'
+import { games } from '../index'
+import Asset from '../models/asset'
+import { GameStatus } from '../models/game'
 import Player from '../models/player'
+import User from '../models/user'
 // Helpers
 import { checkIfRegisteredPlayer } from '../utils/gameUtils'
 // Globals
-import { games } from '..'
-import { GameStatus } from '../models/game'
-import Asset from '../models/asset'
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -34,7 +35,7 @@ module.exports = {
 
       // Check if user is another game
       if (checkIfRegisteredPlayer(games, assetId, discordId)) {
-        return interaction.reply({
+        return await interaction.reply({
           ephemeral: true,
           content: `You can't register with the same asset in two games at a time`,
         })
@@ -65,7 +66,7 @@ module.exports = {
             timeUnit = `${minutesLeft} minutes`
             timeUnitType = minutesLeft > 1 ? 'minutes' : 'minute'
           }
-          return interaction.editReply({
+          return await interaction.editReply({
             content: `Please wait ${timeUnit} ${timeUnitType} before playing ${asset.name} again`,
           })
         }
@@ -75,7 +76,7 @@ module.exports = {
           game.getPlayerCount() >= maxCapacity &&
           !game.getPlayer(discordId)
         ) {
-          return interaction.editReply(
+          return await interaction.editReply(
             'Sorry, the game is at capacity, please wait until the next round'
           )
         }

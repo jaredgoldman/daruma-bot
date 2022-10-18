@@ -1,31 +1,31 @@
 // Discord
 import {
   Client,
-  GatewayIntentBits,
   Collection,
-  TextChannel,
+  GatewayIntentBits,
   Interaction,
   InteractionType,
+  TextChannel,
 } from 'discord.js'
 // Node
 import fs from 'node:fs'
+
 // Helpers
+import gatherEmojis from './core/emojis'
 import { connectToDatabase } from './database/database.service'
 // Schema
+import { getSettings } from './database/operations/game'
+import startWaitingRoom from './game/index'
 import Game from './models/game'
 // Helpers
-import { asyncForEach } from './utils/sharedUtils'
-import startWaitingRoom from './game'
-import { getSettings } from './database/operations/game'
 import { ChannelSettings } from './types/game'
-import gatherEmojis from './core/emojis'
-import { checkEnv } from './utils/sharedUtils'
+import { asyncForEach, checkEnv } from './utils/sharedUtils'
 
-const token = process.env.DISCORD_TOKEN as string
-const creatorAddresses = process.env.CREATOR_ADDRESSES as string
+export const clientId = process.env.DISCORD_CLIENT_ID as string
+export const guildId = process.env.DISCORD_GUILD_ID as string
+export const token = process.env.DISCORD_TOKEN as string
 export const games: { [key: string]: Game } = {}
 export let emojis: { [key: number | string]: string } = {}
-export const creatorAddressArr = creatorAddresses?.split(',')
 
 const client: Client = new Client({
   intents: [
@@ -40,9 +40,9 @@ const client: Client = new Client({
 
 client.once('ready', async () => {
   try {
-    console.log('READY')
     // Ensure all env variables are set
     checkEnv()
+    console.log('READY')
     // Connect to db instance
     await connectToDatabase()
     // Grab emojis from cache
@@ -57,7 +57,7 @@ client.once('ready', async () => {
   }
 })
 
-const startGame = async () => {
+const startGame = async (): Promise<void> => {
   try {
     const settings = await getSettings()
     // start game for each channel
@@ -74,7 +74,7 @@ const startGame = async () => {
   }
 }
 
-const setupCommands = () => {
+const setupCommands = (): void => {
   try {
     client.commands = new Collection()
     const commandFiles = fs.readdirSync('./src/commands')

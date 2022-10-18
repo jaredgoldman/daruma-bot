@@ -16,7 +16,7 @@ const gatherEmojis = (client: Client): Emojis => {
   Object.entries(emojiConfig).forEach(([key, value]) => {
     try {
       const emoji = client.emojis.cache.find(
-        (emoji) => emoji.name === value
+        emoji => emoji.name === value
       ) as GuildEmoji
       emojis[key] = emoji.toString()
     } catch (error) {

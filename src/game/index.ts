@@ -1,14 +1,14 @@
-import { Embed, Message, TextChannel } from 'discord.js'
-import doEmbed from '../core/embeds'
+import { Message, TextChannel } from 'discord.js'
+
 import { Embeds } from '../constants/embeds'
-import { games } from '..'
-import { asyncForEach, wait } from '../utils/sharedUtils'
+import doEmbed from '../core/embeds'
 import { getChannelSettings } from '../database/operations/game'
 import Game, { GameStatus } from '../models/game'
 import Player from '../models/player'
 import { RenderPhases } from '../types/board'
 // import util from 'util'
 import { GameTypes } from '../types/game'
+import { asyncForEach, wait } from '../utils/sharedUtils'
 import win from './win'
 import { renderConfig } from '../config/board'
 
@@ -16,7 +16,9 @@ import { renderConfig } from '../config/board'
  * Start game waiting room
  * @param channel {TextChannel}
  */
-export default async function startWaitingRoom(channel: TextChannel) {
+export default async function startWaitingRoom(
+  channel: TextChannel
+): Promise<void> {
   try {
     const game = games[channel.id]
     game.resetGame()

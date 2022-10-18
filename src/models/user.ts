@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb'
+
 import Asset from './asset'
 
 export default class User {

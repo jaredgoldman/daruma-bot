@@ -1,13 +1,14 @@
-import { ButtonInteraction } from 'discord.js'
-// Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { games } from '..'
-import { findUserByDiscordId } from '../database/operations/user'
-import { getChannelSettings } from '../database/operations/game'
-import { confirmRole } from '../utils/discordUtils'
-import { GameStatus } from '../models/game'
+import { ButtonInteraction } from 'discord.js'
 
-const adminId = process.env.ADMIN_ROLE_ID as string
+// Discord
+import { getChannelSettings } from '../database/operations/game'
+import { findUserByDiscordId } from '../database/operations/user'
+import { games } from '../index'
+import { GameStatus } from '../models/game'
+import { confirmRole } from '../utils/discordUtils'
+
+const adminId = process.env.ADMIN_ROLE_ID || ''
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('start-game')
@@ -16,7 +17,7 @@ module.exports = {
    * Response to start game button
    * If user is admin or active player and enough players are registered
    * start the game
-   * @param interaction {ButttonInteraction}
+   * @param interaction {ButtonInteraction}
    * @returns {void}
    */
   async execute(interaction: ButtonInteraction) {
@@ -37,13 +38,13 @@ module.exports = {
     const isUserAdmin = confirmRole(adminId, interaction, discordId)
     if (!game.getPlayer(user.discordId) && !isUserAdmin) {
       interaction.editReply({
-        content: "You can't start the game if you are not registered",
+        content: 'You cannot start the game if you are not registered',
       })
     }
 
     // if we are above min capacity of players
     if (game.getPlayerCount() < minCapacity) {
-      return interaction.editReply({
+      return await interaction.editReply({
         content: `You cannot start the game with less than ${minCapacity} players`,
       })
     }

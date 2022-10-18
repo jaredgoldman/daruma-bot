@@ -26,7 +26,7 @@ export const createCell = (
   shift = 0
 ): string => {
   let indexToPrintContent
-  // create intial space
+  // create initial space
   const whitespace = createWhitespace(space, delimiter)
 
   switch (alignment) {
