@@ -4,7 +4,7 @@ import { Embeds } from '../constants/embeds'
 import { games } from '..'
 import { asyncForEach, wait } from '../utils/sharedUtils'
 import { getChannelSettings } from '../database/operations/game'
-import { GameStatus } from '../models/game'
+import Game, { GameStatus } from '../models/game'
 import Player from '../models/player'
 // import util from 'util'
 import { GameTypes } from '../types/game'
@@ -58,59 +58,7 @@ export default async function startWaitingRoom(channel: TextChannel) {
 
     game.setStatus(GameStatus.activeGame)
 
-    /**
-     * ******************
-     * ACTIVE GAME LOOP *
-     * ******************
-     */
-
-    //TODO: MAke something better for the player message
-    let channelMessage: Message
-    const playerMessage = game
-      .getPlayerArray()
-      .map(
-        (player: Player, index: number) =>
-          `${index + 1} - <@${player.getDiscordId()}>`
-      )
-      .join('\n')
-
-    let hasWon = false
-
-    while (!hasWon) {
-      const playerArr = game.getPlayerArray()
-
-      // for each player render new board
-      await asyncForEach(
-        playerArr,
-        async (player: Player, playerIndex: number) => {
-          // TODO: take care of this inside game logic
-          game.setCurrentPlayer(player, playerIndex)
-          const board = game.renderBoard()
-
-          // if it's the first roll
-          if (!channelMessage) {
-            await channel.send(playerMessage)
-            channelMessage = await channel.send(board)
-
-            // if there's a win
-          } else if (game.getWin()) {
-            await channelMessage.edit(game.renderBoard(true))
-          } else {
-            await channelMessage.edit(board)
-          }
-
-          await wait(turnRate * 1000)
-        }
-      )
-      //if win, stop loop
-      if (game.getWin()) {
-        hasWon = true
-      } else {
-        // proceed to next roll
-        game.incrementRollIndex()
-      }
-    }
-
+    await handleGameLoop(game, channel, turnRate)
     // HANDLE GAME WIN MESSAGE HERE
     // await channel.send(doEmbed(Embeds.win, game))
     await win(game, channel)
@@ -118,5 +66,58 @@ export default async function startWaitingRoom(channel: TextChannel) {
     startWaitingRoom(channel)
   } catch (error) {
     console.log('****** ERROR STARTING WAITING ROOM ******', error)
+  }
+}
+
+const handleGameLoop = async (
+  game: Game,
+  channel: TextChannel,
+  turnRate: number
+) => {
+  //TODO: MAke something better for the player message
+  let channelMessage: Message
+  const playerMessage = game
+    .getPlayerArray()
+    .map(
+      (player: Player, index: number) =>
+        `${index + 1} - <@${player.getDiscordId()}>`
+    )
+    .join('\n')
+
+  let hasWon = false
+
+  while (!hasWon) {
+    const playerArr = game.getPlayerArray()
+
+    // for each player render new board
+    await asyncForEach(
+      playerArr,
+      async (player: Player, playerIndex: number) => {
+        // TODO: take care of this inside game logic
+        game.setCurrentPlayer(player, playerIndex)
+        const board = game.renderBoard()
+
+        // if it's the first roll
+        if (!channelMessage) {
+          await channel.send(playerMessage)
+          channelMessage = await channel.send(board)
+
+          // if there's a win
+        } else if (game.getWin()) {
+          await channelMessage.edit(game.renderBoard(true))
+        } else {
+          await channelMessage.edit(board)
+        }
+
+        await wait(turnRate * 1000)
+      }
+    )
+    //if win, stop loop
+    if (game.getWin()) {
+      hasWon = true
+    } else {
+      // proceed to next roll
+      game.incrementRollIndex()
+    }
   }
 }
