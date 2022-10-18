@@ -1,13 +1,13 @@
-import Player from './player'
-import Encounter from './encounter'
-import { GameRoundState, GameTypes } from '../types/game'
-import { ChannelSettings } from '../types/game'
 import { BaseMessageOptions } from 'discord.js'
-import { PlayerRoundsData } from '../types/attack'
+import { ObjectId } from 'mongodb'
+
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { renderBoard } from '../game/board'
+import { PlayerRoundsData } from '../types/attack'
+import { ChannelSettings, GameRoundState, GameTypes } from '../types/game'
 import Asset from './asset'
-import { ObjectId } from 'mongodb'
+import Encounter from './encounter'
+import Player from './player'
 
 /**
  * Main game class
@@ -450,7 +450,7 @@ export default class Game {
 
   getPlayersRoundsData(): { [key: string]: PlayerRoundsData } {
     const playerRoundsData: { [key: string]: PlayerRoundsData } = {}
-    this.getPlayerArray().forEach((player) => {
+    this.getPlayerArray().forEach(player => {
       playerRoundsData[player.getDiscordId()] = player.getRoundsData()
     })
     return playerRoundsData
@@ -488,7 +488,7 @@ export default class Game {
   }
 
   doFinalPlayerMutation() {
-    this.getPlayerArray().forEach((player) =>
+    this.getPlayerArray().forEach(player =>
       player.doEndOfGameMutation(this.settings)
     )
   }

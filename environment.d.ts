@@ -2,13 +2,15 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       // #MongoDb
-      DB_CONN_STRING: string
+      MONGO_URL: string
       DB_NAME: string
+      // #Redis
+      REDIS_URL: string
       // #Discord
       DISCORD_TOKEN: string
       DISCORD_CLIENT_ID: string
       DISCORD_GUILD_ID: string
-      ADMIN_ID: string
+      ADMIN_ROLE_ID: string
       // #Algorand
       ALGO_NODE: string
       ALGO_INDEXER_NODE: string

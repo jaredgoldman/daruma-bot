@@ -1,14 +1,17 @@
 import { EnvVariables } from '../types/shared'
-const ipfsGateway = process.env.IPFS_GATEWAY || 'https://dweb.link/ipfs/'
+const ipfsGateway = process.env.IPFS_GATEWAY || 'https://ipfs.filebase.io/ipfs/'
 
-export const asyncForEach = async (array: Array<any>, callback: Function) => {
+export const asyncForEach = async (
+  array: Array<any>,
+  callback: Function
+): Promise<void> => {
   for (let index = 0; index < array.length; index++) {
     await callback(array[index], index, array)
   }
 }
 
-export const wait = async (duration: number) => {
-  await new Promise((res) => {
+export const wait = async (duration: number): Promise<void> => {
+  await new Promise(res => {
     setTimeout(res, duration)
   })
 }
@@ -44,9 +47,9 @@ export const normalizeIpfsUrl = (url: string): string => {
   }
 }
 
-export const checkEnv = () => {
+export const checkEnv = (): void => {
   const envKeys = Object.values(EnvVariables).filter(
-    (value) => typeof value === 'string'
+    value => typeof value === 'string'
   ) as (keyof typeof EnvVariables)[]
 
   for (const envKey of envKeys) {

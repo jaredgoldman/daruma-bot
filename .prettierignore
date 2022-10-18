@@ -6,7 +6,3 @@
 /misc
 /node_modules
 /temp
-/coverage
-environment.d.ts
-jest.config.js
-*.spec.ts

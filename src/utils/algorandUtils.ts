@@ -1,21 +1,18 @@
-import { AlgoAsset, AlgoAssetData, Txn, TxnData } from '../types/user'
-import { asyncForEach, wait } from './sharedUtils'
 import algosdk from 'algosdk'
-import Asset from '../models/asset'
-
-// import txnDataJson from '../txnData/txnData.json'
-import { creatorAddressArr } from '..'
+import PendingTransactionInformation from 'algosdk/dist/types/src/client/v2/algod/pendingTransactionInformation'
+import Redis from 'ioredis'
 
 import { getChannelSettings } from '../database/operations/game'
-import PendingTransactionInformation from 'algosdk/dist/types/src/client/v2/algod/pendingTransactionInformation'
+import Asset from '../models/asset'
 import { TxnStatus } from '../types/token'
-import Redis from 'ioredis'
+import { AlgoAsset, AlgoAssetData, Txn, TxnData } from '../types/user'
+import { asyncForEach, wait } from './sharedUtils'
 
 // workaround since type declarations of ioredis-mock do not exist
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const RedisMock = require('ioredis-mock')
 
-function getRedisClient() {
+function getRedisClient(): any {
   switch (process.env.NODE_ENV) {
     case 'test': {
       console.log('Mocking Redis')
@@ -27,19 +24,26 @@ function getRedisClient() {
       return new Redis()
     }
     default: {
-      const redisUrl = process.env.REDIS_URL as string
-      console.log('Redis has been configured ', redisUrl)
+      const redisUrl = process.env.REDIS_URL || ''
+      console.log('Redis has been configured with a URL')
       return new Redis(redisUrl)
     }
   }
 }
 const redisClient = getRedisClient()
+const creatorAddresses = process.env.CREATOR_ADDRESSES as string
+const creatorAddressArr = creatorAddresses?.split(',')
 
-const algoNode = process.env.ALGO_NODE as string
 const pureStakeApi = process.env.PURESTAKE_API_TOKEN as string
-const algoIndexerNode = process.env.ALGO_INDEXER_NODE as string
-const optInAssetId = Number(process.env.OPT_IN_ASSET_ID)
-const tokenMnemonic = process.env.TOKEN_MNEMONIC as string
+const algoNode =
+  process.env.ALGO_NODE || 'https://mainnet-algorand.api.purestake.io/ps2'
+const algoIndexerNode =
+  process.env.ALGO_INDEXER_NODE ||
+  'https://mainnet-algorand.api.purestake.io/idx2'
+export const optInAssetId = Number(process.env.OPT_IN_ASSET_ID) || 832356628 // This is the Daruma opt-in
+export const unitName = process.env.UNIT_NAME || 'Daruma'
+
+const tokenMnemonic = process.env.TOKEN_MNEMONIC || ''
 
 const token = {
   'X-API-Key': pureStakeApi,
@@ -81,7 +85,7 @@ export const determineOwnership = async function (
       }
       // ensure no duplicate assets
       const result = uniqueAssets.findIndex(
-        (item) => asset['asset-id'] === item['asset-id']
+        item => asset['asset-id'] === item['asset-id']
       )
       if (result <= -1 && asset.amount > 0) {
         uniqueAssets.push(asset)
@@ -93,7 +97,7 @@ export const determineOwnership = async function (
     const assetIdArr = getAssetIdArrayFromTxnData(data)
     // Determine which assets are part of bot collection
     let collectionAssetLength = 0
-    const assetsOwned = uniqueAssets.filter((asset) => {
+    const assetsOwned = uniqueAssets.filter(asset => {
       const assetId = asset['asset-id']
       if (
         collectionAssetLength < settings.maxAssets &&
@@ -138,11 +142,11 @@ const getAssetIdArrayFromTxnData = (txnData: TxnData): number[] => {
     const assetId = txn['asset-config-transaction']['asset-id']
     const createdAssetId = txn['created-asset-index']
     if (assetId) {
-      const result = assetIdArr.findIndex((item) => item === assetId)
+      const result = assetIdArr.findIndex(item => item === assetId)
       result <= -1 && assetIdArr.push(assetId)
     }
     if (createdAssetId) {
-      const result2 = assetIdArr.findIndex((item) => item === createdAssetId)
+      const result2 = assetIdArr.findIndex(item => item === createdAssetId)
       result2 <= -1 && assetIdArr.push(createdAssetId)
     }
   })
@@ -235,7 +239,7 @@ const updateTransactions = async (
 export const convergeTxnData = async (
   creatorAddresses: string[],
   update: boolean
-) => {
+): Promise<TxnData> => {
   console.log('Gathering txnData')
   const updateCalls: Promise<TxnData>[] = []
   const currentRound = await getCurrentRound()
@@ -256,7 +260,7 @@ export const convergeTxnData = async (
   return reduceTxnData(reduceArr)
 }
 
-const reduceTxnData = (txnDataArray: TxnData[]) => {
+const reduceTxnData = (txnDataArray: TxnData[]): TxnData => {
   const reducedData = txnDataArray.reduce(
     (prevTxnData: TxnData, txnData: TxnData) => {
       return {

@@ -1,9 +1,9 @@
 // Discrod
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction, InteractionType } from 'discord.js'
-import { WithId } from 'mongodb'
+
 import { findUserByDiscordId } from '../database/operations/user'
-import User from '../models/user'
+
 // Schemas
 // Data
 // Helpers
@@ -26,7 +26,7 @@ module.exports = {
 
     await interaction.deferReply({ ephemeral: true })
 
-    const user = (await findUserByDiscordId(id)) as WithId<User>
+    const user = await findUserByDiscordId(id)
 
     if (user) {
       const { karma, address } = user

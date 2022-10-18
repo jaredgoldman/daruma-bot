@@ -1,8 +1,8 @@
-import { RollData, PlayerRoundsData, RoundData } from '../types/attack'
-import Player from '../models/player'
-import { Alignment, createCell, createWhitespace } from '../utils/boardUtils'
 import boardConfig from '../config/board'
-import { emojis } from '..'
+import { emojis } from '../index'
+import Player from '../models/player'
+import { RollData, RoundData } from '../types/attack'
+import { Alignment, createCell, createWhitespace } from '../utils/boardUtils'
 
 // import in avsolute values for board sizing
 const {
@@ -12,10 +12,8 @@ const {
   numOfRoundsVisible,
   emojiPadding,
   turnsInRound,
-  attackRoundPadidng,
+  attackRoundPadding,
 } = boardConfig.getSettings()
-
-let boardWidth = 0
 
 /**
  * Main round embed building function
@@ -36,7 +34,7 @@ export const renderBoard = (
   // create a row representing the current round
   const roundNumberRow = createRoundNumberRow(roundIndex, 2) + roundRightColumn
   // utilize round Number row length
-  boardWidth = roundNumberRow.length
+  //let boardWidth = roundNumberRow.length;
 
   // create a row displaying attack numbers for each player
   // as well as a row displaying the total
@@ -63,7 +61,7 @@ export const renderBoard = (
 export const createRoundNumberRow = (
   roundIndex: number,
   roundsOnEmbed: number
-) => {
+): string => {
   const isFirstRound = roundIndex === 0
   const roundNumber = roundIndex + 1
   let roundNumberRowLabel = ''
@@ -124,7 +122,7 @@ export const createAttackAndTotalRows = (
   rollIndex: number,
   roundIndex: number,
   isLastRender: boolean
-) => {
+): string => {
   let rows = ``
   // For each player
   players.forEach((player: Player, index: number) => {
@@ -168,7 +166,7 @@ export const createAttackRow = (
   isTurn: boolean,
   hasBeenTurn: boolean,
   isLastRender: boolean
-) => {
+): string => {
   let row = createWhitespace(emojiPadding)
   // let row = ''
   // grab the previous round
@@ -192,7 +190,7 @@ export const createAttackRow = (
         row += createCell(cellWidth, Alignment.centered, emojis.ph, true)
       }
     })
-    row += createWhitespace(attackRoundPadidng)
+    row += createWhitespace(attackRoundPadding)
   }
 
   // ROUND POSITION 1
@@ -218,7 +216,7 @@ export const createAttackRow = (
 
   // ROUND POSITION 1 PLACEHOLDERS
   if (!prevRound) {
-    row += createWhitespace(attackRoundPadidng)
+    row += createWhitespace(attackRoundPadding)
     Array.from({ length: roundPadding }).forEach(() => {
       row += createCell(cellWidth, Alignment.centered, emojis.ph, true)
     })
@@ -240,7 +238,7 @@ export const createTotalRow = (
   rounds: RoundData[],
   hasBeenTurn: boolean,
   isLastRender: boolean
-) => {
+): string => {
   const isFirstRound = roundIndex === 0
   let totalRowLabel = ''
   // for each round

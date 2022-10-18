@@ -1,9 +1,10 @@
 import { ObjectId } from 'mongodb'
-import Asset from './asset'
-import { completeGameForPlayer } from '../utils/attackUtils'
-import { PlayerRoundsData, RoundData } from '../types/attack'
+
 import { findUserByDiscordId, updateUser } from '../database/operations/user'
+import { PlayerRoundsData, RoundData } from '../types/attack'
 import { ChannelSettings } from '../types/game'
+import { completeGameForPlayer } from '../utils/attackUtils'
+import Asset from './asset'
 import User from './user'
 
 /**
