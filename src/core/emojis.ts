@@ -1,13 +1,13 @@
 import { Client, GuildEmoji } from 'discord.js'
 
 const emojiConfig = {
-  3: 'SpinCritical_PNG',
-  2: 'SpinHeadButt_PNG',
-  1: 'SpinHeadRam_PNG',
+  '3png': 'SpinCritical_PNG',
+  '2png': 'SpinHeadButt_PNG',
+  '1png': 'SpinHeadRam_PNG',
   ph: 'PH',
-  '1_': '1_',
-  '2_': '2_',
-  '3_': '3_',
+  '1gif': '1_',
+  '2gif': '2_',
+  '3gif': '3_',
 }
 
 const gatherEmojis = (client: Client): Emojis => {
