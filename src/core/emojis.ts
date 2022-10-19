@@ -1,9 +1,9 @@
 import { Client, GuildEmoji } from 'discord.js'
 
 const emojiConfig = {
-  '3png': 'SpinCritical_PNG',
-  '2png': 'SpinHeadButt_PNG',
-  '1png': 'SpinHeadRam_PNG',
+  '3png': 'Ct',
+  '2png': 'HB',
+  '1png': 'Rm',
   ph: 'PH',
   '1gif': '1_',
   '2gif': '2_',

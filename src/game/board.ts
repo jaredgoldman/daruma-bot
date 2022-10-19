@@ -1,5 +1,3 @@
-import boardConfig from '../config/board'
-import { emojis } from '../index'
 import Player from '../models/player'
 import { RollData, RoundData } from '../types/attack'
 import { Alignment, createCell, createWhitespace } from '../utils/boardUtils'
@@ -134,9 +132,8 @@ export const createAttackAndTotalRows = (
 
     // check if it is or has been players turn yet to determine if we should show the attack roll
     const isTurn = index === playerIndex
-    const hasBeenTurn = index <= playerIndex
-
-    console.log(isTurn)
+    const hasBeenTurn = index < playerIndex
+    const notTurnYet = index > playerIndex
 
     rows +=
       createAttackRow(
@@ -157,7 +154,8 @@ export const createAttackAndTotalRows = (
         rounds,
         renderPhase,
         isTurn,
-        hasBeenTurn
+        hasBeenTurn,
+        notTurnYet
       ) +
       totalRightColumn +
       '\n'
@@ -209,13 +207,20 @@ export const createAttackRow = (
   // ROUND POSITION 1
   Array.from({ length: turnsInRound }).forEach((_, index: number) => {
     // if the round is too high or the roll is too high, return a blank cell
-    const isTurnRoll = isTurn && index === rollIndex
-    const hasBeenPlayerTurn =
-      (hasBeenTurn && index === rollIndex) || index < rollIndex
+    const isCurrentRoll = index === rollIndex
+    const isPrevRoll = index < rollIndex
+    const isTurnRoll = isCurrentRoll && isTurn
 
     // if it is the current players turn, and we are on the current round
     const roll = currentRound.rolls[index]
-    const emoji = getImageType(roll, hasBeenPlayerTurn, isTurnRoll, renderPhase)
+    const emoji = getImageType(
+      roll,
+      isPrevRoll,
+      isCurrentRoll,
+      isTurnRoll,
+      renderPhase,
+      hasBeenTurn
+    )
     row += createCell(cellWidth, Alignment.centered, emojis[emoji], true)
   })
 
@@ -231,18 +236,32 @@ export const createAttackRow = (
 
 const getImageType = (
   roll: RollData,
-  hasBeenPlayerTurn: boolean,
+  isPrevRoll: boolean,
+  isCurrentRoll: boolean,
   isTurnRoll: boolean,
-  renderPhase: RenderPhases
+  renderPhase: RenderPhases,
+  hasBeenTurn: boolean
 ): string => {
   let emoji = 'ph'
-  if (hasBeenPlayerTurn) {
-    emoji = `${roll.damage}png`
+
+  // if it's a previous roll, just show png
+  if (isPrevRoll) {
+    return `${roll.damage}png`
   }
-  if (isTurnRoll && renderPhase === RenderPhases.GIF) {
-    emoji = `${roll.damage}gif`
+  // if it's the current players roll and we're in gif render phase add gif
+  if (isCurrentRoll && isTurnRoll) {
+    if (renderPhase === RenderPhases.GIF) {
+      return `${roll.damage}gif`
+    } else if (
+      renderPhase === RenderPhases.SCORE ||
+      renderPhase === RenderPhases.EMOJI
+    ) {
+      return `${roll.damage}png`
+    }
+  } else if (isCurrentRoll && !isTurnRoll) {
+    return hasBeenTurn ? `${roll.damage}png` : 'ph'
   }
-  console.log(emoji)
+
   return emoji
 }
 
@@ -260,7 +279,8 @@ export const createTotalRow = (
   rounds: RoundData[],
   renderPhase: RenderPhases,
   isTurn: boolean,
-  hasBeenTurn: boolean
+  hasBeenTurn: boolean,
+  notTurnYet: boolean
 ) => {
   const isFirstRound = roundIndex === 0
   let totalRowLabel = ''
@@ -269,15 +289,13 @@ export const createTotalRow = (
     // previous total is static as round has been completed
     const prevRoundTotal = rounds[roundIndex - 1]?.totalDamageSoFar
 
-    const currRoundRollIndex = getRollIndex(
-      renderPhase,
-      isTurn,
-      hasBeenTurn,
-      rollIndex
-    )
+    let totalRollIndex = rollIndex
 
-    const currRoundTotal =
-      rounds[roundIndex]?.rolls[currRoundRollIndex]?.totalScore
+    if ((renderPhase !== RenderPhases.SCORE || notTurnYet) && !hasBeenTurn) {
+      totalRollIndex = rollIndex - 1
+    }
+
+    const currRoundTotal = rounds[roundIndex]?.rolls[totalRollIndex]?.totalScore
     // if first round, only the first element should have a label
     if (isFirstRound && i === 1) {
       totalRowLabel += createRoundCell()
@@ -293,19 +311,6 @@ export const createTotalRow = (
     }
   }
   return totalRowLabel
-}
-
-const getRollIndex = (
-  renderPhase: RenderPhases,
-  isTurn: boolean,
-  hasBeenTurn: boolean,
-  rollIndex: number
-) => {
-  if ((isTurn && renderPhase === RenderPhases.SCORE) || hasBeenTurn) {
-    return rollIndex
-  } else {
-    return rollIndex - 1
-  }
 }
 
 /**

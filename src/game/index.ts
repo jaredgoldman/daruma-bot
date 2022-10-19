@@ -10,6 +10,7 @@ import { RenderPhases } from '../types/board'
 import { GameTypes } from '../types/game'
 import { asyncForEach, wait } from '../utils/sharedUtils'
 import win from './win'
+import { games } from '../'
 import { renderConfig } from '../config/board'
 
 /**
@@ -106,14 +107,10 @@ const handleGameLoop = async (
           if (!channelMessage) {
             await channel.send(playerMessage)
             channelMessage = await channel.send(board)
-
-            // if there's a win
-          } else if (game.getWin()) {
-            hasWon = true
-            // await channelMessage.edit(game.renderBoard(true))
           } else {
             await channelMessage.edit(board)
           }
+
           await wait(renderConfig[phase].duration)
         }
       }
