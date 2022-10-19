@@ -1,8 +1,9 @@
-import boardConfig from '../config/board'
-import { emojis } from '../index'
 import Player from '../models/player'
 import { RollData, RoundData } from '../types/attack'
 import { Alignment, createCell, createWhitespace } from '../utils/boardUtils'
+import boardConfig from '../config/board'
+import { emojis } from '..'
+import { RenderPhases } from '../types/board'
 
 // import in avsolute values for board sizing
 const {
@@ -28,7 +29,8 @@ export const renderBoard = (
   roundIndex: number,
   playerIndex: number,
   players: Player[],
-  isLastRender: boolean
+  renderPhase: RenderPhases
+  // isLastRender: boolean
 ): string => {
   const roundRightColumn = createWhitespace(3) + '**ROUND**'
   // create a row representing the current round
@@ -43,7 +45,7 @@ export const renderBoard = (
     playerIndex,
     rollIndex,
     roundIndex,
-    isLastRender
+    renderPhase
   )
 
   const board = roundNumberRow + '\n' + attackAndTotalRows
@@ -121,8 +123,8 @@ export const createAttackAndTotalRows = (
   playerIndex: number,
   rollIndex: number,
   roundIndex: number,
-  isLastRender: boolean
-): string => {
+  renderPhase: RenderPhases
+) => {
   let rows = ``
   // For each player
   players.forEach((player: Player, index: number) => {
@@ -130,7 +132,8 @@ export const createAttackAndTotalRows = (
 
     // check if it is or has been players turn yet to determine if we should show the attack roll
     const isTurn = index === playerIndex
-    const hasBeenTurn = index <= playerIndex
+    const hasBeenTurn = index < playerIndex
+    const notTurnYet = index > playerIndex
 
     rows +=
       createAttackRow(
@@ -138,14 +141,22 @@ export const createAttackAndTotalRows = (
         roundIndex,
         rollIndex,
         isTurn,
-        hasBeenTurn,
-        isLastRender
+        renderPhase,
+        hasBeenTurn
       ) + '\n'
 
     const totalRightColumn = createWhitespace(3) + '**Hits**'
     // add round total row
     rows +=
-      createTotalRow(roundIndex, rollIndex, rounds, hasBeenTurn, isLastRender) +
+      createTotalRow(
+        roundIndex,
+        rollIndex,
+        rounds,
+        renderPhase,
+        isTurn,
+        hasBeenTurn,
+        notTurnYet
+      ) +
       totalRightColumn +
       '\n'
   })
@@ -164,9 +175,9 @@ export const createAttackRow = (
   roundIndex: number,
   rollIndex: number,
   isTurn: boolean,
-  hasBeenTurn: boolean,
-  isLastRender: boolean
-): string => {
+  renderPhase: RenderPhases,
+  hasBeenTurn: boolean
+) => {
   let row = createWhitespace(emojiPadding)
   // let row = ''
   // grab the previous round
@@ -183,7 +194,7 @@ export const createAttackRow = (
         row += createCell(
           cellWidth,
           Alignment.centered,
-          emojis[roll.damage],
+          emojis[`${roll.damage}png`],
           true
         )
       } else {
@@ -195,23 +206,22 @@ export const createAttackRow = (
 
   // ROUND POSITION 1
   Array.from({ length: turnsInRound }).forEach((_, index: number) => {
+    // if the round is too high or the roll is too high, return a blank cell
+    const isCurrentRoll = index === rollIndex
+    const isPrevRoll = index < rollIndex
+    const isTurnRoll = isCurrentRoll && isTurn
+
     // if it is the current players turn, and we are on the current round
-    const shouldRenderNextRoll =
-      (hasBeenTurn && index === rollIndex) || index < rollIndex
     const roll = currentRound.rolls[index]
-
-    // if it's our turn or has been our turn, add latest roll
-    if (roll?.damage && shouldRenderNextRoll) {
-      const isMostRecentRoll = index === rollIndex
-      const shouldRenderGif = isMostRecentRoll && !isLastRender
-      // if most recent roll and it's not the last render, render a gif instead of an emoji
-      const emoji = shouldRenderGif && isTurn ? `${roll.damage}_` : roll.damage
-      row += createCell(cellWidth, Alignment.centered, emojis[emoji], true)
-
-      // else add placeholder
-    } else {
-      row += createCell(cellWidth, Alignment.centered, emojis.ph, true)
-    }
+    const emoji = getImageType(
+      roll,
+      isPrevRoll,
+      isCurrentRoll,
+      isTurnRoll,
+      renderPhase,
+      hasBeenTurn
+    )
+    row += createCell(cellWidth, Alignment.centered, emojis[emoji], true)
   })
 
   // ROUND POSITION 1 PLACEHOLDERS
@@ -222,6 +232,37 @@ export const createAttackRow = (
     })
   }
   return row
+}
+
+const getImageType = (
+  roll: RollData,
+  isPrevRoll: boolean,
+  isCurrentRoll: boolean,
+  isTurnRoll: boolean,
+  renderPhase: RenderPhases,
+  hasBeenTurn: boolean
+): string => {
+  let emoji = 'ph'
+
+  // if it's a previous roll, just show png
+  if (isPrevRoll) {
+    return `${roll.damage}png`
+  }
+  // if it's the current players roll and we're in gif render phase add gif
+  if (isCurrentRoll && isTurnRoll) {
+    if (renderPhase === RenderPhases.GIF) {
+      return `${roll.damage}gif`
+    } else if (
+      renderPhase === RenderPhases.SCORE ||
+      renderPhase === RenderPhases.EMOJI
+    ) {
+      return `${roll.damage}png`
+    }
+  } else if (isCurrentRoll && !isTurnRoll) {
+    return hasBeenTurn ? `${roll.damage}png` : 'ph'
+  }
+
+  return emoji
 }
 
 /**
@@ -236,21 +277,25 @@ export const createTotalRow = (
   roundIndex: number,
   rollIndex: number,
   rounds: RoundData[],
+  renderPhase: RenderPhases,
+  isTurn: boolean,
   hasBeenTurn: boolean,
-  isLastRender: boolean
-): string => {
+  notTurnYet: boolean
+) => {
   const isFirstRound = roundIndex === 0
   let totalRowLabel = ''
   // for each round
   for (let i = 0; i <= numOfRoundsVisible - 1; i++) {
     // previous total is static as round has been completed
     const prevRoundTotal = rounds[roundIndex - 1]?.totalDamageSoFar
-    // current total is dynamic as round is still in progress and it may not be time to
-    // render the players score yet
-    const currRoundRollIndex = isLastRender ? rollIndex : rollIndex - 1
-    const currRoundTotal =
-      rounds[roundIndex]?.rolls[currRoundRollIndex]?.totalScore
-    // TODO, make this dynamic
+
+    let totalRollIndex = rollIndex
+
+    if ((renderPhase !== RenderPhases.SCORE || notTurnYet) && !hasBeenTurn) {
+      totalRollIndex = rollIndex - 1
+    }
+
+    const currRoundTotal = rounds[roundIndex]?.rolls[totalRollIndex]?.totalScore
     // if first round, only the first element should have a label
     if (isFirstRound && i === 1) {
       totalRowLabel += createRoundCell()

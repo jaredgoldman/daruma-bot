@@ -32,7 +32,14 @@ module.exports = {
       } = interaction
 
       const game = games[channelId]
-      const { maxAssets } = game.getSettings()
+      const settings = game.getSettings()
+
+      if (!settings) {
+        return interaction.reply({
+          content: `There are no settings for this game`,
+          ephemeral: true,
+        })
+      }
 
       await interaction.deferReply({ ephemeral: true })
 
@@ -56,7 +63,7 @@ module.exports = {
 
       const options = userAssetsArr
         .map((asset: Asset, i: number) => {
-          if (i < maxAssets) {
+          if (i < settings.maxAssets) {
             const label = asset.alias || asset.name
             const normalizedLabel = label.slice(0, 20)
             return {

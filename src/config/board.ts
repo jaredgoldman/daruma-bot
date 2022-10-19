@@ -1,3 +1,5 @@
+import { RenderPhases } from '../types/board'
+
 class BoardConfig {
   private cellWidth: number
   private roundPadding: number
@@ -41,3 +43,15 @@ class BoardConfig {
 
 // TODO: fetch this from db
 export default new BoardConfig(4, 3, 2, 3, 2, 5)
+
+export const renderConfig: { [key: string]: { duration: number } } = {
+  [RenderPhases.GIF]: {
+    duration: 2000,
+  },
+  [RenderPhases.EMOJI]: {
+    duration: 500,
+  },
+  [RenderPhases.SCORE]: {
+    duration: 500,
+  },
+}

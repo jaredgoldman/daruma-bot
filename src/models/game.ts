@@ -6,6 +6,7 @@ import { renderBoard } from '../game/board'
 import { PlayerRoundsData } from '../types/attack'
 import { ChannelSettings, GameRoundState, GameTypes } from '../types/game'
 import Asset from './asset'
+import { RenderPhases } from '../types/board'
 import Encounter from './encounter'
 import Player from './player'
 
@@ -464,13 +465,14 @@ export default class Game {
     return this.board
   }
 
-  renderBoard(isLastRender = false) {
+  renderBoard(isLastRender = false, renderPhase: RenderPhases) {
     const board = renderBoard(
       this.getRollIndex(),
       this.getRoundIndex(),
       this.getGameRoundState().playerIndex,
       this.getPlayerArray(),
-      isLastRender
+      renderPhase
+      // isLastRender
     )
     this.setBoard(board)
     return board
