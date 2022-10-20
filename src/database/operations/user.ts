@@ -1,6 +1,7 @@
+// Schema
 import { ObjectId, WithId } from 'mongodb'
-
 import User from '../../models/user'
+// Database
 import { collections } from '../database.service'
 
 export const findUserById = async (_id: ObjectId): Promise<WithId<User>> =>

@@ -6,14 +6,11 @@ import {
   SelectMenuBuilder,
 } from 'discord.js'
 // Data
+import { findUserByDiscordId } from '../database/operations/user.js'
 // Schemas
-import { WithId } from 'mongodb'
-
-// Globals
-import { collections } from '../database/database.service'
-import { games } from '../index'
 import Asset from '../models/asset'
-import User from '../models/user'
+// Globals
+import { games } from '../index'
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -43,9 +40,7 @@ module.exports = {
 
       await interaction.deferReply({ ephemeral: true })
 
-      const user = (await collections.users.findOne({
-        discordId: id,
-      })) as WithId<User>
+      const user = await findUserByDiscordId(id)
 
       if (user === null) {
         return await interaction.editReply({
@@ -95,7 +90,7 @@ module.exports = {
         components: [row],
       })
     } catch (error) {
-      console.log('****** ERROR SELECTING ******', error)
+      console.log('****** ERROR SELECTING PLAYER ******', error)
     }
   },
 }

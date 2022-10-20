@@ -1,5 +1,9 @@
+// Schema
 import { RenderPhases } from '../types/board'
-
+/**
+ * Configuration for board rendering
+ * Includes rendering settings and board sizing
+ */
 class BoardConfig {
   private cellWidth: number
   private roundPadding: number

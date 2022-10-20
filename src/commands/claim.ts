@@ -1,9 +1,8 @@
-// Discrod
+// Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction, InteractionType } from 'discord.js'
 // Schemas
 import { WithId } from 'mongodb'
-
 // Data
 import { collections } from '../database/database.service'
 import { saveWithdrawal } from '../database/operations/token'
@@ -17,7 +16,6 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('claim')
     .setDescription('claim your hoot!'),
-
   enabled: true,
   /**
    * Allows user to initiate transfer oftoken to own wallet

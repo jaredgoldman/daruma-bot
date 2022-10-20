@@ -1,4 +1,6 @@
+// Schema
 import Asset from '../../models/asset'
+// Database
 import { collections } from '../database.service'
 
 export const addAsset = async (asset: Asset) => {

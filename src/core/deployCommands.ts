@@ -1,9 +1,9 @@
 // Discord
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord.js'
-// Node
+// Helpers
 import fs from 'node:fs'
-
+// Globals
 import { clientId, guildId, token } from '../index'
 
 const commands = []

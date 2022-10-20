@@ -1,20 +1,17 @@
 // Discrod
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction, InteractionType } from 'discord.js'
-
-import { findUserByDiscordId } from '../database/operations/user'
-
-// Schemas
-// Data
 // Helpers
+import { findUserByDiscordId } from '../database/operations/user'
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('profile')
     .setDescription('show user profile!'),
-  enabled: true,
+  enabled: false,
   /**
    * Allows user to initiate transfer oftoken to own wallet
+   * WIP - much more detail can be added here
    * @param interaction {Interaction}
    * @returns {void}
    */

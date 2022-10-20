@@ -6,8 +6,7 @@ import {
   ButtonStyle,
   EmbedBuilder,
 } from 'discord.js'
-
-// Types/Constants
+// Schemas
 import { Embeds } from '../constants/embeds'
 // Helpers
 import Game from '../models/game'
@@ -25,12 +24,21 @@ const defaultEmbedValues: EmbedData = {
   },
 }
 
-//type EmbedOptions = { player?: Player };
+type EmbedOptions = {
+  player?: Player
+}
 
+/**
+ * Abstraction for building embeds
+ * @param type {Embeds}
+ * @param game {Game}
+ * @param options {any}
+ * @returns
+ */
 export default function doEmbed(
   type: Embeds,
   game: Game,
-  options?: any
+  options?: EmbedOptions
 ): BaseMessageOptions {
   let data: EmbedData = defaultEmbedValues
   const components: any = []
@@ -82,7 +90,7 @@ export default function doEmbed(
       }
       break
     case Embeds.win:
-      const player = options.player as Player
+      const player = options?.player as Player
       data = {
         title: 'Game Over',
         description: `${player.getUsername()} won the game!`,

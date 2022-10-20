@@ -1,7 +1,7 @@
+// Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { ButtonInteraction } from 'discord.js'
-
-// Discord
+// Globals
 import { games } from '../index'
 
 module.exports = {
@@ -23,9 +23,12 @@ module.exports = {
     if (game.getPlayer(discordId)) {
       game.removePlayer(discordId)
       game.updateGame()
-      interaction.reply({ content: 'Daruma withdrawn', ephemeral: true })
+      await interaction.reply({ content: 'Daruma withdrawn', ephemeral: true })
     } else {
-      interaction.reply({ content: "You're not registered", ephemeral: true })
+      await interaction.reply({
+        content: "You're not registered",
+        ephemeral: true,
+      })
     }
   },
 }

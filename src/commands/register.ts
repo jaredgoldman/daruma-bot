@@ -1,17 +1,17 @@
 // Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction } from 'discord.js'
-
+// Schemas
+import Asset from '../models/asset'
+import User from '../models/user'
+import { RegistrationResult } from '../types/user'
+// Data
 import {
   findUserByDiscordId,
   findUserById,
   saveUser,
   updateUser,
 } from '../database/operations/user'
-import Asset from '../models/asset'
-import User from '../models/user'
-import { RegistrationResult } from '../types/user'
-// Data
 // Helpers
 import {
   determineOwnership,
@@ -19,9 +19,6 @@ import {
   unitName,
 } from '../utils/algorandUtils'
 import { addRole } from '../utils/discordUtils'
-// Schemas
-
-// Globals
 
 const registeredRoleId = process.env.REGISTERED_ID
 

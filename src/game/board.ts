@@ -1,9 +1,12 @@
+// Schema
 import Player from '../models/player'
 import { RollData, RoundData } from '../types/attack'
-import { Alignment, createCell, createWhitespace } from '../utils/boardUtils'
-import boardConfig from '../config/board'
-import { emojis } from '..'
 import { RenderPhases } from '../types/board'
+// Helpers
+import { Alignment, createCell, createWhitespace } from '../utils/boardUtils'
+// Configs
+import { emojis } from '..'
+import boardConfig from '../config/board'
 
 // import in avsolute values for board sizing
 const {
@@ -35,9 +38,6 @@ export const renderBoard = (
   const roundRightColumn = createWhitespace(3) + '**ROUND**'
   // create a row representing the current round
   const roundNumberRow = createRoundNumberRow(roundIndex, 2) + roundRightColumn
-  // utilize round Number row length
-  //let boardWidth = roundNumberRow.length;
-
   // create a row displaying attack numbers for each player
   // as well as a row displaying the total
   const attackAndTotalRows = createAttackAndTotalRows(
@@ -69,7 +69,6 @@ export const createRoundNumberRow = (
   let roundNumberRowLabel = ''
   // for each row
   for (let i = 0; i <= roundsOnEmbed - 1; i++) {
-    // TODO, make this dynamic
     // if first round, only the first element should have a label
     if (isFirstRound && i === 1) {
       roundNumberRowLabel += createRoundCell()

@@ -1,3 +1,4 @@
+// Discord
 import { Client, GuildEmoji } from 'discord.js'
 
 const emojiConfig = {
@@ -10,6 +11,11 @@ const emojiConfig = {
   '3gif': '3_',
 }
 
+/**
+ * Grabs all necessary emojis from discord cache and makes available for easy use throughout game
+ * @param client
+ * @returns
+ */
 const gatherEmojis = (client: Client): Emojis => {
   const emojis: Emojis = {}
 
