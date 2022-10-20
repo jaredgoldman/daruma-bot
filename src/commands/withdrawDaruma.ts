@@ -25,7 +25,7 @@ module.exports = {
       game.updateGame()
       interaction.reply({ content: 'Daruma withdrawn', ephemeral: true })
     } else {
-      interaction.reply({ content: "You're not registered", ephemeral: true })
+      interaction.reply({ content: 'You are not registered', ephemeral: true })
     }
   },
 }

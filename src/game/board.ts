@@ -1,9 +1,9 @@
+import { emojis } from '..'
+import boardConfig from '../config/board'
 import Player from '../models/player'
 import { RollData, RoundData } from '../types/attack'
-import { Alignment, createCell, createWhitespace } from '../utils/boardUtils'
-import boardConfig from '../config/board'
-import { emojis } from '..'
 import { RenderPhases } from '../types/board'
+import { Alignment, createCell, createWhitespace } from '../utils/boardUtils'
 
 // import in avsolute values for board sizing
 const {
