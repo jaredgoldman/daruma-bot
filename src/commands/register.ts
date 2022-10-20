@@ -30,6 +30,11 @@ module.exports = {
         .setRequired(true)
     ),
   enabled: true,
+  /**
+   * Registers a player and adds a discord role if successful
+   * @param interaction
+   * @returns
+   */
   async execute(interaction: Interaction) {
     if (!interaction.isChatInputCommand()) return
     const { user, options } = interaction
