@@ -32,7 +32,7 @@ const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
 
 export const creatorAssetSync = async function (): Promise<boolean> {
   const assetsSynced = await redisClient.smembers(redisKeys.assetIds)
-  if (assetsSynced) {
+  if (assetsSynced.length > 0) {
     console.log(
       'Creator Assets are Synchronized with',
       assetsSynced.length.toString(),
