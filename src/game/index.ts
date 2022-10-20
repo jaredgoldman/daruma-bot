@@ -127,16 +127,19 @@ const handleCommencingGameMessage = async (
   channel: TextChannel,
   gameType: GameTypes
 ): Promise<void> => {
+  let imagePath = ''
   switch (gameType) {
     case GameTypes.OneVsOne:
+      imagePath = 'src/assets/PVP.gif'
       break
     case GameTypes.OneVsNpc:
-      const attachment = new AttachmentBuilder('src/assets/NPC_1V1.gif')
-      await channel.send({ files: [attachment] })
+      imagePath = 'src/assets/NPC_1V1.gif'
       break
     case GameTypes.FourVsNpc:
       break
     default:
       break
   }
+  const attachment = new AttachmentBuilder(imagePath)
+  await channel.send({ files: [attachment] })
 }
