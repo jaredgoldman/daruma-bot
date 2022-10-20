@@ -5,6 +5,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
+  AttachmentBuilder,
 } from 'discord.js'
 
 // Types/Constants
@@ -83,11 +84,13 @@ export default function doEmbed(
       break
     case Embeds.win:
       const player = options.player as Player
+      const isNpc = player.getIsNpc()
       data = {
         title: 'Game Over',
         description: `${player.getUsername()} won the game!`,
-        image: normalizeIpfsUrl(player.asset.url),
       }
+      if (isNpc) data.files = [new AttachmentBuilder('src/assets/NPC_Win.gif')]
+      else data.image = normalizeIpfsUrl(player.asset.url)
       break
     default: {
       data = defaultEmbedValues

@@ -245,15 +245,10 @@ export default class Game {
   addNpc() {
     this.addPlayer(
       new Player(
-        'npc player',
+        'Karasu',
         'npcDiscordId',
         '1234567',
-        new Asset(
-          'https://upload.wikimedia.org/wikipedia/en/1/1b/NPC_wojak_meme.png',
-          12345,
-          'npcasset',
-          'npcasset'
-        ),
+        new Asset('', 12345, 'Karasu', 'Karasu'),
         new ObjectId('123456789012'),
         true
       )
