@@ -2,8 +2,8 @@ import algosdk from 'algosdk'
 import PendingTransactionInformation from 'algosdk/dist/types/src/client/v2/algod/pendingTransactionInformation'
 
 import { redisClient, redisKeys } from '../database/redis.service'
-import { algoCreatorAssets, algoUserAssets } from '../models/algosdk'
 import Asset from '../models/asset'
+import { algoCreatorAssets, algoUserAssets } from '../types/algosdk'
 import { TxnStatus } from '../types/token'
 
 const creatorAddresses = process.env.CREATOR_ADDRESSES as string
