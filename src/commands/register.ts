@@ -1,15 +1,18 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction } from 'discord.js'
 
+// Data
 import {
   findUserByDiscordId,
   findUserById,
   saveUser,
   updateUser,
 } from '../database/operations/user'
+// Schemas
 import Asset from '../models/asset'
 import User from '../models/user'
 import { RegistrationResult } from '../types/user'
+// Helpers
 import { determineOwnership } from '../utils/algorandUtils'
 import { addRole } from '../utils/discordUtils'
 import { env } from '../utils/environment'
@@ -18,7 +21,7 @@ import { Logger } from '../utils/logger'
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('register')
-    .setDescription('Register for When Darumas Attack')
+    .setDescription(`Register your wallet to battle your ${env.ALGO_UNIT_NAME}`)
     .addStringOption(option =>
       option
         .setName('address')

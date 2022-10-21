@@ -3,9 +3,10 @@ import { Message, TextChannel } from 'discord.js'
 import { games } from '../bot'
 import { renderConfig } from '../config/board'
 import { Embeds } from '../constants/embeds'
+import { GameStatus } from '../constants/game'
 import doEmbed from '../core/embeds'
 import { getChannelSettings } from '../database/operations/game'
-import Game, { GameStatus } from '../models/game'
+import Game from '../models/game'
 import Player from '../models/player'
 import { RenderPhases } from '../types/board'
 // import util from 'util'
@@ -64,9 +65,7 @@ export default async function startWaitingRoom(
 
     game.setStatus(GameStatus.activeGame)
 
-    await handleGameLoop(game, channel, turnRate)
-    // HANDLE GAME WIN MESSAGE HERE
-    // await channel.send(doEmbed(Embeds.win, game))
+    await handleGameLoop(game, channel)
     await win(game, channel)
     await wait(4000)
     startWaitingRoom(channel)
@@ -75,11 +74,12 @@ export default async function startWaitingRoom(
   }
 }
 
-const handleGameLoop = async (
-  game: Game,
-  channel: TextChannel,
-  turnRate: number
-) => {
+/**
+ * Handle main game loop
+ * @param game {Game}
+ * @param channel {TextChannel}
+ */
+const handleGameLoop = async (game: Game, channel: TextChannel) => {
   //TODO: MAke something better for the player message
   let channelMessage: Message
   const playerMessage = game

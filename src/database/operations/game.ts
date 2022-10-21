@@ -1,7 +1,9 @@
+// Schema
 import { WithId } from 'mongodb'
 
 import Encounter from '../../models/encounter'
 import { ChannelSettings } from '../../types/game'
+// Database
 import { collections } from '../database.service'
 
 export const getSettings = async (): Promise<WithId<ChannelSettings>[]> =>

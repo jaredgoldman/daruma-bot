@@ -6,7 +6,7 @@
   "license": "ISC",
   "author": "",
   "scripts": {
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.json && sleep 5",
     "clean": "git clean -xdf --exclude=\"/config/**/*\"",
     "clean:dry": "git clean -xdf --exclude=\"/config/**/*\" --dry-run",
     "commands:register": "npm run build && node -r dotenv/config dist/core/deployCommands.js",

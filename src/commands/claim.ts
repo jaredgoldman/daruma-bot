@@ -1,4 +1,4 @@
-// Discrod
+// Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction, InteractionType } from 'discord.js'
 // Schemas

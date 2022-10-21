@@ -21,7 +21,9 @@ export const creatorAssetSync = async function (): Promise<boolean> {
   const assetsSynced = await redisClient.smembers(redisKeys.assetIds)
   if (assetsSynced.length > 0) {
     Logger.debug(
-      `Creator Assets are Synchronized with ${assetsSynced.length.toString()} Darumas`
+      `Creator Assets are Synchronized with ${assetsSynced.length.toString()} ${
+        env.ALGO_UNIT_NAME
+      }`
     )
     return true
   }

@@ -1,11 +1,13 @@
+// Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { ButtonInteraction } from 'discord.js'
 
+// Data
 import { games } from '../bot'
-// Discord
+import { GameStatus } from '../constants/game'
 import { getChannelSettings } from '../database/operations/game'
 import { findUserByDiscordId } from '../database/operations/user'
-import { GameStatus } from '../models/game'
+// Helpers
 import { confirmRole } from '../utils/discordUtils'
 import { env } from '../utils/environment'
 
@@ -13,6 +15,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('start-game')
     .setDescription('start the game'),
+  enabled: true,
   /**
    * Response to start game button
    * If user is admin or active player and enough players are registered

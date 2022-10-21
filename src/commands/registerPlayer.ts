@@ -1,16 +1,14 @@
 // Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { SelectMenuInteraction } from 'discord.js'
-// Data
-import { WithId } from 'mongodb'
 
+// Data
 import { games } from '../bot'
-import { collections } from '../database/database.service'
+import { GameStatus } from '../constants/game'
+import { findUserByDiscordId } from '../database/operations/user'
 // Schemas
 import Asset from '../models/asset'
-import { GameStatus } from '../models/game'
 import Player from '../models/player'
-import User from '../models/user'
 // Helpers
 import { checkIfRegisteredPlayer } from '../utils/gameUtils'
 import { Logger } from '../utils/logger'
@@ -20,6 +18,10 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('register-player')
     .setDescription('Register an active player'),
+  /**
+   * Registers a player and adds a discord role if successful
+   * @param interaction {SelectMenuInteraction}
+   */
   async execute(interaction: SelectMenuInteraction) {
     try {
       if (!interaction.isSelectMenu()) return
@@ -45,10 +47,9 @@ module.exports = {
       if (game.getPlayerCount() < maxCapacity || game.getPlayer(discordId)) {
         await interaction.deferReply({ ephemeral: true })
 
-        const { address, _id, coolDowns, assets } =
-          (await collections.users.findOne({
-            discordId: user.id,
-          })) as WithId<User>
+        const { address, _id, coolDowns, assets } = await findUserByDiscordId(
+          user.id
+        )
 
         const asset: Asset = assets[assetId]
 

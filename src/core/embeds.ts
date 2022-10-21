@@ -7,16 +7,17 @@ import {
   EmbedBuilder,
 } from 'discord.js'
 
-// Types/Constants
+// Schemas
 import { Embeds } from '../constants/embeds'
 // Helpers
 import Game from '../models/game'
 import Player from '../models/player'
 import { EmbedData } from '../types/game'
+import { env } from '../utils/environment'
 import { normalizeIpfsUrl } from '../utils/sharedUtils'
 
 const defaultEmbedValues: EmbedData = {
-  title: 'DarumaBot',
+  title: `${env.ALGO_UNIT_NAME} Bot`,
   description: 'placeholder',
   color: 'DarkAqua',
   footer: {
@@ -25,12 +26,21 @@ const defaultEmbedValues: EmbedData = {
   },
 }
 
-//type EmbedOptions = { player?: Player };
+type EmbedOptions = {
+  player?: Player
+}
 
+/**
+ * Abstraction for building embeds
+ * @param type {Embeds}
+ * @param game {Game}
+ * @param options {any}
+ * @returns
+ */
 export default function doEmbed(
   type: Embeds,
   game: Game,
-  options?: any
+  options?: EmbedOptions
 ): BaseMessageOptions {
   let data: EmbedData = defaultEmbedValues
   const components: any = []
@@ -62,7 +72,7 @@ export default function doEmbed(
         new ActionRowBuilder().addComponents(
           new ButtonBuilder()
             .setCustomId('select-player')
-            .setLabel('Choose your Daruma')
+            .setLabel(`Choose your ${env.ALGO_UNIT_NAME}`)
             .setStyle(ButtonStyle.Primary),
           new ButtonBuilder()
             .setCustomId('start-game')
@@ -70,7 +80,7 @@ export default function doEmbed(
             .setStyle(ButtonStyle.Secondary),
           new ButtonBuilder()
             .setCustomId('withdraw-player')
-            .setLabel('Withdraw Daruma')
+            .setLabel(`Withdraw ${env.ALGO_UNIT_NAME}`)
             .setStyle(ButtonStyle.Danger)
         )
       )
@@ -82,7 +92,7 @@ export default function doEmbed(
       }
       break
     case Embeds.win:
-      const player = options.player as Player
+      const player = options?.player as Player
       data = {
         title: 'Game Over',
         description: `${player.getUsername()} won the game!`,

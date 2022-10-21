@@ -77,7 +77,7 @@ export class Bot {
     this.setupCommands()
     // Start game for each channel
     this.startGame()
-    AsyncExitHook(done => {
+    AsyncExitHook((done: () => any) => {
       Logger.info(`[exit-hook] Logged out of <${this.client.user?.tag}>`)
       this.client.destroy()
       return done()

@@ -1,4 +1,6 @@
+// Schema
 import Asset from '../../models/asset'
+// Database
 import { Logger } from '../../utils/logger'
 import { collections } from '../database.service'
 
