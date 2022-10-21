@@ -24,6 +24,11 @@ jobs:
         with:
           fetch-depth: 0
       - uses: wagoid/commitlint-github-action@v5.2.0
+  quality:
+    name: Lint Commit Messages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
       - name: Use Node.js 16.11.0
         uses: actions/setup-node@v3
         with:
