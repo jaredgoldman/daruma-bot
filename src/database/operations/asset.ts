@@ -1,9 +1,8 @@
 // Schema
 import Asset from '../../models/asset'
-
 // Database
-import { collections } from '../database.service'
 import { Logger } from '../../utils/logger'
+import { collections } from '../database.service'
 
 export const addAsset = async (asset: Asset) => {
   const dbAsset = await collections.assets.findOne({ id: asset.id })

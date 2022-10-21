@@ -1,5 +1,6 @@
 // Schema
 import { WithId } from 'mongodb'
+
 import Encounter from '../../models/encounter'
 import { ChannelSettings } from '../../types/game'
 // Database

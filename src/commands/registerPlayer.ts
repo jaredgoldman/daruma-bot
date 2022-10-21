@@ -4,7 +4,7 @@ import { SelectMenuInteraction } from 'discord.js'
 
 // Data
 import { games } from '../bot'
-import { GameStatus } from '../constants/game.js'
+import { GameStatus } from '../constants/game'
 import { findUserByDiscordId } from '../database/operations/user'
 // Schemas
 import Asset from '../models/asset'

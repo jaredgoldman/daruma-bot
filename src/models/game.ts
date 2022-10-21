@@ -1,6 +1,7 @@
 import { BaseMessageOptions } from 'discord.js'
 import { ObjectId } from 'mongodb'
-import { GameStatus } from '../constants/game.js'
+
+import { GameStatus } from '../constants/game'
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { renderBoard } from '../game/board'
 import { PlayerRoundsData } from '../types/attack'
