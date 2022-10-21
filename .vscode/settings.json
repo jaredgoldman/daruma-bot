@@ -21,10 +21,13 @@
     "Daruma",
     "Darumas",
     "discordjs",
+    "envalid",
+    "initdate",
     "IPFS",
+    "pino",
+    "Purestake",
     "setex",
     "txns",
     "xtxn"
-  ],
-  "typescript.preferences.importModuleSpecifierEnding": "js"
+  ]
 }
