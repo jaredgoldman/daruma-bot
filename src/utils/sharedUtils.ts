@@ -1,5 +1,4 @@
-import { EnvVariables } from '../types/shared'
-const ipfsGateway = process.env.IPFS_GATEWAY || 'https://ipfs.filebase.io/ipfs/'
+import { env } from './environment'
 
 export const asyncForEach = async (
   array: Array<any>,
@@ -40,21 +39,9 @@ export const isIpfs = (url: string): boolean => url?.slice(0, 4) === 'ipfs'
 
 export const normalizeIpfsUrl = (url: string): string => {
   if (isIpfs(url)) {
-    const ifpsHash = url.slice(7)
-    return `${ipfsGateway}${ifpsHash}`
+    const ipfsHash = url.slice(7)
+    return `${env.IPFS_GATEWAY}${ipfsHash}`
   } else {
     return url
-  }
-}
-
-export const checkEnv = (): void => {
-  const envKeys = Object.values(EnvVariables).filter(
-    value => typeof value === 'string'
-  ) as (keyof typeof EnvVariables)[]
-
-  for (const envKey of envKeys) {
-    if (process.env[envKey] === undefined) {
-      throw new Error(`Env variable "${envKey}" not set`)
-    }
   }
 }

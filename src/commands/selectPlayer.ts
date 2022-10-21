@@ -1,5 +1,8 @@
 // Discord
-import { SlashCommandBuilder } from '@discordjs/builders'
+import {
+  MessageActionRowComponentBuilder,
+  SlashCommandBuilder,
+} from '@discordjs/builders'
 import {
   ActionRowBuilder,
   ButtonInteraction,
@@ -10,10 +13,11 @@ import {
 import { WithId } from 'mongodb'
 
 // Globals
+import { games } from '../bot'
 import { collections } from '../database/database.service'
-import { games } from '../index'
 import Asset from '../models/asset'
 import User from '../models/user'
+import { Logger } from '../utils/logger'
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -78,24 +82,25 @@ module.exports = {
         description: string
         value: string
       }[]
-
-      const selectMenu = new SelectMenuBuilder()
-        .setCustomId('register-player')
-        .setPlaceholder('Select an Daruma to attack')
-
-      if (options.length) {
-        selectMenu.addOptions(options)
-      }
-
-      const row = new ActionRowBuilder().addComponents(selectMenu)
+      let components: ActionRowBuilder<MessageActionRowComponentBuilder>[] = []
+      components.push(
+        new ActionRowBuilder({
+          components: [
+            new SelectMenuBuilder()
+              .setCustomId('register-player')
+              .setMinValues(1)
+              .setPlaceholder('Select an Daruma to attack')
+              .setOptions(options),
+          ],
+        })
+      )
 
       await interaction.editReply({
         content: 'Choose your Daruma',
-        //@ts-ignore
-        components: [row],
+        components,
       })
     } catch (error) {
-      console.log('****** ERROR SELECTING ******', error)
+      Logger.error('****** ERROR SELECTING ******', error)
     }
   },
 }

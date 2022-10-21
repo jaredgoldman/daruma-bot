@@ -1,6 +1,6 @@
 import { Message, TextChannel } from 'discord.js'
 
-import { games } from '..'
+import { games } from '../bot'
 import { renderConfig } from '../config/board'
 import { Embeds } from '../constants/embeds'
 import doEmbed from '../core/embeds'
@@ -10,6 +10,7 @@ import Player from '../models/player'
 import { RenderPhases } from '../types/board'
 // import util from 'util'
 import { GameTypes } from '../types/game'
+import { Logger } from '../utils/logger'
 import { asyncForEach, wait } from '../utils/sharedUtils'
 import win from './win'
 
@@ -70,7 +71,7 @@ export default async function startWaitingRoom(
     await wait(4000)
     startWaitingRoom(channel)
   } catch (error) {
-    console.log('****** ERROR STARTING WAITING ROOM ******', error)
+    Logger.error('****** ERROR STARTING WAITING ROOM ******', error)
   }
 }
 

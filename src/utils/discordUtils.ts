@@ -1,6 +1,7 @@
 import { Interaction } from 'discord.js'
 
 import User from '../models/user'
+import { Logger } from './logger'
 
 export const addRole = async (
   interaction: Interaction,
@@ -14,7 +15,7 @@ export const addRole = async (
     )
     role && (await member?.roles.add(role.id))
   } catch (error) {
-    console.log('Error adding role', error)
+    Logger.error('Error adding role', error)
   }
 }
 

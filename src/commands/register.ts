@@ -10,14 +10,10 @@ import {
 import Asset from '../models/asset'
 import User from '../models/user'
 import { RegistrationResult } from '../types/user'
-import {
-  determineOwnership,
-  optInAssetId,
-  unitName,
-} from '../utils/algorandUtils'
+import { determineOwnership } from '../utils/algorandUtils'
 import { addRole } from '../utils/discordUtils'
-
-const registeredRoleId = process.env.REGISTERED_ID
+import { env } from '../utils/environment'
+import { Logger } from '../utils/logger'
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -52,7 +48,7 @@ module.exports = {
     await interaction.deferReply({ ephemeral: true })
 
     await interaction.followUp({
-      content: 'This might take a while! Please be patient.',
+      content: `Validating how many ${env.ALGO_UNIT_NAME} you have!`,
       ephemeral: true,
     })
 
@@ -64,8 +60,8 @@ module.exports = {
       )
 
       // add permissions if successful
-      if (registeredUser && registeredRoleId) {
-        addRole(interaction, registeredRoleId, registeredUser)
+      if (registeredUser && env.DISCORD_REGISTERED_ROLE_ID) {
+        addRole(interaction, env.DISCORD_REGISTERED_ROLE_ID, registeredUser)
       }
 
       await interaction.followUp({
@@ -104,13 +100,13 @@ export const processRegistration = async (
 
     if (!nftsOwned?.length) {
       return {
-        status: `You have no ${unitName}s in this wallet. Please try again with a different address`,
+        status: `You have no ${env.ALGO_UNIT_NAME} in this wallet. Please try again with a different address`,
       }
     }
 
     if (!walletOwned) {
       return {
-        status: `Looks like you haven't opted in to to asset ${optInAssetId}. Please opt in on Rand Gallery by using this link: https://www.randgallery.com/algo-collection/?address=${optInAssetId}`,
+        status: `Looks like you haven't opted in to to asset ${env.ALGO_OPT_IN_ASSET_ID}. Please opt in on Rand Gallery by using this link: https://www.randgallery.com/algo-collection/?address=${env.ALGO_OPT_IN_ASSET_ID}`,
       }
     }
 
@@ -132,11 +128,11 @@ export const processRegistration = async (
     }
 
     return {
-      status: `Registration complete added ${nftsOwned.length} Darumas! Enjoy the game. -- You can always register again if you are missing some NFT's`,
+      status: `Registration complete added ${nftsOwned.length} ${env.ALGO_UNIT_NAME}! Enjoy the game. -- You can always register again if you are missing some ${env.ALGO_UNIT_NAME}`,
       registeredUser: user,
     }
   } catch (error) {
-    console.log('*** REGISTRATION ERROR ***', error)
+    Logger.error('*** REGISTRATION ERROR ***', error)
     return {
       status: 'Something went wrong during registration, please try again',
     }

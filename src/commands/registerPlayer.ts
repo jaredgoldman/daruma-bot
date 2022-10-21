@@ -4,22 +4,22 @@ import { SelectMenuInteraction } from 'discord.js'
 // Data
 import { WithId } from 'mongodb'
 
+import { games } from '../bot'
 import { collections } from '../database/database.service'
 // Schemas
-import { games } from '../index'
 import Asset from '../models/asset'
 import { GameStatus } from '../models/game'
 import Player from '../models/player'
 import User from '../models/user'
 // Helpers
 import { checkIfRegisteredPlayer } from '../utils/gameUtils'
+import { Logger } from '../utils/logger'
 // Globals
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('register-player')
     .setDescription('Register an active player'),
-  enabled: true,
   async execute(interaction: SelectMenuInteraction) {
     try {
       if (!interaction.isSelectMenu()) return
@@ -96,7 +96,7 @@ module.exports = {
         })
       }
     } catch (error) {
-      console.log(error)
+      Logger.error('Error', error)
     }
   },
 }
