@@ -7,8 +7,6 @@ export enum Alignment {
   emoji = 'emoji',
 }
 
-const { emojiPadding } = board.getSettings()
-
 /**
  * function that takes a set length and inserts a string into said length
  * can position the string at start, middle or end
@@ -36,11 +34,12 @@ export const createCell = (
     case Alignment.right:
       indexToPrintContent = space - content.length
       break
-    case Alignment.centered:
+    case Alignment.centered: {
       const len = emoji ? 3 : content.length
       const median = Math.floor(space / 2)
       indexToPrintContent = median - Math.floor(len / 2)
       break
+    }
     default:
       indexToPrintContent = 0
   }
