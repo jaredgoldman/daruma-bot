@@ -1,0 +1,14 @@
+{
+  "info": {
+    "clientLogin": "Client logged in as '{USER_TAG}'.",
+    "clientReady": "Client is ready!"
+  },
+  "error": {
+    "unspecified": "An unspecified error occurred.",
+    "unhandledRejection": "An unhandled promise rejection occurred.",
+    "commandAction": "An error occurred while running a command action.",
+    "clientLogin": "An error occurred while the client attempted to login.",
+    "command": "An error occurred while processing a command interaction.",
+    "button": "An error occurred while processing a button interaction."
+  }
+}

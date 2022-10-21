@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import Asset from '../models/asset'
+import { Logger } from './logger'
 import { normalizeIpfsUrl } from './sharedUtils'
 
 export const downloadAssetImage = async (
@@ -27,11 +28,11 @@ export const downloadAssetImage = async (
         writer.on('finish', () => {
           return resolve(path)
         })
-        writer.on('error', err => console.log(err))
+        writer.on('error', err => Logger.error('File System Error', err))
       })
     }
   } catch (error) {
-    console.log('ERROR:', error)
+    Logger.error('ERROR:', error)
   }
 }
 
@@ -47,6 +48,6 @@ export const emptyDir = (dirPath: string): void => {
       } else fs.unlinkSync(fullPath)
     })
   } catch (error) {
-    console.log('Error deleting contents of image directory', error)
+    Logger.error('Error deleting contents of image directory', error)
   }
 }

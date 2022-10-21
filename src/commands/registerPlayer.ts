@@ -1,15 +1,18 @@
 // Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { SelectMenuInteraction } from 'discord.js'
+
 // Data
-import { findUserByDiscordId } from '../database/operations/user.js'
-// Schemas
-import { games } from '../index'
-import Asset from '../models/asset'
+import { games } from '../bot'
 import { GameStatus } from '../constants/game.js'
+import { findUserByDiscordId } from '../database/operations/user'
+// Schemas
+import Asset from '../models/asset'
 import Player from '../models/player'
 // Helpers
 import { checkIfRegisteredPlayer } from '../utils/gameUtils'
+import { Logger } from '../utils/logger'
+// Globals
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -94,7 +97,7 @@ module.exports = {
         })
       }
     } catch (error) {
-      console.log(error)
+      Logger.error('Error', error)
     }
   },
 }

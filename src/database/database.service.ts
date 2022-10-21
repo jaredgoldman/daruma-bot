@@ -1,6 +1,9 @@
 // External Dependencies
 import * as mongoDB from 'mongodb'
 
+import { env } from '../utils/environment'
+import { Logger } from '../utils/logger'
+
 // Global Variables
 export const collections: {
   [key: string]: mongoDB.Collection
@@ -8,41 +11,38 @@ export const collections: {
 
 let db: mongoDB.Db
 
-const connectionString = process.env.MONGO_URL || 'mongodb://localhost:27017'
-const usersCollectionName = process.env.USERS_COLLECTION_NAME || 'users'
-const encountersCollectionName =
-  process.env.ENCOUNTERS_COLLECTION_NAME || 'encounters'
-const settingsCollectionName =
-  process.env.SETTINGS_COLLECTION_NAME || 'settings'
-const tokenWithdrawalsCollectionName =
-  process.env.TOKEN_WITHDRAWALS_COLLECTION_NAME || 'token_withdrawals'
-const mongoDBName = process.env.DB_NAME || 'daruma-bot'
 // Initialize Connection
 export async function connectToDatabase(): Promise<void> {
-  const client: mongoDB.MongoClient = new mongoDB.MongoClient(connectionString)
+  Logger.debug(
+    `Attempting to connect to Database ${env.MONGO_DB_NAME} on ${env.MONGO_URL}`
+  )
 
-  await client.connect()
+  const client: mongoDB.MongoClient = new mongoDB.MongoClient(env.MONGO_URL)
 
-  db = client.db(mongoDBName)
+  db = client.db(env.MONGO_DB_NAME)
 
-  const usersCollection: mongoDB.Collection = db.collection(usersCollectionName)
+  const usersCollection: mongoDB.Collection = db.collection(
+    env.MONGO_USERS_COLLECTION_NAME
+  )
 
   const encountersCollection: mongoDB.Collection = db.collection(
-    encountersCollectionName
+    env.MONGO_ENCOUNTERS_COLLECTION_NAME
   )
   const settingsCollection: mongoDB.Collection = db.collection(
-    settingsCollectionName
+    env.MONGO_SETTINGS_COLLECTION_NAME
   )
   const tokenWithdrawalsCollection: mongoDB.Collection = db.collection(
-    tokenWithdrawalsCollectionName
+    env.MONGO_TOKEN_WITHDRAWALS_COLLECTION_NAME
   )
 
   collections.users = usersCollection
   collections.encounters = encountersCollection
   collections.settings = settingsCollection
   collections.tokenWithdrawals = tokenWithdrawalsCollection
-
-  console.log(`Successfully connected to database: ${db.databaseName}`)
+  client.on('connectionReady', function () {
+    Logger.info(`Successfully connected to database: ${db.databaseName}`)
+  })
+  await client.connect()
 }
 
 export { db }

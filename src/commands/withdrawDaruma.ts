@@ -2,7 +2,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { ButtonInteraction } from 'discord.js'
 // Globals
-import { games } from '../index'
+import { games } from '../bot'
 
 module.exports = {
   data: new SlashCommandBuilder()

@@ -4,6 +4,7 @@ import { findUserByDiscordId, updateUser } from '../database/operations/user'
 import { PlayerRoundsData, RoundData } from '../types/attack'
 import { ChannelSettings } from '../types/game'
 import { completeGameForPlayer } from '../utils/attackUtils'
+import { Logger } from '../utils/logger'
 import Asset from './asset'
 import User from './user'
 
@@ -150,7 +151,7 @@ export default class Player {
       }
       await updateUser(updatedUserData, this.getDiscordId())
     } else {
-      console.log('****** NO USER FOUND FOR MUTATION ******', this)
+      Logger.error('****** NO USER FOUND FOR MUTATION ******', this)
     }
   }
 }

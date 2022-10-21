@@ -15,7 +15,8 @@ import { claimToken } from '../utils/algorandUtils'
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('claim')
-    .setDescription('claim your hoot!'),
+    .setDescription('claim your Karma'),
+
   enabled: true,
   /**
    * Allows user to initiate transfer oftoken to own wallet
