@@ -1,5 +1,7 @@
 import { Message, TextChannel } from 'discord.js'
 
+import { games } from '..'
+import { renderConfig } from '../config/board'
 import { Embeds } from '../constants/embeds'
 import doEmbed from '../core/embeds'
 import { getChannelSettings } from '../database/operations/game'
@@ -11,8 +13,6 @@ import { RenderPhases } from '../types/board'
 import { GameTypes } from '../types/game'
 import { asyncForEach, wait } from '../utils/sharedUtils'
 import win from './win'
-import { games } from '../'
-import { renderConfig } from '../config/board'
 
 /**
  * Start game waiting room

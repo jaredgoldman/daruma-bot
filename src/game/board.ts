@@ -1,12 +1,12 @@
+// Configs
+import { emojis } from '..'
+import boardConfig from '../config/board'
 // Schema
 import Player from '../models/player'
 import { RollData, RoundData } from '../types/attack'
 import { RenderPhases } from '../types/board'
 // Helpers
 import { Alignment, createCell, createWhitespace } from '../utils/boardUtils'
-// Configs
-import { emojis } from '..'
-import boardConfig from '../config/board'
 
 // import in avsolute values for board sizing
 const {

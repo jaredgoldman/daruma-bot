@@ -1,10 +1,6 @@
-// Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction } from 'discord.js'
-// Schemas
-import Asset from '../models/asset'
-import User from '../models/user'
-import { RegistrationResult } from '../types/user'
+
 // Data
 import {
   findUserByDiscordId,
@@ -12,6 +8,10 @@ import {
   saveUser,
   updateUser,
 } from '../database/operations/user'
+// Schemas
+import Asset from '../models/asset'
+import User from '../models/user'
+import { RegistrationResult } from '../types/user'
 // Helpers
 import {
   determineOwnership,
@@ -40,7 +40,7 @@ module.exports = {
    */
   async execute(interaction: Interaction) {
     if (!interaction.isChatInputCommand()) return
-    const { user, options, channelId } = interaction
+    const { user, options } = interaction
     const { username, id } = user
 
     const address = options.getString('address')
@@ -63,8 +63,7 @@ module.exports = {
       const { status, registeredUser } = await processRegistration(
         username,
         id,
-        address,
-        channelId
+        address
       )
 
       // add permissions if successful
@@ -91,8 +90,7 @@ module.exports = {
 export const processRegistration = async (
   username: string,
   discordId: string,
-  address: string,
-  channelId: string
+  address: string
 ): Promise<RegistrationResult> => {
   try {
     // Attempt to find user in db
@@ -100,10 +98,7 @@ export const processRegistration = async (
 
     // Check to see if wallet has opt-in asset
     // Retrieve assetIds from specific collections
-    const { walletOwned, nftsOwned } = await determineOwnership(
-      address,
-      channelId
-    )
+    const { walletOwned, nftsOwned } = await determineOwnership(address)
 
     const keyedNfts: { [key: string]: Asset } = {}
     nftsOwned.forEach((nft: Asset) => {
@@ -140,7 +135,7 @@ export const processRegistration = async (
     }
 
     return {
-      status: `Registration complete! Enjoy the game. -- You can always register again if you are missing some NFT's`,
+      status: `Registration complete added ${nftsOwned.length} Darumas! Enjoy the game. -- You can always register again if you are missing some NFT's`,
       registeredUser: user,
     }
   } catch (error) {

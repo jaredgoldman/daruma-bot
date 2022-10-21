@@ -26,7 +26,7 @@ export default class Player {
     address: string,
     asset: Asset,
     userId: ObjectId,
-    isNpc = false
+    isNpc: boolean = false
   ) {
     this.roundsData = completeGameForPlayer()
     this.username = username

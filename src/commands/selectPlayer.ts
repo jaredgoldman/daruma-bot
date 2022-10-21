@@ -32,7 +32,7 @@ module.exports = {
       const settings = game.getSettings()
 
       if (!settings) {
-        return interaction.reply({
+        return await interaction.reply({
           content: `There are no settings for this game`,
           ephemeral: true,
         })
