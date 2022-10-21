@@ -15,12 +15,13 @@ import { findUserByDiscordId } from '../database/operations/user'
 // Schemas
 // Globals
 import Asset from '../models/asset'
+import { env } from '../utils/environment'
 import { Logger } from '../utils/logger'
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('select-player')
-    .setDescription(`Pick which Daruma you'd like to compete`),
+    .setDescription(`Pick which ${env.ALGO_UNIT_NAME} you'd like to compete`),
   /**
    * Sends a select menu to user to pick asset for registration
    * @param interaction {ButtonInteraction}
@@ -57,7 +58,7 @@ module.exports = {
 
       if (!userAssetsArr.length) {
         return await interaction.editReply({
-          content: 'You have no Darumas to select!',
+          content: `You have no ${env.ALGO_UNIT_NAME} to select!`,
         })
       }
 
@@ -85,14 +86,14 @@ module.exports = {
             new SelectMenuBuilder()
               .setCustomId('register-player')
               .setMinValues(1)
-              .setPlaceholder('Select an Daruma to attack')
+              .setPlaceholder(`Select a ${env.ALGO_UNIT_NAME} to attack`)
               .setOptions(options),
           ],
         })
       )
 
       await interaction.editReply({
-        content: 'Choose your Daruma',
+        content: `Choose your ${env.ALGO_UNIT_NAME}`,
         components,
       })
     } catch (error) {

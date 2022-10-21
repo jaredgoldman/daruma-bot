@@ -13,10 +13,11 @@ import { Embeds } from '../constants/embeds'
 import Game from '../models/game'
 import Player from '../models/player'
 import { EmbedData } from '../types/game'
+import { env } from '../utils/environment'
 import { normalizeIpfsUrl } from '../utils/sharedUtils'
 
 const defaultEmbedValues: EmbedData = {
-  title: 'DarumaBot',
+  title: `${env.ALGO_UNIT_NAME} Bot`,
   description: 'placeholder',
   color: 'DarkAqua',
   footer: {
@@ -71,7 +72,7 @@ export default function doEmbed(
         new ActionRowBuilder().addComponents(
           new ButtonBuilder()
             .setCustomId('select-player')
-            .setLabel('Choose your Daruma')
+            .setLabel(`Choose your ${env.ALGO_UNIT_NAME}`)
             .setStyle(ButtonStyle.Primary),
           new ButtonBuilder()
             .setCustomId('start-game')
@@ -79,7 +80,7 @@ export default function doEmbed(
             .setStyle(ButtonStyle.Secondary),
           new ButtonBuilder()
             .setCustomId('withdraw-player')
-            .setLabel('Withdraw Daruma')
+            .setLabel(`Withdraw ${env.ALGO_UNIT_NAME}`)
             .setStyle(ButtonStyle.Danger)
         )
       )

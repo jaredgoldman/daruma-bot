@@ -4,17 +4,18 @@ import { ButtonInteraction } from 'discord.js'
 
 // Globals
 import { games } from '../bot'
+import { env } from '../utils/environment'
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('withdraw-player')
-    .setDescription('withdraw your daruma from the '),
+    .setDescription(`Withdraw your ${env.ALGO_UNIT_NAME} from the game.`),
   /**
-   * Command to reemove a registered player from the game
-   * @param interaction {ButttonInteraction}
+   * Command to remove a registered player from the game
+   * @param interaction {ButtonInteraction}
    * @returns {void}
    */
-  async execute(interaction: ButtonInteraction) {
+  async execute(interaction: ButtonInteraction): Promise<void> {
     if (!interaction.isButton()) return
     const {
       channelId,
@@ -24,10 +25,13 @@ module.exports = {
     if (game.getPlayer(discordId)) {
       game.removePlayer(discordId)
       game.updateGame()
-      await interaction.reply({ content: 'Daruma withdrawn', ephemeral: true })
+      await interaction.reply({
+        content: `${env.ALGO_UNIT_NAME} withdrawn`,
+        ephemeral: true,
+      })
     } else {
       await interaction.reply({
-        content: "You're not registered",
+        content: `You do not have a ${env.ALGO_UNIT_NAME} currently entered!`,
         ephemeral: true,
       })
     }

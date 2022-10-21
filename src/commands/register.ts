@@ -21,7 +21,7 @@ import { Logger } from '../utils/logger'
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('register')
-    .setDescription('Register for When Darumas Attack')
+    .setDescription(`Register your wallet to battle your ${env.ALGO_UNIT_NAME}`)
     .addStringOption(option =>
       option
         .setName('address')
