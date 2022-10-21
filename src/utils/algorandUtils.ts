@@ -5,44 +5,29 @@ import { redisClient, redisKeys } from '../database/redis.service'
 import Asset from '../models/asset'
 import { algoCreatorAssets, algoUserAssets } from '../types/algosdk'
 import { TxnStatus } from '../types/token'
+import { env } from './environment'
+import { Logger } from './logger'
 
-const creatorAddresses = process.env.CREATOR_ADDRESSES as string
-const creatorAddressArr = creatorAddresses?.split(',')
-
-const pureStakeApi = process.env.PURESTAKE_API_TOKEN as string
-const algoNode =
-  process.env.ALGO_NODE || 'https://mainnet-algorand.api.purestake.io/ps2'
-const algoIndexerNode =
-  process.env.ALGO_INDEXER_NODE ||
-  'https://mainnet-algorand.api.purestake.io/idx2'
-export const optInAssetId = Number(process.env.OPT_IN_ASSET_ID) || 832356628 // This is the Daruma opt-in
-export const unitName = process.env.UNIT_NAME || 'Daruma'
-
-const tokenMnemonic = process.env.TOKEN_MNEMONIC || ''
+const creatorAddressArr = env.ALGO_CREATOR_ADDRESSES?.split(',')
 
 const token = {
-  'X-API-Key': pureStakeApi,
+  'X-API-Key': env.ALGO_PURESTAKE_API_TOKEN,
 }
-const server = algoNode
-const indexerServer = algoIndexerNode
-const port = ''
 
-const algodClient = new algosdk.Algodv2(token, server, port)
-const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
+const algodClient = new algosdk.Algodv2(token, env.ALGO_NODE, '')
+const algoIndexer = new algosdk.Indexer(token, env.ALGO_INDEXER_NODE, '')
 
 export const creatorAssetSync = async function (): Promise<boolean> {
   const assetsSynced = await redisClient.smembers(redisKeys.assetIds)
   if (assetsSynced.length > 0) {
-    console.log(
-      'Creator Assets are Synchronized with',
-      assetsSynced.length.toString(),
-      'Darumas'
+    Logger.debug(
+      `Creator Assets are Synchronized with ${assetsSynced.length.toString()} Darumas`
     )
     return true
   }
   let assetIdList: string[] = []
   for (let i = 0; i < creatorAddressArr.length; i++) {
-    console.log('Grabbing Creator assets from: ', creatorAddressArr[i])
+    Logger.debug(`Grabbing Creator assets from: ${creatorAddressArr[i]}`)
     let nextToken = ''
     let creatorAccountInfo: algoCreatorAssets
     //? Loop through all the creator accounts and gather assets
@@ -73,7 +58,7 @@ export const creatorAssetSync = async function (): Promise<boolean> {
       assetIdList.push(assetId.toString())
     }
   }
-  console.log('Adding Creator assets to Redis')
+  Logger.debug('Adding Creator assets to Redis')
   await redisClient.sadd(redisKeys.assetIds, ...assetIdList)
   //* Add the delay to prevent resync for 24 hours
   await redisClient.expire(redisKeys.assetIds, redisKeys.defaultExpiration * 24)
@@ -87,7 +72,7 @@ const userAssetIds = async function (userWallet: string): Promise<boolean> {
     .do()) as algoUserAssets
   for (let idx = 0; idx < accountInfo['assets'].length; idx++) {
     let scrutinizedAsset = accountInfo['assets'][idx]
-    if (scrutinizedAsset['asset-id'] == optInAssetId) {
+    if (scrutinizedAsset['asset-id'] == Number(env.ALGO_OPT_IN_ASSET_ID)) {
       optInCheck = true
     }
     if (scrutinizedAsset['amount'] > 0) {
@@ -95,7 +80,7 @@ const userAssetIds = async function (userWallet: string): Promise<boolean> {
       holderAssets.push(assetId)
     }
   }
-  console.log('Adding Users Wallet', userWallet, 'to Redis')
+  Logger.debug(`Adding Users Wallet ${userWallet} to Redis`)
   await redisClient.sadd(userWallet, ...holderAssets)
   await redisClient.expire(userWallet, redisKeys.defaultExpiration)
   return optInCheck
@@ -138,7 +123,7 @@ export const determineOwnership = async function (address: string): Promise<{
       nftsOwned,
     }
   } catch (error) {
-    console.log('****** ERROR DETERMINING OWNERSHIP ******', error)
+    Logger.error('****** ERROR DETERMINING OWNERSHIP ******', error)
     return {
       walletOwned: false,
       nftsOwned: [],
@@ -152,13 +137,13 @@ export const claimToken = async (
 ): Promise<TxnStatus | undefined> => {
   try {
     const params = await algodClient.getTransactionParams().do()
-    const { sk, addr: senderAddress } =
-      algosdk.mnemonicToSecretKey(tokenMnemonic)
+    const { sk, addr: senderAddress } = algosdk.mnemonicToSecretKey(
+      env.ALGO_TOKEN_MNEMONIC
+    )
 
     const revocationTarget = undefined
     const closeRemainderTo = undefined
     const note = undefined
-    const assetId = optInAssetId
 
     const xtxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
       senderAddress,
@@ -167,7 +152,7 @@ export const claimToken = async (
       revocationTarget,
       amount,
       note,
-      assetId,
+      Number(env.ALGO_OPT_IN_ASSET_ID),
       params
     )
     const rawSignedTxn = xtxn.signTxn(sk)
@@ -182,6 +167,6 @@ export const claimToken = async (
       txId: xtx.txId,
     }
   } catch (error) {
-    console.log(error)
+    Logger.error('Error', error)
   }
 }

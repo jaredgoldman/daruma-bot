@@ -1,4 +1,4 @@
-import { emojis } from '..'
+import { emojis } from '../bot'
 import boardConfig from '../config/board'
 import Player from '../models/player'
 import { RollData, RoundData } from '../types/attack'
