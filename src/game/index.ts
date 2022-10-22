@@ -1,4 +1,5 @@
-import { Message, TextChannel, AttachmentBuilder } from 'discord.js'
+import { AttachmentBuilder, Message, TextChannel } from 'discord.js'
+
 import { games } from '../bot'
 import { renderConfig } from '../config/board'
 import { Embeds } from '../constants/embeds'

@@ -1,4 +1,4 @@
-import { Attachment, AttachmentBuilder, ColorResolvable } from 'discord.js'
+import { AttachmentBuilder, ColorResolvable } from 'discord.js'
 
 import Player from '../models/player'
 
