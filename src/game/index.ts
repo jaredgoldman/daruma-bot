@@ -1,5 +1,4 @@
-import { AttachmentBuilder, Message, TextChannel } from 'discord.js'
-
+import { Message, TextChannel, AttachmentBuilder } from 'discord.js'
 import { games } from '../bot'
 import { renderConfig } from '../config/board'
 import { Embeds } from '../constants/embeds'
@@ -9,7 +8,6 @@ import { getChannelSettings } from '../database/operations/game'
 import Game from '../models/game'
 import Player from '../models/player'
 import { RenderPhases } from '../types/board'
-// import util from 'util'
 import { GameTypes } from '../types/game'
 import { Logger } from '../utils/logger'
 import { asyncForEach, wait } from '../utils/sharedUtils'
@@ -67,6 +65,7 @@ export default async function startWaitingRoom(
     await handleCommencingGameMessage(channel, game.getType())
     await wait(1500)
     await game.editEmbed(doEmbed(Embeds.activeGame, game))
+    await handleCommencingGameMessage(channel, game.getType())
     await handleGameLoop(game, channel)
     await win(game, channel)
     startWaitingRoom(channel)
@@ -84,7 +83,6 @@ const handleGameLoop = async (
   game: Game,
   channel: TextChannel
 ): Promise<void> => {
-  //TODO: MAke something better for the player message
   let channelMessage: Message
   const playerMessage = game
     .getPlayerArray()
