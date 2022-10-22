@@ -65,7 +65,6 @@ export default async function startWaitingRoom(
     await handleCommencingGameMessage(channel, game.getType())
     await wait(1500)
     await game.editEmbed(doEmbed(Embeds.activeGame, game))
-    await handleCommencingGameMessage(channel, game.getType())
     await handleGameLoop(game, channel)
     await win(game, channel)
     startWaitingRoom(channel)
