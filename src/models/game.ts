@@ -10,7 +10,9 @@ import { ChannelSettings, GameRoundState, GameTypes } from '../types/game'
 import Asset from './asset'
 import Encounter from './encounter'
 import Player from './player'
-
+import * as Logs from '../utils/logs.json'
+import { Logger } from '../utils/logger'
+import { error } from 'console'
 /**
  * Main game class
  */
@@ -372,7 +374,7 @@ export default class Game {
    */
   saveEncounter(): void {
     if (!this.winningPlayers.length) {
-      throw new Error('the game must have a winner to save an encounter')
+      Logger.error(Logs.warn.noWinningPlayers)
     }
 
     saveEncounterToDb(

@@ -10,5 +10,8 @@
     "clientLogin": "An error occurred while the client attempted to login.",
     "command": "An error occurred while processing a command interaction.",
     "button": "An error occurred while processing a button interaction."
+  },
+  "warn": {
+    "noWinningPlayers": "No winning players were present in game.winningPlayerArray - inidcates a bug in the game logic."
   }
 }
