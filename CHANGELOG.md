@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.1](https://github.com/ShoGinn/daruma-bot/compare/v1.1.0...v1.1.1) (2022-10-22)
+
+
+### Bug Fixes
+
+* add logger to game model, log if no winning players ([e5f8698](https://github.com/ShoGinn/daruma-bot/commit/e5f8698b3c65ddfaa9ac216d647ea6711b7aa456))
+* correct log level for save encounter log ([11f7d0b](https://github.com/ShoGinn/daruma-bot/commit/11f7d0b32b8c667eb4fcd4f8a26cedfb66707680))
+* fix error typo ([ff7d287](https://github.com/ShoGinn/daruma-bot/commit/ff7d28766309a0cd8f8d42c5286c242b204add19))
+
 ## [1.1.0](https://github.com/ShoGinn/daruma-bot/compare/v1.0.0...v1.1.0) (2022-10-22)
 
 
