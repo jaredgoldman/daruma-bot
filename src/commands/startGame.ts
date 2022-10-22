@@ -15,7 +15,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('start-game')
     .setDescription('start the game'),
-  enabled: true,
+  enabled: false,
   /**
    * Response to start game button
    * If user is admin or active player and enough players are registered

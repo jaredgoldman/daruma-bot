@@ -1,0 +1,52 @@
+---
+name: Node.js CI
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - README.md
+      - .github/**
+      - locales/**
+      - sounds/**
+      - package.json
+  pull_request:
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  commitlint:
+    name: Lint Commit Messages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v5.2.0
+  quality:
+    name: Lint Commit Messages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.11.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.11.0'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build --if-present
+  release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    environment: release
+    needs:
+      - commitlint
+      - quality
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        with:
+          release-type: node
+          package-name: darumabot

@@ -1,13 +1,9 @@
-import board from '../config/board'
-
 export enum Alignment {
   left = 'left',
   centered = 'centered',
   right = 'right',
   emoji = 'emoji',
 }
-
-const { emojiPadding } = board.getSettings()
 
 /**
  * function that takes a set length and inserts a string into said length
@@ -36,11 +32,12 @@ export const createCell = (
     case Alignment.right:
       indexToPrintContent = space - content.length
       break
-    case Alignment.centered:
+    case Alignment.centered: {
       const len = emoji ? 3 : content.length
       const median = Math.floor(space / 2)
       indexToPrintContent = median - Math.floor(len / 2)
       break
+    }
     default:
       indexToPrintContent = 0
   }

@@ -33,7 +33,7 @@ export default async function startWaitingRoom(
       game.addNpc()
     }
 
-    const { maxCapacity, turnRate } = settings
+    const { maxCapacity } = settings
 
     // Send first waiting room embed
     const waitingRoomEmbed = await channel.send(
@@ -64,7 +64,7 @@ export default async function startWaitingRoom(
     await wait(2000)
 
     game.setStatus(GameStatus.activeGame)
-
+    await game.editEmbed(doEmbed(Embeds.activeGame, game))
     await handleGameLoop(game, channel)
     await win(game, channel)
     await wait(4000)
@@ -79,7 +79,10 @@ export default async function startWaitingRoom(
  * @param game {Game}
  * @param channel {TextChannel}
  */
-const handleGameLoop = async (game: Game, channel: TextChannel) => {
+const handleGameLoop = async (
+  game: Game,
+  channel: TextChannel
+): Promise<void> => {
   //TODO: MAke something better for the player message
   let channelMessage: Message
   const playerMessage = game
@@ -102,7 +105,7 @@ const handleGameLoop = async (game: Game, channel: TextChannel) => {
         game.setCurrentPlayer(player, playerIndex)
         // for each render phase, pass enum to baord
         for (const phase in RenderPhases) {
-          const board = game.renderBoard(false, phase as RenderPhases)
+          const board = game.renderBoard(phase as RenderPhases)
 
           // if it's the first roll
           if (!channelMessage) {
