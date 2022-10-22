@@ -102,8 +102,9 @@ export default function doEmbed(
           .filter(Boolean) as { name: string; value: string }[],
       }
       break
-    case Embeds.win:
-      const player = options.player as Player
+    }
+    case Embeds.win: {
+      const player = options?.player as Player
       const isNpc = player.getIsNpc()
       data = {
         title: 'Game Over',
