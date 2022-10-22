@@ -1,4 +1,4 @@
-import { Message, TextChannel } from 'discord.js'
+import { AttachmentBuilder, Message, TextChannel } from 'discord.js'
 
 import { renderConfig } from '../config/board'
 import { Embeds } from '../constants/embeds'
@@ -9,7 +9,6 @@ import { games } from '../models/bot'
 import Game from '../models/game'
 import Player from '../models/player'
 import { RenderPhases } from '../types/board'
-// import util from 'util'
 import { GameTypes } from '../types/game'
 import { Logger } from '../utils/logger'
 import { asyncForEach, wait } from '../utils/sharedUtils'
@@ -28,8 +27,9 @@ export default async function startWaitingRoom(
     // console.log(util.inspect(game, false, null, true))
     const settings = await getChannelSettings(channel.id)
     game.addSettings(settings)
+    const gameType = game.getType()
 
-    if (game.getType() !== GameTypes.OneVsOne) {
+    if (gameType !== GameTypes.OneVsOne) {
       game.addNpc()
     }
 
@@ -61,13 +61,13 @@ export default async function startWaitingRoom(
       await wait(1000)
     }
 
-    await wait(2000)
-
     game.setStatus(GameStatus.activeGame)
+
+    await handleCommencingGameMessage(channel, game.getType())
+    await wait(1500)
     await game.editEmbed(doEmbed(Embeds.activeGame, game))
     await handleGameLoop(game, channel)
     await win(game, channel)
-    await wait(4000)
     startWaitingRoom(channel)
   } catch (error) {
     Logger.error('****** ERROR STARTING WAITING ROOM ******', error)
@@ -83,14 +83,14 @@ const handleGameLoop = async (
   game: Game,
   channel: TextChannel
 ): Promise<void> => {
-  //TODO: MAke something better for the player message
   let channelMessage: Message
   const playerMessage = game
     .getPlayerArray()
-    .map(
-      (player: Player, index: number) =>
-        `${index + 1} - <@${player.getDiscordId()}>`
-    )
+    .map((player: Player, index: number) => {
+      return player.getIsNpc()
+        ? `${index + 1} - ${player.getUsername()}`
+        : `${index + 1} - <@${player.getDiscordId()}>`
+    })
     .join('\n')
 
   let hasWon = false
@@ -127,4 +127,25 @@ const handleGameLoop = async (
       game.incrementRollIndex()
     }
   }
+}
+
+const handleCommencingGameMessage = async (
+  channel: TextChannel,
+  gameType: GameTypes
+): Promise<void> => {
+  let imagePath = ''
+  switch (gameType) {
+    case GameTypes.OneVsOne:
+      imagePath = 'src/assets/PVP.gif'
+      break
+    case GameTypes.OneVsNpc:
+      imagePath = 'src/assets/NPC_1V1.gif'
+      break
+    case GameTypes.FourVsNpc:
+      break
+    default:
+      break
+  }
+  const attachment = new AttachmentBuilder(imagePath)
+  await channel.send({ files: [attachment] })
 }
