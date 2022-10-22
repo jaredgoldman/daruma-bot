@@ -79,8 +79,7 @@ export default class Game {
     }
     this.players[player.getDiscordId()] = player
     // update games winning index
-    const { gameWinRollIndex, gameWinRoundIndex, rounds } =
-      player.getRoundsData()
+    const { gameWinRollIndex, gameWinRoundIndex } = player.getRoundsData()
 
     // console.log(util.inspect(rounds, false, null, true))
     this.compareAndSetWinningIndexes(gameWinRollIndex, gameWinRoundIndex)
@@ -212,7 +211,7 @@ export default class Game {
     return this.doUpdate
   }
 
-  updateGame = () => {
+  updateGame = (): void => {
     this.doUpdate = true
     setTimeout(() => {
       this.doUpdate = false
@@ -231,7 +230,7 @@ export default class Game {
     return this.embed
   }
 
-  async editEmbed(options: BaseMessageOptions) {
+  async editEmbed(options: BaseMessageOptions): Promise<void> {
     if (!this.embed) {
       throw new Error('No embed stored in game')
     }
@@ -441,7 +440,7 @@ export default class Game {
     return this.board
   }
 
-  renderBoard(isLastRender = false, renderPhase: RenderPhases): string {
+  renderBoard(renderPhase: RenderPhases): string {
     const board = renderBoard(
       this.getRollIndex(),
       this.getRoundIndex(),

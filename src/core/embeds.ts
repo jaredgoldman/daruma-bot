@@ -49,7 +49,7 @@ export default function doEmbed(
   const playerCount = game.getHasNpc() ? playerArr.length - 1 : playerArr.length
 
   switch (type) {
-    case Embeds.waitingRoom:
+    case Embeds.waitingRoom: {
       const playerWord = playerCount === 1 ? 'player' : 'players'
       const hasWord = playerCount === 1 ? 'has' : 'have'
 
@@ -85,13 +85,24 @@ export default function doEmbed(
         )
       )
       break
-    case Embeds.activeGame:
+    }
+    case Embeds.activeGame: {
       data = {
         title: 'Active Game',
         description: game.getBoard(),
+        fields: playerArr
+          .map(player => {
+            if (player.getIsNpc()) return
+            return {
+              name: player.getUsername(),
+              value: player.asset.alias || player.asset.name,
+            }
+          })
+          .filter(Boolean) as { name: string; value: string }[],
       }
       break
-    case Embeds.win:
+    }
+    case Embeds.win: {
       const player = options?.player as Player
       data = {
         title: 'Game Over',
@@ -99,6 +110,7 @@ export default function doEmbed(
         image: normalizeIpfsUrl(player.asset.url),
       }
       break
+    }
     default: {
       data = defaultEmbedValues
     }
@@ -125,9 +137,6 @@ export default function doEmbed(
 
   return {
     embeds: [embed],
-    //@ts-ignore
-    fetchReply: true,
-    //@ts-ignore
     components,
     files: files?.length ? files : undefined,
   }
