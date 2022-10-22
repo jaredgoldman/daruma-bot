@@ -1,5 +1,5 @@
 // Schema
-import { ObjectId, WithId } from 'mongodb'
+import { InsertOneResult, ObjectId, WithId } from 'mongodb'
 
 import User from '../../models/user'
 // Database
@@ -17,17 +17,20 @@ export const findUserByDiscordId = async (
     discordId,
   })) as WithId<User>
 
-export const updateUser = async (userData: User, discordId: string) => {
-  return await collections.users.findOneAndReplace({ discordId }, userData)
+export const updateUser = async (
+  userData: User,
+  discordId: string
+): Promise<void> => {
+  await collections.users.findOneAndReplace({ discordId }, userData)
 }
 
-export const saveUser = (userData: User) =>
-  collections.users.insertOne(userData)
+export const saveUser = async (
+  userData: User
+): Promise<InsertOneResult<User>> => await collections.users.insertOne(userData)
 
-export const updateUserKarma = async (discordId: string, karma: number) => {
-  return await collections.users.findOneAndUpdate(
-    { discordId },
-    //@ts-ignore
-    { $set: { karma } }
-  )
+export const updateUserKarma = async (
+  discordId: string,
+  karma: number
+): Promise<void> => {
+  await collections.users.findOneAndUpdate({ discordId }, { $set: { karma } })
 }

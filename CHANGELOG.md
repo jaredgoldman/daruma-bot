@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/ShoGinn/daruma-bot/compare/v1.0.0...v1.1.0) (2022-10-22)
+
+
+### Features
+
+* cleanup boards ([8181cea](https://github.com/ShoGinn/daruma-bot/commit/8181ceaf21216ff262870cfe730ff3eb9e69f6a8))
+
 ## 1.0.0 (2022-10-21)
 
 
