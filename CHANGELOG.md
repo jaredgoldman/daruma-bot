@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2](https://github.com/ShoGinn/daruma-bot/compare/v1.1.1...v1.1.2) (2022-10-22)
+
+
+### Bug Fixes
+
+* lint ([0ef560c](https://github.com/ShoGinn/daruma-bot/commit/0ef560c5e9c388c9ee343244742ab32db917caa4))
+* remove extra image handler ([2280d61](https://github.com/ShoGinn/daruma-bot/commit/2280d618b255f0513fd3cc2ada988c48c7758e4b))
+
 ## [1.1.1](https://github.com/ShoGinn/daruma-bot/compare/v1.1.0...v1.1.1) (2022-10-22)
 
 
