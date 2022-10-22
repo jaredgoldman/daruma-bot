@@ -120,6 +120,7 @@ export class Bot {
   private startGame = async (): Promise<void> => {
     try {
       const settings = await getSettings()
+      if (!settings) return
       // start game for each channel
       await asyncForEach(settings, async (settings: ChannelSettings) => {
         const channel = this.client.channels.cache.get(
