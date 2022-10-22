@@ -2,6 +2,7 @@ import { env } from './environment'
 
 export const asyncForEach = async (
   array: Array<any>,
+  // eslint-disable-next-line @typescript-eslint/ban-types
   callback: Function
 ): Promise<void> => {
   for (let index = 0; index < array.length; index++) {
