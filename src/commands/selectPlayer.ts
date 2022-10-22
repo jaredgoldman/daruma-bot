@@ -10,11 +10,11 @@ import {
 } from 'discord.js'
 
 // Data
-import { games } from '../bot'
 import { findUserByDiscordId } from '../database/operations/user'
 // Schemas
 // Globals
 import Asset from '../models/asset'
+import { games } from '../models/bot'
 import { env } from '../utils/environment'
 import { Logger } from '../utils/logger'
 

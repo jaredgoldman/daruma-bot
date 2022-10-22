@@ -3,11 +3,11 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 import { SelectMenuInteraction } from 'discord.js'
 
 // Data
-import { games } from '../bot'
 import { GameStatus } from '../constants/game'
 import { findUserByDiscordId } from '../database/operations/user'
 // Schemas
 import Asset from '../models/asset'
+import { games } from '../models/bot'
 import Player from '../models/player'
 // Helpers
 import { checkIfRegisteredPlayer } from '../utils/gameUtils'

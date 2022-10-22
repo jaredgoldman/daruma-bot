@@ -1,7 +1,7 @@
 // Discord
 import { Client, GatewayIntentBits } from 'discord.js'
 
-import { Bot } from './bot'
+import { Bot } from './models/bot'
 // Helpers
 import { env } from './utils/environment'
 import { Logger } from './utils/logger'
