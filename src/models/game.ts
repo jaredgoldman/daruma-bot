@@ -374,7 +374,7 @@ export default class Game {
    */
   saveEncounter(): void {
     if (!this.winningPlayers.length) {
-      Logger.error(Logs.warn.noWinningPlayers)
+      Logger.warn(Logs.warn.noWinningPlayers)
     }
 
     saveEncounterToDb(
