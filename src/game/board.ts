@@ -123,7 +123,7 @@ export const createAttackAndTotalRows = (
   rollIndex: number,
   roundIndex: number,
   renderPhase: RenderPhases
-) => {
+): string => {
   let rows = ``
   // For each player
   players.forEach((player: Player, index: number) => {
@@ -176,7 +176,7 @@ export const createAttackRow = (
   isTurn: boolean,
   renderPhase: RenderPhases,
   hasBeenTurn: boolean
-) => {
+): string => {
   let row = createWhitespace(emojiPadding)
   // let row = ''
   // grab the previous round
@@ -280,7 +280,7 @@ export const createTotalRow = (
   isTurn: boolean,
   hasBeenTurn: boolean,
   notTurnYet: boolean
-) => {
+): string => {
   const isFirstRound = roundIndex === 0
   let totalRowLabel = ''
   // for each round

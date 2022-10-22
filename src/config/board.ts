@@ -32,7 +32,15 @@ class BoardConfig {
     return this.cellWidth * this.turnsInRound + this.roundPadding
   }
 
-  getSettings() {
+  getSettings(): {
+    roundWidth: number
+    cellWidth: number
+    roundPadding: number
+    numOfRoundsVisible: number
+    emojiPadding: number
+    turnsInRound: number
+    attackRoundPadding: number
+  } {
     return {
       roundWidth: this.getRoundWidth(),
       cellWidth: this.cellWidth,

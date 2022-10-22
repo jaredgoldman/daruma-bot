@@ -1,5 +1,3 @@
-import board from '../config/board'
-
 export enum Alignment {
   left = 'left',
   centered = 'centered',
