@@ -3,10 +3,10 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 import { ButtonInteraction } from 'discord.js'
 
 // Data
-import { games } from '../bot'
 import { GameStatus } from '../constants/game'
 import { getChannelSettings } from '../database/operations/game'
 import { findUserByDiscordId } from '../database/operations/user'
+import { games } from '../models/bot'
 // Helpers
 import { confirmRole } from '../utils/discordUtils'
 import { env } from '../utils/environment'

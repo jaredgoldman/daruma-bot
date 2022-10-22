@@ -12,16 +12,16 @@ import {
 } from 'discord.js'
 import fs from 'node:fs'
 
-import gatherEmojis from './core/emojis'
-import { connectToDatabase } from './database/database.service'
-import { getSettings } from './database/operations/game'
-import { connectToRedis } from './database/redis.service'
-import startWaitingRoom from './game'
-import Game from './models/game'
-import { ChannelSettings } from './types/game'
-import { initLog, Logger } from './utils/logger'
-import * as Logs from './utils/logs.json'
-import { asyncForEach } from './utils/sharedUtils'
+import gatherEmojis from '../core/emojis'
+import { connectToDatabase } from '../database/database.service'
+import { getSettings } from '../database/operations/game'
+import { connectToRedis } from '../database/redis.service'
+import startWaitingRoom from '../game'
+import { ChannelSettings } from '../types/game'
+import { initLog, Logger } from '../utils/logger'
+import * as Logs from '../utils/logs.json'
+import { asyncForEach } from '../utils/sharedUtils'
+import Game from './game'
 
 export let games: { [key: string]: Game } = {}
 export let emojis: { [key: number | string]: string } = {}
@@ -143,7 +143,7 @@ export class Bot {
           ? file.replace('.ts', '')
           : file.replace('.js', '')
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const command = require(`./commands/${name}`)
+        const command = require(`../commands/${name}`)
         this.client.commands.set(command.data.name, command)
       }
     } catch (error) {
