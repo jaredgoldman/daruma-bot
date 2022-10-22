@@ -1,4 +1,7 @@
+// Discord
 import { Client, GuildEmoji } from 'discord.js'
+
+import { Logger } from '../utils/logger'
 
 const emojiConfig = {
   '3png': 'Ct',
@@ -10,6 +13,11 @@ const emojiConfig = {
   '3gif': '3_',
 }
 
+/**
+ * Grabs all necessary emojis from discord cache and makes available for easy use throughout game
+ * @param client
+ * @returns
+ */
 const gatherEmojis = (client: Client): Emojis => {
   const emojis: Emojis = {}
 
@@ -20,7 +28,7 @@ const gatherEmojis = (client: Client): Emojis => {
       ) as GuildEmoji
       emojis[key] = emoji.toString()
     } catch (error) {
-      console.log(`****** emoji ${value} is unsupported ******`, error)
+      Logger.error(`****** emoji ${value} is unsupported ******`, error)
     }
   })
 

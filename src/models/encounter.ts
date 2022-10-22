@@ -2,6 +2,9 @@ import { PlayerRoundsData } from '../types/attack'
 import { GameRoundState } from '../types/game'
 import Player from './player'
 
+/**
+ * A class representing a game round
+ */
 export default class Encounter {
   constructor(
     public winningPlayers: Player[],

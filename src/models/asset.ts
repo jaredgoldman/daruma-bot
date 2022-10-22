@@ -1,3 +1,6 @@
+/**
+ * Basic schema for NFT a user owns
+ */
 export default class Asset {
   public alias: string | undefined
   public localPath: string | undefined

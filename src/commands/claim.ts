@@ -1,4 +1,4 @@
-// Discrod
+// Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction, InteractionType } from 'discord.js'
 // Schemas
@@ -16,7 +16,7 @@ import { claimToken } from '../utils/algorandUtils'
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('claim')
-    .setDescription('claim your hoot!'),
+    .setDescription('claim your Karma'),
 
   enabled: true,
   /**

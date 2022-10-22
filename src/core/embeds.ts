@@ -8,16 +8,17 @@ import {
   AttachmentBuilder,
 } from 'discord.js'
 
-// Types/Constants
+// Schemas
 import { Embeds } from '../constants/embeds'
 // Helpers
 import Game from '../models/game'
 import Player from '../models/player'
 import { EmbedData } from '../types/game'
+import { env } from '../utils/environment'
 import { normalizeIpfsUrl } from '../utils/sharedUtils'
 
 const defaultEmbedValues: EmbedData = {
-  title: 'DarumaBot',
+  title: `${env.ALGO_UNIT_NAME} Bot`,
   description: 'placeholder',
   color: 'DarkAqua',
   footer: {
@@ -26,12 +27,21 @@ const defaultEmbedValues: EmbedData = {
   },
 }
 
-//type EmbedOptions = { player?: Player };
+type EmbedOptions = {
+  player?: Player
+}
 
+/**
+ * Abstraction for building embeds
+ * @param type {Embeds}
+ * @param game {Game}
+ * @param options {any}
+ * @returns
+ */
 export default function doEmbed(
   type: Embeds,
   game: Game,
-  options?: any
+  options?: EmbedOptions
 ): BaseMessageOptions {
   let data: EmbedData = defaultEmbedValues
   const components: any = []
@@ -40,7 +50,7 @@ export default function doEmbed(
   const playerCount = game.getHasNpc() ? playerArr.length - 1 : playerArr.length
 
   switch (type) {
-    case Embeds.waitingRoom:
+    case Embeds.waitingRoom: {
       const playerWord = playerCount === 1 ? 'player' : 'players'
       const hasWord = playerCount === 1 ? 'has' : 'have'
 
@@ -63,7 +73,7 @@ export default function doEmbed(
         new ActionRowBuilder().addComponents(
           new ButtonBuilder()
             .setCustomId('select-player')
-            .setLabel('Choose your Daruma')
+            .setLabel(`Choose your ${env.ALGO_UNIT_NAME}`)
             .setStyle(ButtonStyle.Primary),
           new ButtonBuilder()
             .setCustomId('start-game')
@@ -71,15 +81,25 @@ export default function doEmbed(
             .setStyle(ButtonStyle.Secondary),
           new ButtonBuilder()
             .setCustomId('withdraw-player')
-            .setLabel('Withdraw Daruma')
+            .setLabel(`Withdraw ${env.ALGO_UNIT_NAME}`)
             .setStyle(ButtonStyle.Danger)
         )
       )
       break
-    case Embeds.activeGame:
+    }
+    case Embeds.activeGame: {
       data = {
         title: 'Active Game',
         description: game.getBoard(),
+        fields: playerArr
+          .map(player => {
+            if (player.getIsNpc()) return
+            return {
+              name: player.getUsername(),
+              value: player.asset.alias || player.asset.name,
+            }
+          })
+          .filter(Boolean) as { name: string; value: string }[],
       }
       break
     case Embeds.win:
@@ -92,6 +112,7 @@ export default function doEmbed(
       if (isNpc) data.files = [new AttachmentBuilder('src/assets/NPC_Win.gif')]
       else data.image = normalizeIpfsUrl(player.asset.url)
       break
+    }
     default: {
       data = defaultEmbedValues
     }
@@ -118,9 +139,6 @@ export default function doEmbed(
 
   return {
     embeds: [embed],
-    //@ts-ignore
-    fetchReply: true,
-    //@ts-ignore
     components,
     files: files?.length ? files : undefined,
   }

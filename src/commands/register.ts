@@ -1,34 +1,27 @@
-// Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction } from 'discord.js'
 
+// Data
 import {
   findUserByDiscordId,
   findUserById,
   saveUser,
   updateUser,
 } from '../database/operations/user'
+// Schemas
 import Asset from '../models/asset'
 import User from '../models/user'
 import { RegistrationResult } from '../types/user'
-// Data
 // Helpers
-import {
-  determineOwnership,
-  optInAssetId,
-  unitName,
-} from '../utils/algorandUtils'
+import { determineOwnership } from '../utils/algorandUtils'
 import { addRole } from '../utils/discordUtils'
-// Schemas
-
-// Globals
-
-const registeredRoleId = process.env.REGISTERED_ID
+import { env } from '../utils/environment'
+import { Logger } from '../utils/logger'
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('register')
-    .setDescription('Register for When Darumas Attack')
+    .setDescription(`Register your wallet to battle your ${env.ALGO_UNIT_NAME}`)
     .addStringOption(option =>
       option
         .setName('address')
@@ -43,7 +36,7 @@ module.exports = {
    */
   async execute(interaction: Interaction) {
     if (!interaction.isChatInputCommand()) return
-    const { user, options, channelId } = interaction
+    const { user, options } = interaction
     const { username, id } = user
 
     const address = options.getString('address')
@@ -58,7 +51,7 @@ module.exports = {
     await interaction.deferReply({ ephemeral: true })
 
     await interaction.followUp({
-      content: 'This might take a while! Please be patient.',
+      content: `Validating how many ${env.ALGO_UNIT_NAME} you have!`,
       ephemeral: true,
     })
 
@@ -66,13 +59,12 @@ module.exports = {
       const { status, registeredUser } = await processRegistration(
         username,
         id,
-        address,
-        channelId
+        address
       )
 
       // add permissions if successful
-      if (registeredUser && registeredRoleId) {
-        addRole(interaction, registeredRoleId, registeredUser)
+      if (registeredUser && env.DISCORD_REGISTERED_ROLE_ID) {
+        addRole(interaction, env.DISCORD_REGISTERED_ROLE_ID, registeredUser)
       }
 
       await interaction.followUp({
@@ -94,8 +86,7 @@ module.exports = {
 export const processRegistration = async (
   username: string,
   discordId: string,
-  address: string,
-  channelId: string
+  address: string
 ): Promise<RegistrationResult> => {
   try {
     // Attempt to find user in db
@@ -103,10 +94,7 @@ export const processRegistration = async (
 
     // Check to see if wallet has opt-in asset
     // Retrieve assetIds from specific collections
-    const { walletOwned, nftsOwned } = await determineOwnership(
-      address,
-      channelId
-    )
+    const { walletOwned, nftsOwned } = await determineOwnership(address)
 
     const keyedNfts: { [key: string]: Asset } = {}
     nftsOwned.forEach((nft: Asset) => {
@@ -115,13 +103,13 @@ export const processRegistration = async (
 
     if (!nftsOwned?.length) {
       return {
-        status: `You have no ${unitName}s in this wallet. Please try again with a different address`,
+        status: `You have no ${env.ALGO_UNIT_NAME} in this wallet. Please try again with a different address`,
       }
     }
 
     if (!walletOwned) {
       return {
-        status: `Looks like you haven't opted in to to asset ${optInAssetId}. Please opt in on Rand Gallery by using this link: https://www.randgallery.com/algo-collection/?address=${optInAssetId}`,
+        status: `Looks like you haven't opted in to to asset ${env.ALGO_OPT_IN_ASSET_ID}. Please opt in on Rand Gallery by using this link: https://www.randgallery.com/algo-collection/?address=${env.ALGO_OPT_IN_ASSET_ID}`,
       }
     }
 
@@ -143,11 +131,11 @@ export const processRegistration = async (
     }
 
     return {
-      status: `Registration complete! Enjoy the game. -- You can always register again if you are missing some NFT's`,
+      status: `Registration complete added ${nftsOwned.length} ${env.ALGO_UNIT_NAME}! Enjoy the game. -- You can always register again if you are missing some ${env.ALGO_UNIT_NAME}`,
       registeredUser: user,
     }
   } catch (error) {
-    console.log('*** REGISTRATION ERROR ***', error)
+    Logger.error('*** REGISTRATION ERROR ***', error)
     return {
       status: 'Something went wrong during registration, please try again',
     }

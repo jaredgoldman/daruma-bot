@@ -1,24 +1,27 @@
 // Discord
-import { SlashCommandBuilder } from '@discordjs/builders'
+import {
+  MessageActionRowComponentBuilder,
+  SlashCommandBuilder,
+} from '@discordjs/builders'
 import {
   ActionRowBuilder,
   ButtonInteraction,
   SelectMenuBuilder,
 } from 'discord.js'
-// Data
-// Schemas
-import { WithId } from 'mongodb'
 
+// Data
+import { games } from '../bot'
+import { findUserByDiscordId } from '../database/operations/user'
+// Schemas
 // Globals
-import { collections } from '../database/database.service'
-import { games } from '../index'
 import Asset from '../models/asset'
-import User from '../models/user'
+import { env } from '../utils/environment'
+import { Logger } from '../utils/logger'
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('select-player')
-    .setDescription(`Pick which Daruma you'd like to compete`),
+    .setDescription(`Pick which ${env.ALGO_UNIT_NAME} you'd like to compete`),
   /**
    * Sends a select menu to user to pick asset for registration
    * @param interaction {ButtonInteraction}
@@ -35,7 +38,7 @@ module.exports = {
       const settings = game.getSettings()
 
       if (!settings) {
-        return interaction.reply({
+        return await interaction.reply({
           content: `There are no settings for this game`,
           ephemeral: true,
         })
@@ -43,9 +46,7 @@ module.exports = {
 
       await interaction.deferReply({ ephemeral: true })
 
-      const user = (await collections.users.findOne({
-        discordId: id,
-      })) as WithId<User>
+      const user = await findUserByDiscordId(id)
 
       if (user === null) {
         return await interaction.editReply({
@@ -57,7 +58,7 @@ module.exports = {
 
       if (!userAssetsArr.length) {
         return await interaction.editReply({
-          content: 'You have no Darumas to select!',
+          content: `You have no ${env.ALGO_UNIT_NAME} to select!`,
         })
       }
 
@@ -78,24 +79,25 @@ module.exports = {
         description: string
         value: string
       }[]
-
-      const selectMenu = new SelectMenuBuilder()
-        .setCustomId('register-player')
-        .setPlaceholder('Select an Daruma to attack')
-
-      if (options.length) {
-        selectMenu.addOptions(options)
-      }
-
-      const row = new ActionRowBuilder().addComponents(selectMenu)
+      let components: ActionRowBuilder<MessageActionRowComponentBuilder>[] = []
+      components.push(
+        new ActionRowBuilder({
+          components: [
+            new SelectMenuBuilder()
+              .setCustomId('register-player')
+              .setMinValues(1)
+              .setPlaceholder(`Select a ${env.ALGO_UNIT_NAME} to attack`)
+              .setOptions(options),
+          ],
+        })
+      )
 
       await interaction.editReply({
-        content: 'Choose your Daruma',
-        //@ts-ignore
-        components: [row],
+        content: `Choose your ${env.ALGO_UNIT_NAME}`,
+        components,
       })
     } catch (error) {
-      console.log('****** ERROR SELECTING ******', error)
+      Logger.error('****** ERROR SELECTING PLAYER******', error)
     }
   },
 }

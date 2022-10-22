@@ -1,17 +1,19 @@
 import { AttachmentBuilder, Message, TextChannel } from 'discord.js'
 
+import { games } from '../bot'
+import { renderConfig } from '../config/board'
 import { Embeds } from '../constants/embeds'
+import { GameStatus } from '../constants/game'
 import doEmbed from '../core/embeds'
 import { getChannelSettings } from '../database/operations/game'
-import Game, { GameStatus } from '../models/game'
+import Game from '../models/game'
 import Player from '../models/player'
 import { RenderPhases } from '../types/board'
 // import util from 'util'
 import { GameTypes } from '../types/game'
+import { Logger } from '../utils/logger'
 import { asyncForEach, wait } from '../utils/sharedUtils'
 import win from './win'
-import { games } from '../'
-import { renderConfig } from '../config/board'
 
 /**
  * Start game waiting room
@@ -64,14 +66,20 @@ export default async function startWaitingRoom(
 
     await handleCommencingGameMessage(channel, game.getType())
     await wait(1500)
+    await game.editEmbed(doEmbed(Embeds.activeGame, game))
     await handleGameLoop(game, channel)
     await win(game, channel)
     startWaitingRoom(channel)
   } catch (error) {
-    console.log('****** ERROR STARTING WAITING ROOM ******', error)
+    Logger.error('****** ERROR STARTING WAITING ROOM ******', error)
   }
 }
 
+/**
+ * Handle main game loop
+ * @param game {Game}
+ * @param channel {TextChannel}
+ */
 const handleGameLoop = async (
   game: Game,
   channel: TextChannel
@@ -99,7 +107,7 @@ const handleGameLoop = async (
         game.setCurrentPlayer(player, playerIndex)
         // for each render phase, pass enum to baord
         for (const phase in RenderPhases) {
-          const board = game.renderBoard(false, phase as RenderPhases)
+          const board = game.renderBoard(phase as RenderPhases)
 
           // if it's the first roll
           if (!channelMessage) {

@@ -1,18 +1,21 @@
+// Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { ButtonInteraction } from 'discord.js'
 
-// Discord
+// Data
+import { games } from '../bot'
+import { GameStatus } from '../constants/game'
 import { getChannelSettings } from '../database/operations/game'
 import { findUserByDiscordId } from '../database/operations/user'
-import { games } from '../index'
-import { GameStatus } from '../models/game'
+// Helpers
 import { confirmRole } from '../utils/discordUtils'
+import { env } from '../utils/environment'
 
-const adminId = process.env.ADMIN_ROLE_ID || ''
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('start-game')
     .setDescription('start the game'),
+  enabled: false,
   /**
    * Response to start game button
    * If user is admin or active player and enough players are registered
@@ -35,7 +38,11 @@ module.exports = {
     await interaction.deferReply({ ephemeral: true })
     // if user is either registered OR admin
     const user = await findUserByDiscordId(discordId)
-    const isUserAdmin = confirmRole(adminId, interaction, discordId)
+    const isUserAdmin = confirmRole(
+      env.DISCORD_ADMIN_ROLE_ID,
+      interaction,
+      discordId
+    )
     if (!game.getPlayer(user.discordId) && !isUserAdmin) {
       interaction.editReply({
         content: 'You cannot start the game if you are not registered',

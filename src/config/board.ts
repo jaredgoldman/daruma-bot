@@ -1,5 +1,9 @@
+// Schema
 import { RenderPhases } from '../types/board'
-
+/**
+ * Configuration for board rendering
+ * Includes rendering settings and board sizing
+ */
 class BoardConfig {
   private cellWidth: number
   private roundPadding: number
@@ -28,7 +32,15 @@ class BoardConfig {
     return this.cellWidth * this.turnsInRound + this.roundPadding
   }
 
-  getSettings() {
+  getSettings(): {
+    roundWidth: number
+    cellWidth: number
+    roundPadding: number
+    numOfRoundsVisible: number
+    emojiPadding: number
+    turnsInRound: number
+    attackRoundPadding: number
+  } {
     return {
       roundWidth: this.getRoundWidth(),
       cellWidth: this.cellWidth,

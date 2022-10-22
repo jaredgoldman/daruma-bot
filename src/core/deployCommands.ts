@@ -1,10 +1,12 @@
 // Discord
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord.js'
-// Node
+// Helpers
 import fs from 'node:fs'
 
-import { clientId, guildId, token } from '../index'
+// Globals
+import { env } from '../utils/environment'
+import { Logger } from '../utils/logger'
 
 const commands = []
 
@@ -19,12 +21,19 @@ for (const file of commandFiles) {
     commands.push(command.data.toJSON())
   }
 }
-const rest = new REST({ version: '9' }).setToken(token)
-
+const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN)
 rest
-  .put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
+  .put(
+    Routes.applicationGuildCommands(
+      env.DISCORD_CLIENT_ID,
+      env.DISCORD_GUILD_ID
+    ),
+    {
+      body: commands,
+    }
+  )
   .then(() => {
-    console.log('Successfully registered application commands.')
+    Logger.info('Successfully registered application commands.')
     process.exit()
   })
   .catch(console.error)

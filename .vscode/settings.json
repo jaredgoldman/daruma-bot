@@ -12,6 +12,22 @@
     "editor.formatOnSave": true
   },
   "cSpell.enabled": true,
-  "cSpell.words": ["acfg", "Daruma", "IPFS", "setex", "txns"],
-  "typescript.preferences.importModuleSpecifierEnding": "js"
+  "cSpell.words": [
+    "acfg",
+    "algod",
+    "Algodv",
+    "Algorand",
+    "algosdk",
+    "Daruma",
+    "Darumas",
+    "discordjs",
+    "envalid",
+    "initdate",
+    "IPFS",
+    "pino",
+    "Purestake",
+    "setex",
+    "txns",
+    "xtxn"
+  ]
 }
