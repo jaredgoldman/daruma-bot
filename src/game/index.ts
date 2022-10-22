@@ -1,11 +1,11 @@
 import { Message, TextChannel } from 'discord.js'
 
-import { games } from '../bot'
 import { renderConfig } from '../config/board'
 import { Embeds } from '../constants/embeds'
 import { GameStatus } from '../constants/game'
 import doEmbed from '../core/embeds'
 import { getChannelSettings } from '../database/operations/game'
+import { games } from '../models/bot'
 import Game from '../models/game'
 import Player from '../models/player'
 import { RenderPhases } from '../types/board'

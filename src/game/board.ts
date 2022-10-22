@@ -1,6 +1,6 @@
 // Configs
-import { emojis } from '../bot'
 import boardConfig from '../config/board'
+import { emojis } from '../models/bot'
 // Schema
 import Player from '../models/player'
 import { RollData, RoundData } from '../types/attack'

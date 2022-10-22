@@ -3,7 +3,7 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 import { ButtonInteraction } from 'discord.js'
 
 // Globals
-import { games } from '../bot'
+import { games } from '../models/bot'
 import { env } from '../utils/environment'
 
 module.exports = {
