@@ -4,15 +4,15 @@ import { ObjectId } from 'mongodb'
 import { GameStatus } from '../constants/game'
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { renderBoard } from '../game/board'
+import * as GameImages from '../game/images.json'
 import { PlayerRoundsData } from '../types/attack'
 import { RenderPhases } from '../types/board'
 import { ChannelSettings, GameRoundState, GameTypes } from '../types/game'
+import { Logger } from '../utils/logger'
+import * as Logs from '../utils/logs.json'
 import Asset from './asset'
 import Encounter from './encounter'
 import Player from './player'
-import * as Logs from '../utils/logs.json'
-import { Logger } from '../utils/logger'
-import { error } from 'console'
 /**
  * Main game class
  */
@@ -250,7 +250,7 @@ export default class Game {
         'Karasu',
         'npcDiscordId',
         '1234567',
-        new Asset('', 12345, 'Karasu', 'Karasu'),
+        new Asset(GameImages.Karasu.url, 12345, 'Karasu', 'Karasu'),
         new ObjectId('123456789012'),
         true
       )
