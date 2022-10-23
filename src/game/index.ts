@@ -1,4 +1,4 @@
-import { AttachmentBuilder, Message, TextChannel } from 'discord.js'
+import { Message, TextChannel } from 'discord.js'
 
 import { renderConfig } from '../config/board'
 import { Embeds } from '../constants/embeds'
@@ -12,8 +12,8 @@ import { RenderPhases } from '../types/board'
 import { GameTypes } from '../types/game'
 import { Logger } from '../utils/logger'
 import { asyncForEach, wait } from '../utils/sharedUtils'
+import * as GameImages from './images.json'
 import win from './win'
-
 /**
  * Start game waiting room
  * @param channel {TextChannel}
@@ -68,6 +68,7 @@ export default async function startWaitingRoom(
     await game.editEmbed(doEmbed(Embeds.activeGame, game))
     await handleGameLoop(game, channel)
     await win(game, channel)
+    await game.getEmbed().delete()
     startWaitingRoom(channel)
   } catch (error) {
     Logger.error('****** ERROR STARTING WAITING ROOM ******', error)
@@ -136,16 +137,16 @@ const handleCommencingGameMessage = async (
   let imagePath = ''
   switch (gameType) {
     case GameTypes.OneVsOne:
-      imagePath = 'src/assets/PVP.gif'
+      imagePath = GameImages.OneVsOne.url
       break
     case GameTypes.OneVsNpc:
-      imagePath = 'src/assets/NPC_1V1.gif'
+      imagePath = GameImages.OneVsNpc.url
       break
     case GameTypes.FourVsNpc:
+      imagePath = GameImages.FourVsNpc.url
       break
     default:
       break
   }
-  const attachment = new AttachmentBuilder(imagePath)
-  await channel.send({ files: [attachment] })
+  await channel.send({ files: [imagePath] })
 }

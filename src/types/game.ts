@@ -1,4 +1,4 @@
-import { AttachmentBuilder, ColorResolvable } from 'discord.js'
+import { Attachment, ColorResolvable } from 'discord.js'
 
 import Player from '../models/player'
 
@@ -16,7 +16,7 @@ export interface EmbedData {
   countDown?: number
   player?: Player
   winByTimeout?: boolean
-  files?: AttachmentBuilder[]
+  files?: Attachment[]
   board?: string
 }
 
