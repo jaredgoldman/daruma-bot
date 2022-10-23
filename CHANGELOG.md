@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/ShoGinn/daruma-bot/compare/v1.1.2...v1.2.0) (2022-10-23)
+
+
+### Features
+
+* move images to a json ([#16](https://github.com/ShoGinn/daruma-bot/issues/16)) ([#17](https://github.com/ShoGinn/daruma-bot/issues/17)) ([d5081b6](https://github.com/ShoGinn/daruma-bot/commit/d5081b656784ea4f63a6eed9270cd7d3a5298935))
+
 ## [1.1.2](https://github.com/ShoGinn/daruma-bot/compare/v1.1.1...v1.1.2) (2022-10-22)
 
 
