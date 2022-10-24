@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - uses: wagoid/commitlint-github-action@v5.2.0
+      - uses: wagoid/commitlint-github-action@v5.2.2
   quality:
     name: Build the Node
     runs-on: ubuntu-latest
