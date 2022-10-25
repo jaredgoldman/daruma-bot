@@ -53,23 +53,20 @@ export default class Player {
       let karma = user.karma
       let wins = this.asset.wins
       let losses = this.asset.losses
-      const gamesPlayed = this.asset?.gamesPlayed || 0
 
       const coolDownDoneDate = Date.now() + coolDown
+
       if (this.isWinner) {
         karma += awardOnWin
-        wins = 1
+        wins += 1
       } else {
         losses += 1
       }
-
       const asset: Asset = {
         ...this.asset,
         wins,
         losses,
-        gamesPlayed,
       }
-
       const updatedUserData: User = {
         ...user,
         karma,

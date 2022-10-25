@@ -5,7 +5,6 @@ export default class Asset {
   public alias: string | undefined
   public wins: number
   public losses: number
-  public gamesPlayed: number
   constructor(
     public url: string,
     public id: number,
@@ -15,6 +14,5 @@ export default class Asset {
     this.alias = undefined
     this.wins = 0
     this.losses = 0
-    this.gamesPlayed = 0
   }
 }
