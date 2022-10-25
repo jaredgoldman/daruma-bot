@@ -119,16 +119,18 @@ export class Bot {
   }
   private startGame = async (): Promise<void> => {
     try {
-      const settings = await getSettings()
       // start game for each channel
-      await asyncForEach(settings, async (settings: ChannelSettings) => {
-        const channel = this.client.channels.cache.get(
-          settings.channelId
-        ) as TextChannel
-        const newGame = new Game(settings)
-        games[settings.channelId] = newGame
-        startWaitingRoom(channel)
-      })
+      await asyncForEach(
+        await getSettings(),
+        async (settings: ChannelSettings) => {
+          const channel = this.client.channels.cache.get(
+            settings.channelId
+          ) as TextChannel
+          const newGame = new Game(settings)
+          games[settings.channelId] = newGame
+          startWaitingRoom(channel)
+        }
+      )
     } catch (error) {
       Logger.error('****** ERROR STARTING GAMES ******', error)
     }

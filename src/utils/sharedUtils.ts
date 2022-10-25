@@ -36,7 +36,7 @@ export const randomSort = (arr: any[]): any[] => {
   return arr
 }
 
-export const isIpfs = (url: string): boolean => url?.slice(0, 4) === 'ipfs'
+const isIpfs = (url: string): boolean => url?.slice(0, 4) === 'ipfs'
 
 export const normalizeIpfsUrl = (url: string): string => {
   if (isIpfs(url)) {

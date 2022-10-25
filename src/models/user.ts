@@ -13,7 +13,7 @@ export default class User {
   constructor(
     public username: string,
     public discordId: string,
-    public address: string,
+    public walletAddress: string,
     public assets: { [key: string]: Asset }
   ) {
     this.karma = 0
@@ -25,7 +25,7 @@ export default class User {
   }
 }
 
-export interface Enhancer {
+interface Enhancer {
   type: EnhancerType
   owned: boolean
   // Can add modifiers here

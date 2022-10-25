@@ -44,5 +44,3 @@ export async function connectToDatabase(): Promise<void> {
   })
   await client.connect()
 }
-
-export { db }

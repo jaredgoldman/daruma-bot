@@ -20,7 +20,7 @@ module.exports = {
 
   enabled: true,
   /**
-   * Allows user to initiate transfer oftoken to own wallet
+   * Allows user to initiate transfer of token to own wallet
    * @param interaction {Interaction}
    * @returns {void}
    */
@@ -41,7 +41,7 @@ module.exports = {
         })
       }
 
-      const { karma, address } = userData
+      const { karma, walletAddress } = userData
 
       if (!karma) {
         return await interaction.editReply({
@@ -51,13 +51,13 @@ module.exports = {
 
       await updateUserKarma(user.id, 0)
 
-      const txnData = await claimToken(karma, address)
+      const txnData = await claimToken(karma, walletAddress)
       if (txnData) {
         saveWithdrawal(
           new Withdrawal(
             user.id,
             karma,
-            address,
+            walletAddress,
             txnData.txId,
             new Date(Date.now()).toTimeString()
           )

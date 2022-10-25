@@ -1,4 +1,6 @@
-export interface creatorAsset {
+import PendingTransactionInformation from 'algosdk/dist/types/src/client/v2/algod/pendingTransactionInformation'
+
+interface creatorAsset {
   'created-at-round': number
   deleted: boolean
   index: number
@@ -26,7 +28,7 @@ export interface algoCreatorAssets {
   'next-token': string
 }
 
-export interface userAsset {
+interface userAsset {
   amount: any
   'asset-id': number
   deleted: boolean
@@ -39,4 +41,9 @@ export interface algoUserAssets {
   assets: userAsset[]
   'current-round': number
   'next-token': string
+}
+
+export type TxnStatus = {
+  status: PendingTransactionInformation
+  txId: string
 }

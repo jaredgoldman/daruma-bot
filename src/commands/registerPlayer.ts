@@ -28,7 +28,7 @@ module.exports = {
       const channelId = interaction.channelId
       const game = games[channelId]
 
-      if (game.getStatus() !== GameStatus.waitingRoom) return
+      if (game.status !== GameStatus.waitingRoom) return
 
       const { values, user } = interaction
       const assetId = values[0]
@@ -44,16 +44,15 @@ module.exports = {
       }
       // Check for game capacity, allow already registered user to re-register
       // even if capacity is full
-      if (game.getPlayerCount() < maxCapacity || game.getPlayer(discordId)) {
+      if (game.playerCount < maxCapacity || game.getPlayer(discordId)) {
         await interaction.deferReply({ ephemeral: true })
 
-        const { address, _id, coolDowns, assets } = await findUserByDiscordId(
-          user.id
-        )
+        const { walletAddress, _id, coolDowns, assets } =
+          await findUserByDiscordId(user.id)
 
         const asset: Asset = assets[assetId]
 
-        // Handle cooldown for asset
+        // Handle coolDown for asset
         const coolDown = coolDowns ? coolDowns[assetId] : null
         if (coolDown && coolDown > Date.now()) {
           const minutesLeft = Math.floor((coolDown - Date.now()) / 60000)
@@ -73,22 +72,25 @@ module.exports = {
         }
 
         // check again for capacity once added
-        if (
-          game.getPlayerCount() >= maxCapacity &&
-          !game.getPlayer(discordId)
-        ) {
+        if (game.playerCount >= maxCapacity && !game.getPlayer(discordId)) {
           return await interaction.editReply(
             'Sorry, the game is at capacity, please wait until the next round'
           )
         }
 
         // Finally, add player to game
-        const newPlayer = new Player(username, discordId, address, asset, _id)
+        const newPlayer = new Player(
+          username,
+          discordId,
+          walletAddress,
+          asset,
+          _id
+        )
         game.addPlayer(newPlayer)
         await interaction.editReply(
           `${asset.alias || asset.name} has entered the game`
         )
-        game.updateGame()
+        game.doUpdate = true
       } else {
         interaction.reply({
           content:

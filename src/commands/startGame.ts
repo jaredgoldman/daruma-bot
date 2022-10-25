@@ -33,7 +33,7 @@ module.exports = {
     const { minCapacity } = await getChannelSettings(channelId)
 
     // if game is in waiting room
-    if (game.getStatus() !== GameStatus.waitingRoom) return
+    if (game.status !== GameStatus.waitingRoom) return
 
     await interaction.deferReply({ ephemeral: true })
     // if user is either registered OR admin
@@ -50,14 +50,14 @@ module.exports = {
     }
 
     // if we are above min capacity of players
-    if (game.getPlayerCount() < minCapacity) {
+    if (game.playerCount < minCapacity) {
       return await interaction.editReply({
         content: `You cannot start the game with less than ${minCapacity} players`,
       })
     }
 
     // start game
-    game.setStatus(GameStatus.activeGame)
+    game.status = GameStatus.activeGame
     interaction.editReply('Game started')
   },
 }

@@ -8,22 +8,14 @@ import {
 } from 'discord.js'
 
 // Schemas
-import { Embeds } from '../constants/embeds'
+import { GameStatus } from '../constants/game'
 // Helpers
+import * as GameImages from '../game/images.json'
 import Game from '../models/game'
 import Player from '../models/player'
-import { EmbedData } from '../types/game'
+import { GameTypes } from '../types/game'
 import { env } from '../utils/environment'
 import { normalizeIpfsUrl } from '../utils/sharedUtils'
-const defaultEmbedValues: EmbedData = {
-  title: `${env.ALGO_UNIT_NAME} Bot`,
-  description: 'placeholder',
-  color: 'DarkAqua',
-  footer: {
-    text: 'placeholder',
-    iconUrl: '#',
-  },
-}
 
 type EmbedOptions = {
   player?: Player
@@ -31,41 +23,35 @@ type EmbedOptions = {
 
 /**
  * Abstraction for building embeds
- * @param type {Embeds}
+ * @param type {GameStatus}
  * @param game {Game}
  * @param options {any}
  * @returns
  */
 export default function doEmbed(
-  type: Embeds,
+  type: GameStatus,
   game: Game,
   options?: EmbedOptions
 ): BaseMessageOptions {
-  let data: EmbedData = defaultEmbedValues
+  const embed = new EmbedBuilder()
+    .setTitle(`${env.ALGO_UNIT_NAME} Bot`)
+    .setColor('DarkAqua')
+
   const components: any = []
+  const playerArr = game.playerArray
+  const playerCount = game.hasNpc ? playerArr.length - 1 : playerArr.length
+  const playerWord = playerCount === 1 ? 'player' : 'players'
+  const hasWord = playerCount === 1 ? 'has' : 'have'
 
-  const playerArr = game.getPlayerArray()
-  const playerCount = game.getHasNpc() ? playerArr.length - 1 : playerArr.length
-
+  //const playerCount = playerArr.length
   switch (type) {
-    case Embeds.waitingRoom: {
-      const playerWord = playerCount === 1 ? 'player' : 'players'
-      const hasWord = playerCount === 1 ? 'has' : 'have'
-
-      data = {
-        title: 'Waiting Room',
-        description: `${playerCount} ${playerWord} ${hasWord} joined the game.`,
-        files: [],
-        fields: playerArr
-          .map(player => {
-            if (player.getIsNpc()) return
-            return {
-              name: player.getUsername(),
-              value: player.asset.alias || player.asset.name,
-            }
-          })
-          .filter(Boolean) as { name: string; value: string }[],
-      }
+    case GameStatus.waitingRoom: {
+      embed
+        .setTitle(`${game.type.toString()} - Waiting Room`)
+        .setDescription(
+          `${playerCount} ${playerWord} ${hasWord} joined the game.`
+        )
+        .setFields(playerArrFields(playerArr))
 
       components.push(
         new ActionRowBuilder().addComponents(
@@ -85,58 +71,70 @@ export default function doEmbed(
       )
       break
     }
-    case Embeds.activeGame: {
-      data = {
-        title: 'Active Game',
-        description: game.getBoard(),
-        fields: playerArr
-          .map(player => {
-            if (player.getIsNpc()) return
-            return {
-              name: player.getUsername(),
-              value: player.asset.alias || player.asset.name,
-            }
-          })
-          .filter(Boolean) as { name: string; value: string }[],
-      }
+    case GameStatus.activeGame: {
+      const playerMessage = game.playerArray
+        .map((player: Player, index: number) => {
+          return player.isNpc
+            ? `${index + 1} - <@${player.discordId}>`
+            : `${index + 1} - <@${player.discordId}>`
+        })
+        .join('\n')
+      embed
+        .setTitle('Enjoy the battle!')
+        .setDescription(`${game.type}`)
+        .setFields(playerArrFields(playerArr))
+        .setImage(handleCommencingGameMessage(game.type))
+        .addFields([{ name: `Players`, value: playerMessage }])
       break
     }
-    case Embeds.win: {
+    case GameStatus.win: {
       const player = options?.player as Player
-      data = {
-        title: 'Game Over',
-        description: `${player.getUsername()} won the game!`,
-        image: normalizeIpfsUrl(player.asset.url),
-      }
+      embed
+        .setTitle('Game Over')
+        .setDescription(`${player.username} WON the game!`)
+        .setImage(normalizeIpfsUrl(player.asset.url))
+
       break
     }
-    default: {
-      data = defaultEmbedValues
-    }
   }
-
-  const { title, description, color, image, thumbNail, fields, footer, files } =
-    data
-
-  const embed = new EmbedBuilder()
-
-  let thumbNailUrl
-
-  if (thumbNail) {
-    thumbNailUrl = normalizeIpfsUrl(thumbNail)
-  }
-
-  title && embed.setTitle(title)
-  description && embed.setDescription(description)
-  color && embed.setColor(color)
-  image && embed.setImage(image)
-  thumbNailUrl && embed.setThumbnail(thumbNailUrl)
-  fields?.length && embed.addFields(fields)
-  footer && embed.setFooter(footer)
 
   return {
     embeds: [embed],
     components,
-    files: files?.length ? files : undefined,
   }
+}
+
+const handleCommencingGameMessage = (gameType: GameTypes): string => {
+  let imagePath = ''
+  switch (gameType) {
+    case GameTypes.OneVsOne:
+      imagePath = GameImages.OneVsOne.url
+      break
+    case GameTypes.OneVsNpc:
+      imagePath = GameImages.OneVsNpc.url
+      break
+    case GameTypes.FourVsNpc:
+      imagePath = GameImages.FourVsNpc.url
+      break
+    default:
+      break
+  }
+  return imagePath
+}
+
+const playerArrFields = (
+  playerArr: Player[]
+): {
+  name: string
+  value: string
+}[] => {
+  return playerArr
+    .map(player => {
+      if (player.isNpc) return
+      return {
+        name: player.username,
+        value: player.asset.alias || player.asset.name,
+      }
+    })
+    .filter(Boolean) as { name: string; value: string }[]
 }

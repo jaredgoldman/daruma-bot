@@ -1,9 +1,9 @@
 import { ObjectId } from 'mongodb'
 
 import { findUserByDiscordId, updateUser } from '../database/operations/user'
-import { PlayerRoundsData, RoundData } from '../types/attack'
+import { PlayerRoundsData } from '../types/attack'
 import { ChannelSettings } from '../types/game'
-import { completeGameForPlayer } from '../utils/attackUtils'
+import { PlayerDice } from '../utils/attackUtils'
 import { Logger } from '../utils/logger'
 import Asset from './asset'
 import User from './user'
@@ -13,101 +13,31 @@ import User from './user'
  * Represents a player registered in an active game
  */
 export default class Player {
-  private roundsData: PlayerRoundsData
-  private discordId: string
-  private address: string
+  public roundsData: PlayerRoundsData
+  public discordId: string
+  private walletAddress: string
   private userId: ObjectId
-  private isWinner: boolean
-  private username: string
-  private isNpc: boolean
-
+  public isWinner: boolean
+  public username: string
+  public isNpc: boolean
+  public asset: Asset
   constructor(
     username: string,
     discordId: string,
-    address: string,
+    walletAddress: string,
     asset: Asset,
     userId: ObjectId,
     isNpc: boolean = false
   ) {
-    this.roundsData = completeGameForPlayer()
+    this.roundsData = PlayerDice.completeGameForPlayer()
     this.username = username
     this.discordId = discordId
-    this.address = address
+    this.walletAddress = walletAddress
     this.asset = asset
     this.userId = userId
     this.isWinner = false
     this.isNpc = isNpc
   }
-
-  /*
-   * Rolls1
-   */
-
-  getRoundsData(): PlayerRoundsData {
-    return this.roundsData
-  }
-
-  getRoundsLength(): number {
-    return this.roundsData.rounds.length
-  }
-
-  setRoundsData(roundsData: PlayerRoundsData): void {
-    this.roundsData = roundsData
-  }
-
-  getRounds(): Array<RoundData> {
-    return this.roundsData.rounds
-  }
-
-  /*
-   * Asset
-   */
-  asset: Asset
-  getAsset(): Asset {
-    return this.asset
-  }
-
-  /*
-   * WIn
-   */
-
-  getIsWinner(): boolean {
-    return this.isWinner
-  }
-
-  winGame(): void {
-    this.isWinner = true
-  }
-
-  /*
-   * Username
-   */
-  getUsername(): string {
-    return this.username
-  }
-
-  /*
-   * Discord ID
-   */
-  getDiscordId(): string {
-    return this.discordId
-  }
-
-  setDiscordId(discordId: string): void {
-    this.discordId = discordId
-  }
-
-  /*
-   * NPC
-   */
-
-  getIsNpc(): boolean {
-    return this.isNpc
-  }
-
-  /*
-   * Mutations
-   */
 
   /**
    * @param karmaOnWin
@@ -118,7 +48,7 @@ export default class Player {
       token: { awardOnWin },
       coolDown,
     } = settings
-    const user = await findUserByDiscordId(this.getDiscordId())
+    const user = await findUserByDiscordId(this.discordId)
     if (user) {
       let karma = user.karma
       let wins = this.asset.wins
@@ -126,7 +56,7 @@ export default class Player {
       const gamesPlayed = this.asset?.gamesPlayed || 0
 
       const coolDownDoneDate = Date.now() + coolDown
-      if (this.getIsWinner()) {
+      if (this.isWinner) {
         karma += awardOnWin
         wins = 1
       } else {
@@ -149,7 +79,7 @@ export default class Player {
         },
         coolDowns: { ...user.coolDowns, [this.asset.id]: coolDownDoneDate },
       }
-      await updateUser(updatedUserData, this.getDiscordId())
+      await updateUser(updatedUserData, this.discordId)
     } else {
       Logger.error('****** NO USER FOUND FOR MUTATION ******', this)
     }

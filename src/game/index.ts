@@ -1,7 +1,6 @@
 import { Message, TextChannel } from 'discord.js'
 
 import { renderConfig } from '../config/board'
-import { Embeds } from '../constants/embeds'
 import { GameStatus } from '../constants/game'
 import doEmbed from '../core/embeds'
 import { getChannelSettings } from '../database/operations/game'
@@ -12,7 +11,6 @@ import { RenderPhases } from '../types/board'
 import { GameTypes } from '../types/game'
 import { Logger } from '../utils/logger'
 import { asyncForEach, wait } from '../utils/sharedUtils'
-import * as GameImages from './images.json'
 import win from './win'
 /**
  * Start game waiting room
@@ -25,50 +23,39 @@ export default async function startWaitingRoom(
     const game = games[channel.id]
     game.resetGame()
     // console.log(util.inspect(game, false, null, true))
-    const settings = await getChannelSettings(channel.id)
-    game.addSettings(settings)
-    const gameType = game.getType()
+    const { maxCapacity } = (game.settings = await getChannelSettings(
+      channel.id
+    ))
 
-    if (gameType !== GameTypes.OneVsOne) {
-      game.addNpc()
+    if (game.type !== GameTypes.OneVsOne) {
+      game.addNpc(channel.client.user)
     }
 
-    const { maxCapacity } = settings
-
     // Send first waiting room embed
-    const waitingRoomEmbed = await channel.send(
-      doEmbed(Embeds.waitingRoom, game)
-    )
-
-    game.setEmbed(waitingRoomEmbed)
-
-    let playerCount = game.getPlayerCount()
+    game.embed = await channel.send(doEmbed(GameStatus.waitingRoom, game))
 
     /**
      * *******************
      * WAITING ROOM LOOP *
      * *******************
      */
+
     while (
-      playerCount < maxCapacity &&
-      game.getStatus() === GameStatus.waitingRoom
+      game.playerCount < maxCapacity &&
+      game.status === GameStatus.waitingRoom
     ) {
       // If game is in updating state, update embed
-      if (game.isUpdating()) {
-        await game.editEmbed(doEmbed(Embeds.waitingRoom, game))
-        playerCount = game.getPlayerCount()
+      if (game.doUpdate) {
+        await game.editEmbed(doEmbed(GameStatus.waitingRoom, game))
       }
       await wait(1000)
     }
-
-    game.setStatus(GameStatus.activeGame)
-
-    await handleCommencingGameMessage(channel, game.getType())
-    await wait(1500)
-    await game.editEmbed(doEmbed(Embeds.activeGame, game))
+    await game.embed.delete()
+    game.embed = await channel.send(doEmbed(GameStatus.activeGame, game))
+    game.status = GameStatus.activeGame // Start the Game
     await handleGameLoop(game, channel)
     await win(game, channel)
-    await game.getEmbed().delete()
+    game.embed.delete()
     startWaitingRoom(channel)
   } catch (error) {
     Logger.error('****** ERROR STARTING WAITING ROOM ******', error)
@@ -85,32 +72,31 @@ const handleGameLoop = async (
   channel: TextChannel
 ): Promise<void> => {
   let channelMessage: Message
-  const playerMessage = game
-    .getPlayerArray()
-    .map((player: Player, index: number) => {
-      return player.getIsNpc()
-        ? `${index + 1} - ${player.getUsername()}`
-        : `${index + 1} - <@${player.getDiscordId()}>`
-    })
-    .join('\n')
 
   let hasWon = false
+  if (process.env.SKIP_BATTLE) {
+    Logger.warn('You are Skipping battles! Hope this is not Production')
+    channel.send('Skipping The Battle.. because well tests')
+    await wait(2500)
+    hasWon = true
+    game.winGame()
+  }
+  await wait(1500)
 
   while (!hasWon) {
-    const playerArr = game.getPlayerArray()
+    const playerArr = game.playerArray
 
     // for each player render new board
     await asyncForEach(
       playerArr,
       async (player: Player, playerIndex: number) => {
         game.setCurrentPlayer(player, playerIndex)
-        // for each render phase, pass enum to baord
+        // for each render phase, pass enum to board
         for (const phase in RenderPhases) {
           const board = game.renderBoard(phase as RenderPhases)
 
           // if it's the first roll
           if (!channelMessage) {
-            await channel.send(playerMessage)
             channelMessage = await channel.send(board)
           } else {
             await channelMessage.edit(board)
@@ -121,32 +107,11 @@ const handleGameLoop = async (
       }
     )
     //if win, stop loop
-    if (game.getWin()) {
+    if (game.win) {
       hasWon = true
     } else {
       // proceed to next roll
       game.incrementRollIndex()
     }
   }
-}
-
-const handleCommencingGameMessage = async (
-  channel: TextChannel,
-  gameType: GameTypes
-): Promise<void> => {
-  let imagePath = ''
-  switch (gameType) {
-    case GameTypes.OneVsOne:
-      imagePath = GameImages.OneVsOne.url
-      break
-    case GameTypes.OneVsNpc:
-      imagePath = GameImages.OneVsNpc.url
-      break
-    case GameTypes.FourVsNpc:
-      imagePath = GameImages.FourVsNpc.url
-      break
-    default:
-      break
-  }
-  await channel.send({ files: [imagePath] })
 }

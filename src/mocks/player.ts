@@ -145,7 +145,7 @@ const playerRoundsData: PlayerRoundsData[] = [
 ]
 
 // map player data
-const mockPlayers = playerRoundsData.map(
+const _mockPlayers = playerRoundsData.map(
   (playerRounds: PlayerRoundsData, index: number) => {
     const playerNMumber = index + 1
     const mockPlayer = new Player(
@@ -155,9 +155,7 @@ const mockPlayers = playerRoundsData.map(
       new Asset('#', 0, `test-player-asset ${playerNMumber}`, '#'),
       new ObjectId()
     )
-    mockPlayer.setRoundsData(playerRounds)
+    mockPlayer.roundsData = playerRounds
     return mockPlayer
   }
 )
-
-export default mockPlayers

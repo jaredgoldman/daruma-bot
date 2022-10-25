@@ -1,6 +1,6 @@
 import { TextChannel } from 'discord.js'
 
-import { Embeds } from '../constants/embeds'
+import { GameStatus } from '../constants/game'
 import doEmbed from '../core/embeds'
 import Game from '../models/game'
 import Player from '../models/player'
@@ -15,8 +15,8 @@ export default async function win(
   game: Game,
   channel: TextChannel
 ): Promise<void> {
-  const winningPlayers = game.getWinningPlayers()
+  const winningPlayers = game.winningPlayers
   await asyncForEach(winningPlayers, async (player: Player) => {
-    await channel.send(doEmbed(Embeds.win, game, { player }))
+    await channel.send(doEmbed(GameStatus.win, game, { player }))
   })
 }

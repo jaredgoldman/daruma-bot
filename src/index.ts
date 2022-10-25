@@ -11,11 +11,8 @@ async function start(): Promise<void> {
   const client: Client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
-      GatewayIntentBits.GuildEmojisAndStickers,
       GatewayIntentBits.GuildMembers,
       GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.GuildIntegrations,
-      GatewayIntentBits.DirectMessages,
     ],
   })
   let bot = new Bot(env.DISCORD_TOKEN, client)
@@ -28,4 +25,3 @@ process.on('unhandledRejection', (reason, _promise) => {
 start().catch(error => {
   Logger.error(Logs.error.unspecified, error)
 })
-export { start }

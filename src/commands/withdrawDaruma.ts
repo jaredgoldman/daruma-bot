@@ -24,7 +24,7 @@ module.exports = {
     const game = games[channelId]
     if (game.getPlayer(discordId)) {
       game.removePlayer(discordId)
-      game.updateGame()
+      game.doUpdate = true
       await interaction.reply({
         content: `${env.ALGO_UNIT_NAME} withdrawn`,
         ephemeral: true,

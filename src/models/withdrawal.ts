@@ -2,7 +2,7 @@ export class Withdrawal {
   constructor(
     public discordId: string,
     public amount: number,
-    public address: string,
+    public walletAddress: string,
     public txId: string,
     public timestamp: string
   ) {}

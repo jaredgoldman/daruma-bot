@@ -8,7 +8,7 @@ import { RenderPhases } from '../types/board'
 // Helpers
 import { Alignment, createCell, createWhitespace } from '../utils/boardUtils'
 
-// import in avsolute values for board sizing
+// import in absolute values for board sizing
 const {
   roundWidth,
   cellWidth,
@@ -54,13 +54,13 @@ export const renderBoard = (
 }
 
 /**
- * Creates row which takes into account the current and potnetially previous row
+ * Creates row which takes into account the current and potentially previous row
  * @param roundNumber
  * @param roundsOnEmbed
  * @param isFirstRound
  * @returns {string}
  */
-export const createRoundNumberRow = (
+const createRoundNumberRow = (
   roundIndex: number,
   roundsOnEmbed: number
 ): string => {
@@ -92,7 +92,7 @@ export const createRoundNumberRow = (
  * @param roundNum
  * @returns {number}
  */
-export const createRoundCell = (roundNum?: number): string => {
+const createRoundCell = (roundNum?: number): string => {
   let cell = ''
   if (roundNum) {
     const stringNum = roundNum.toString()
@@ -101,7 +101,7 @@ export const createRoundCell = (roundNum?: number): string => {
   } else {
     cell = createWhitespace(roundWidth, '-')
   }
-  // returb hjust space if no round number
+  // return just space if no round number
   if (roundNum === 0) {
     cell += createWhitespace(roundPadding)
   }
@@ -117,7 +117,7 @@ export const createRoundCell = (roundNum?: number): string => {
  * @param isFirstRound
  * @returns {string}
  */
-export const createAttackAndTotalRows = (
+const createAttackAndTotalRows = (
   players: Player[],
   playerIndex: number,
   rollIndex: number,
@@ -127,7 +127,7 @@ export const createAttackAndTotalRows = (
   let rows = ``
   // For each player
   players.forEach((player: Player, index: number) => {
-    const { rounds } = player.getRoundsData()
+    const { rounds } = player.roundsData
 
     // check if it is or has been players turn yet to determine if we should show the attack roll
     const isTurn = index === playerIndex
@@ -165,11 +165,11 @@ export const createAttackAndTotalRows = (
 
 /**
  * Create a row of attacks with blank spaces factored in
- * Currnetly only works for 2 rounds
+ * Currently only works for 2 rounds
  * @param playerRolls
  * @returns {string}
  */
-export const createAttackRow = (
+const createAttackRow = (
   playerRounds: RoundData[],
   roundIndex: number,
   rollIndex: number,
@@ -272,7 +272,7 @@ const getImageType = (
  * @param isTurn
  * @returns
  */
-export const createTotalRow = (
+const createTotalRow = (
   roundIndex: number,
   rollIndex: number,
   rounds: RoundData[],
@@ -318,7 +318,7 @@ export const createTotalRow = (
  * @param roundNumber
  * @returns {string}
  */
-export const findRoundTotal = (rolls: RollData[]): number => {
+const _findRoundTotal = (rolls: RollData[]): number => {
   const roundTotal = rolls.reduce(
     (prevTotal: number, currentRoll: RollData) => {
       const currentRollValue = currentRoll.damage || 0

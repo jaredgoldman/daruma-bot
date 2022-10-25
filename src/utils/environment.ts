@@ -89,4 +89,3 @@ export const env = envalid.cleanEnv(process.env, {
     desc: 'The Log Level for Pino',
   }),
 })
-export default env

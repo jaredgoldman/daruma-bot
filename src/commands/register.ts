@@ -25,7 +25,7 @@ module.exports = {
     .addStringOption(option =>
       option
         .setName('address')
-        .setDescription('enter the your wallet address')
+        .setDescription('Enter The Your Wallet Address')
         .setRequired(true)
     ),
   enabled: true,
@@ -39,11 +39,11 @@ module.exports = {
     const { user, options } = interaction
     const { username, id } = user
 
-    const address = options.getString('address')
+    const walletAddress = options.getString('address')
 
-    if (address && !/^[a-zA-Z0-9]{58}$/.test(address)) {
+    if (walletAddress && !/^[a-zA-Z0-9]{58}$/.test(walletAddress)) {
       return await interaction.reply({
-        content: 'Please enter a valid Algorand wallet address',
+        content: 'Please Enter A Valid Algorand Wallet Address',
         ephemeral: true,
       })
     }
@@ -55,11 +55,11 @@ module.exports = {
       ephemeral: true,
     })
 
-    if (address) {
+    if (walletAddress) {
       const { status, registeredUser } = await processRegistration(
         username,
         id,
-        address
+        walletAddress
       )
 
       // add permissions if successful
@@ -79,14 +79,14 @@ module.exports = {
  * Checks if a user owns wallet, grabs their and saves/updates user
  * @param username
  * @param discordId
- * @param address
+ * @param walletAddress
  * @param channelId
  * @returns {Promise<RegistrationResult>}
  */
-export const processRegistration = async (
+const processRegistration = async (
   username: string,
   discordId: string,
-  address: string
+  walletAddress: string
 ): Promise<RegistrationResult> => {
   try {
     // Attempt to find user in db
@@ -94,7 +94,7 @@ export const processRegistration = async (
 
     // Check to see if wallet has opt-in asset
     // Retrieve assetIds from specific collections
-    const { walletOwned, nftsOwned } = await determineOwnership(address)
+    const { walletOwned, nftsOwned } = await determineOwnership(walletAddress)
 
     const keyedNfts: { [key: string]: Asset } = {}
     nftsOwned.forEach((nft: Asset) => {
@@ -115,7 +115,7 @@ export const processRegistration = async (
 
     // If user doesn't exist, add to db and grab instance
     if (!user) {
-      const newUser = new User(username, discordId, address, keyedNfts)
+      const newUser = new User(username, discordId, walletAddress, keyedNfts)
       const { acknowledged, insertedId } = await saveUser(newUser)
 
       if (acknowledged) {
@@ -126,7 +126,12 @@ export const processRegistration = async (
         }
       }
     } else {
-      const updatedUser = new User(username, discordId, address, keyedNfts)
+      const updatedUser = new User(
+        username,
+        discordId,
+        walletAddress,
+        keyedNfts
+      )
       await updateUser(updatedUser, discordId)
     }
 

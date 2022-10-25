@@ -1,4 +1,4 @@
-// Discrod
+// Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction, InteractionType } from 'discord.js'
 
@@ -11,7 +11,7 @@ module.exports = {
     .setDescription('show user profile!'),
   enabled: false,
   /**
-   * Allows user to initiate transfer oftoken to own wallet
+   * Allows user to initiate transfer of token to own wallet
    * WIP - much more detail can be added here
    * @param interaction {Interaction}
    * @returns {void}
@@ -27,8 +27,8 @@ module.exports = {
     const user = await findUserByDiscordId(id)
 
     if (user) {
-      const { karma, address } = user
-      interaction.editReply({ content: `${karma}\n${address}` })
+      const { karma, walletAddress } = user
+      interaction.editReply({ content: `${karma}\n${walletAddress}` })
     }
   },
 }

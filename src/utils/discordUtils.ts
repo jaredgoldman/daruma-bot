@@ -19,7 +19,7 @@ export const addRole = async (
   }
 }
 
-export const removeRole = async (
+const _removeRole = async (
   interaction: Interaction,
   roleId: string,
   discordId: string

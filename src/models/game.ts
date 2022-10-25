@@ -1,4 +1,4 @@
-import { BaseMessageOptions } from 'discord.js'
+import { BaseMessageOptions, ClientUser, Message, Snowflake } from 'discord.js'
 import { ObjectId } from 'mongodb'
 
 import { GameStatus } from '../constants/game'
@@ -17,85 +17,97 @@ import Player from './player'
  * Main game class
  */
 export default class Game {
+  private players: { [key: string]: Player }
+  private _status: GameStatus
+  public win: boolean
+  private winningRoundIndex: number | undefined
+  private winningRollIndex: number | undefined
+  private _doUpdate: boolean
+  public embed: Message | undefined
+  private gameRoundState: GameRoundState
+  private startTime: number
+  private endTime: number
+  public hasNpc: boolean
+  public type: GameTypes = GameTypes.OneVsNpc
+  public winningPlayers: Player[] = []
   constructor(
-    private settings: ChannelSettings // private m
+    private _settings: ChannelSettings // private m
   ) {
-    this.status = GameStatus.waitingRoom
+    this._status = GameStatus.waitingRoom
     this.win = false
-    this.rounds = 0
     this.embed = undefined
-    this.doUpdate = false
+    this._doUpdate = false
     this.players = {}
     this.gameRoundState = defaultGameRoundState
     this.startTime = Date.now()
-    this.board = ''
+    this.endTime = Date.now()
     this.hasNpc = false
   }
-
-  private players: { [key: string]: Player }
-  private status: GameStatus
-  private win: boolean
-  private winningRoundIndex: number | undefined
-  private winningRollIndex: number | undefined
-  private rounds: number
-  private doUpdate: boolean
-  private embed: any
-  private gameRoundState: GameRoundState
-  private startTime: number
-  private endTime: number | undefined
-  private board: string
-  private hasNpc: boolean
-  private type: GameTypes = GameTypes.OneVsNpc
-  private winningPlayers: Player[] = []
-
-  /*
-   * GAME TYPE
-   */
-
-  getType(): GameTypes {
-    return this.type
+  public get settings(): ChannelSettings {
+    return this._settings
   }
-
-  setGameType(type: GameTypes): void {
-    this.type = type
+  public set settings(value: ChannelSettings) {
+    this.type = value.gameType
+    this._settings = value
   }
-
-  /*
-   * PLAYER OPERATIONS
-   */
-  getPlayerArray(): Player[] {
+  public get status(): GameStatus {
+    return this._status
+  }
+  public set status(value: GameStatus) {
+    if (value === GameStatus.activeGame) {
+      this.startTime = Date.now()
+      // store winning player
+      this.storeWinningPlayers()
+    }
+    if (value === GameStatus.win) {
+      this.endTime = Date.now()
+    }
+    this._status = value
+  }
+  public get doUpdate(): boolean {
+    return this._doUpdate
+  }
+  public set doUpdate(value: boolean) {
+    this._doUpdate = value
+    setTimeout(() => {
+      this._doUpdate = false
+    }, 3000)
+  }
+  public get playerArray(): Player[] {
     return Object.values(this.players)
   }
+  public get playerCount(): number {
+    return Object.keys(this.players).length
+  }
+  private get playersRoundsData(): { [key: string]: PlayerRoundsData } {
+    const playerRoundsData: { [key: string]: PlayerRoundsData } = {}
+    this.playerArray.forEach(player => {
+      playerRoundsData[player.discordId] = player.roundsData
+    })
+    return playerRoundsData
+  }
 
-  getPlayer(discordId: discordId): Player | undefined {
+  getPlayer<C extends Snowflake>(discordId: C): Player | undefined {
     return this.players[discordId] || undefined
   }
 
-  getPlayers(): { [key: string]: Player } {
-    return this.players
-  }
-
   addPlayer(player: Player): void {
-    if (this.getPlayerCount() < 1) {
+    if (this.playerCount < 1) {
       this.setCurrentPlayer(player, 0)
     }
-    this.players[player.getDiscordId()] = player
+    this.players[player.discordId] = player
     // update games winning index
-    const { gameWinRollIndex, gameWinRoundIndex } = player.getRoundsData()
+    const { gameWinRollIndex, gameWinRoundIndex } = player.roundsData
 
     // console.log(util.inspect(rounds, false, null, true))
     this.compareAndSetWinningIndexes(gameWinRollIndex, gameWinRoundIndex)
-  }
-
-  getPlayerCount(): number {
-    return this.getPlayerArray().length
   }
 
   removePlayers(): void {
     this.players = {}
   }
 
-  removePlayer(discordId: string): void {
+  removePlayer<C extends Snowflake>(discordId: C): void {
     if (this.players[discordId]) {
       delete this.players[discordId]
     }
@@ -104,57 +116,6 @@ export default class Game {
   /*
    * Active
    */
-  setStatus(statusType: GameStatus): void {
-    if (statusType === GameStatus.activeGame) {
-      this.startTime = Date.now()
-      // store winning platy
-      this.storeWinningPlayers()
-    }
-    if (statusType === GameStatus.win) {
-      this.endTime = Date.now()
-    }
-    this.status = statusType
-  }
-
-  getStatus(): GameStatus {
-    return this.status
-  }
-
-  /*
-   * Win
-   */
-  setWin(win: boolean): void {
-    this.win = win
-  }
-
-  getWin(): boolean {
-    return this.win
-  }
-
-  getWinningRoundIndex(): number | undefined {
-    return this.winningRoundIndex
-  }
-
-  setWinningRoundIndex(roundIndex: number | undefined): void {
-    this.winningRoundIndex = roundIndex
-  }
-
-  getWinningRollIndex(): number | undefined {
-    return this.winningRollIndex
-  }
-
-  setWinningRollIndex(rollIndex: number | undefined): void {
-    this.winningRollIndex = rollIndex
-  }
-
-  addWinningPlayer(player: Player): void {
-    this.winningPlayers.push(player)
-  }
-
-  getWinningPlayers(): Player[] {
-    return this.winningPlayers
-  }
-
   removeWinningPlayers(): void {
     this.winningPlayers = []
   }
@@ -172,65 +133,26 @@ export default class Game {
       this.winningRollIndex === undefined ||
       this.winningRoundIndex === undefined
     ) {
-      this.setWinningRollIndex(rollIndex)
-      this.setWinningRoundIndex(roundIndex)
-      // if the incoming round index is lower than the current ruund index, change it
+      this.winningRollIndex = rollIndex
+      this.winningRoundIndex = roundIndex
+      // if the incoming round index is lower than the current round index, change it
     } else if (this.winningRoundIndex && roundIndex < this.winningRoundIndex) {
-      this.setWinningRollIndex(rollIndex)
-      this.setWinningRoundIndex(roundIndex)
+      this.winningRollIndex = rollIndex
+      this.winningRoundIndex = roundIndex
       // if the round index is the same, but the roll index is lower, change it
     } else if (
       this.winningRollIndex &&
       roundIndex === this.winningRoundIndex &&
       rollIndex < this.winningRollIndex
     ) {
-      this.setWinningRollIndex(rollIndex)
-      this.setWinningRoundIndex(roundIndex)
+      this.winningRollIndex = rollIndex
+      this.winningRoundIndex = roundIndex
     }
-  }
-
-  /*
-   * Rounds
-   */
-
-  incrementRounds(): void {
-    this.rounds++
-  }
-
-  getNumberOfRounds(): number {
-    return this.rounds
   }
 
   /*
    * Update
    */
-
-  setdoUpdate(doUpdate: boolean): void {
-    this.doUpdate = doUpdate
-  }
-
-  isUpdating(): boolean {
-    return this.doUpdate
-  }
-
-  updateGame = (): void => {
-    this.doUpdate = true
-    setTimeout(() => {
-      this.doUpdate = false
-    }, 3000)
-  }
-
-  /*
-   * Embed
-   */
-
-  setEmbed(embed: any): void {
-    this.embed = embed
-  }
-
-  getEmbed(): any {
-    return this.embed
-  }
 
   async editEmbed(options: BaseMessageOptions): Promise<void> {
     if (!this.embed) {
@@ -244,34 +166,18 @@ export default class Game {
    */
 
   // TODO: add real asset npc, generate random name
-  addNpc(): void {
+  addNpc(clientUser: ClientUser): void {
     this.addPlayer(
       new Player(
         'Karasu',
-        'npcDiscordId',
+        clientUser.id,
         '1234567',
         new Asset(GameImages.Karasu.url, 12345, 'Karasu', 'Karasu'),
         new ObjectId('123456789012'),
-        true
+        clientUser.bot
       )
     )
-    this.setHasNpc(true)
-  }
-
-  getHasNpc(): boolean {
-    return this.hasNpc
-  }
-
-  setHasNpc(hasNpc: boolean): void {
-    this.hasNpc = hasNpc
-  }
-
-  /*
-   * Settings
-   */
-  addSettings(settings: ChannelSettings): void {
-    this.settings = settings
-    this.setGameType(settings.gameType)
+    this.hasNpc = true
   }
 
   getSettings(): ChannelSettings {
@@ -324,7 +230,7 @@ export default class Game {
 
   incrementRollIndex(): void {
     this.logState()
-    if (!this.getWin()) {
+    if (!this.win) {
       // If the roll index is divisible by 3, increment the round index
       if ((this.getRollIndex() + 1) % 3 === 0) {
         this.incrementRoundIndex()
@@ -349,22 +255,6 @@ export default class Game {
   }
 
   /*
-   * Time
-   */
-
-  getStartTime(): number {
-    return this.startTime
-  }
-
-  setEndTime(): void {
-    this.endTime = Date.now()
-  }
-
-  getEndTime(): number | undefined {
-    return this.endTime
-  }
-
-  /*
    * OPERATIONS
    */
   saveEncounter(): void {
@@ -376,10 +266,10 @@ export default class Game {
       new Encounter(
         this.winningPlayers,
         this.type,
-        this.getStartTime(),
-        this.getEndTime() as number,
+        this.startTime,
+        this.endTime,
         this.getRoundNumber(),
-        this.getPlayersRoundsData(),
+        this.playersRoundsData,
         this.getGameRoundState(),
         this.getSettings().channelId
       )
@@ -396,45 +286,29 @@ export default class Game {
   }
 
   /**
-   * Compares the stored round and roll index to each players winnning round and roll index
+   * Compares the stored round and roll index to each players winning round and roll index
    * Stores winning players in an array
    */
   storeWinningPlayers(): void {
     if (
-      this.getWinningRollIndex() === undefined ||
-      this.getWinningRoundIndex() === undefined
+      this.winningRollIndex === undefined ||
+      this.winningRoundIndex === undefined
     ) {
       return
     }
 
-    this.getPlayerArray().forEach((player: Player) => {
-      const winningRollIndex = player.getRoundsData().gameWinRollIndex
-      const winningRoundIndex = player.getRoundsData().gameWinRoundIndex
+    this.playerArray.forEach((player: Player) => {
+      const winningRollIndex = player.roundsData.gameWinRollIndex
+      const winningRoundIndex = player.roundsData.gameWinRoundIndex
 
       if (
-        winningRollIndex === this.getWinningRollIndex() &&
-        winningRoundIndex === this.getWinningRoundIndex()
+        winningRollIndex === this.winningRollIndex &&
+        winningRoundIndex === this.winningRoundIndex
       ) {
-        player.winGame()
+        player.isWinner = true
         this.winningPlayers.push(player)
       }
     })
-  }
-
-  getPlayersRoundsData(): { [key: string]: PlayerRoundsData } {
-    const playerRoundsData: { [key: string]: PlayerRoundsData } = {}
-    this.getPlayerArray().forEach(player => {
-      playerRoundsData[player.getDiscordId()] = player.getRoundsData()
-    })
-    return playerRoundsData
-  }
-
-  setBoard(board: string): void {
-    this.board = board
-  }
-
-  getBoard(): string {
-    return this.board
   }
 
   renderBoard(renderPhase: RenderPhases): string {
@@ -442,11 +316,10 @@ export default class Game {
       this.getRollIndex(),
       this.getRoundIndex(),
       this.getGameRoundState().playerIndex,
-      this.getPlayerArray(),
+      this.playerArray,
       renderPhase
       // isLastRender
     )
-    this.setBoard(board)
     return board
   }
 
@@ -454,29 +327,28 @@ export default class Game {
    * Win logic
    */
   winGame(): void {
-    this.setWin(true)
-    this.setEndTime()
-    this.setStatus(GameStatus.win)
+    this.win = true
+    this.endTime = Date.now()
+    this.status = GameStatus.win
     this.saveEncounter()
     this.doFinalPlayerMutation()
   }
 
   doFinalPlayerMutation(): void {
-    this.getPlayerArray().forEach(player =>
+    this.playerArray.forEach(player =>
       player.doEndOfGameMutation(this.settings)
     )
   }
 
   resetGame(): void {
-    this.setStatus(GameStatus.waitingRoom)
-    this.setWin(false)
-    this.rounds = 0
+    this.status = GameStatus.waitingRoom
+    this.win = false
     this.embed = undefined
     this.doUpdate = false
     this.removePlayers()
     this.setDefaultGameRoundState()
-    this.setWinningRoundIndex(undefined)
-    this.setWinningRollIndex(undefined)
+    this.winningRoundIndex = undefined
+    this.winningRollIndex = undefined
     this.removeWinningPlayers()
   }
 }
@@ -487,18 +359,3 @@ const defaultGameRoundState = {
   playerIndex: 0,
   currentPlayer: undefined,
 }
-
-export const defaultSettings: ChannelSettings = {
-  maxAssets: 20,
-  minCapacity: 2,
-  maxCapacity: 2,
-  channelId: '1005510693707067402',
-  gameType: GameTypes.FourVsNpc,
-  turnRate: 2,
-  coolDown: 0,
-  token: {
-    awardOnWin: 10,
-  },
-}
-
-type discordId = string

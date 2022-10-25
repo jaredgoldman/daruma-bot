@@ -3,8 +3,7 @@ import PendingTransactionInformation from 'algosdk/dist/types/src/client/v2/algo
 
 import { redisClient, redisKeys } from '../database/redis.service'
 import Asset from '../models/asset'
-import { algoCreatorAssets, algoUserAssets } from '../types/algosdk'
-import { TxnStatus } from '../types/token'
+import { algoCreatorAssets, algoUserAssets, TxnStatus } from '../types/algosdk'
 import { env } from './environment'
 import { Logger } from './logger'
 
@@ -17,7 +16,7 @@ const token = {
 const algodClient = new algosdk.Algodv2(token, env.ALGO_NODE, '')
 const algoIndexer = new algosdk.Indexer(token, env.ALGO_INDEXER_NODE, '')
 
-export const creatorAssetSync = async function (): Promise<boolean> {
+const creatorAssetSync = async function (): Promise<boolean> {
   const assetsSynced = await redisClient.smembers(redisKeys.assetIds)
   if (assetsSynced.length > 0) {
     Logger.debug(
@@ -105,7 +104,9 @@ async function holderCheck(userWallet: string): Promise<Asset[]> {
   }
   return nftsOwned
 }
-export const determineOwnership = async function (address: string): Promise<{
+export const determineOwnership = async function (
+  walletAddress: string
+): Promise<{
   walletOwned: boolean
   nftsOwned: Asset[] | []
 }> {
@@ -115,10 +116,10 @@ export const determineOwnership = async function (address: string): Promise<{
     let walletOwned = false
 
     //* Grab the Users Assets
-    walletOwned = await userAssetIds(address)
+    walletOwned = await userAssetIds(walletAddress)
 
     //* Validate they are a holder of Darumas
-    const nftsOwned = await holderCheck(address)
+    const nftsOwned = await holderCheck(walletAddress)
 
     return {
       walletOwned,
