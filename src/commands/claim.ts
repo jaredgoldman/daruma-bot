@@ -11,12 +11,13 @@ import { updateUserKarma } from '../database/operations/user'
 import User from '../models/user'
 import { Withdrawal } from '../models/withdrawal'
 import { claimToken } from '../utils/algorandUtils'
+
 // Helpers
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('claim')
-    .setDescription('claim your Karma'),
+    .setDescription('Claim Your Karma'),
 
   enabled: true,
   /**
@@ -37,7 +38,7 @@ module.exports = {
 
       if (!userData) {
         return await interaction.editReply({
-          content: 'You are not in the database',
+          content: 'You Are Not In The Database',
         })
       }
 
@@ -45,11 +46,9 @@ module.exports = {
 
       if (!karma) {
         return await interaction.editReply({
-          content: 'You have no hoot to claim',
+          content: `You have no Karma to claim`,
         })
       }
-
-      await updateUserKarma(user.id, 0)
 
       const txnData = await claimToken(karma, walletAddress)
       if (txnData) {
@@ -62,13 +61,14 @@ module.exports = {
             new Date(Date.now()).toTimeString()
           )
         )
+        await updateUserKarma(user.id, 0)
         return await interaction.editReply(
-          `Congrats, you've just received ${karma} Karma!`
+          `Congrats, You've Just Received ${karma} Karma!`
         )
       }
     } catch (error) {
       return await interaction.editReply(
-        'Something went wrong with your claim :( - please try again'
+        'Something Went Wrong With Your Claim :( - Please Try Again'
       )
     }
   },

@@ -139,6 +139,15 @@ export const claimToken = async (
   receiverAddress: string
 ): Promise<TxnStatus | undefined> => {
   try {
+    if (!env.ALGO_TOKEN_MNEMONIC) {
+      Logger.error(
+        'ALGO_TOKEN_MNEMONIC not set but still faking the transaction for testing'
+      )
+      return {
+        status: JSON.parse('{"test":"test"}'),
+        txId: 'test',
+      } as TxnStatus
+    }
     const params = await algodClient.getTransactionParams().do()
     const { sk, addr: senderAddress } = algosdk.mnemonicToSecretKey(
       env.ALGO_TOKEN_MNEMONIC
@@ -171,5 +180,6 @@ export const claimToken = async (
     }
   } catch (error) {
     Logger.error('Error', error)
+    return
   }
 }
