@@ -250,7 +250,7 @@ const getImageType = (
   // if it's the current players roll and we're in gif render phase add gif
   if (isCurrentRoll && isTurnRoll) {
     if (renderPhase === RenderPhases.GIF) {
-      return `${roll.damage}gif`
+      return `roll`
     } else if (
       renderPhase === RenderPhases.SCORE ||
       renderPhase === RenderPhases.EMOJI
