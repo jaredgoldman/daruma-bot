@@ -8,9 +8,7 @@ const emojiConfig = {
   '2png': 'HB',
   '1png': 'Rm',
   ph: 'PH',
-  '1gif': '1_',
-  '2gif': '2_',
-  '3gif': '3_',
+  roll: 'roll',
 }
 
 /**
