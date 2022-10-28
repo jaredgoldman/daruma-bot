@@ -1,44 +1,42 @@
-import { Message, TextChannel } from 'discord.js'
+import { Client, ClientUser, Message, TextChannel } from 'discord.js'
 
 import { renderConfig } from '../config/board'
 import { GameStatus } from '../constants/game'
 import doEmbed from '../core/embeds'
-import { getChannelSettings } from '../database/operations/game'
+import {
+  getChannelSettings,
+  updateMessageId,
+} from '../database/operations/game'
 import { games } from '../models/bot'
 import Game from '../models/game'
 import Player from '../models/player'
 import { RenderPhases } from '../types/board'
 import { GameTypes } from '../types/game'
 import { Logger } from '../utils/logger'
-import { asyncForEach, wait } from '../utils/sharedUtils'
-import win from './win'
+import { asyncForEach, randomNumber, wait } from '../utils/sharedUtils'
 /**
  * Start game waiting room
  * @param channel {TextChannel}
  */
 export default async function startWaitingRoom(
-  channel: TextChannel
+  client: Client,
+  channelId: string
 ): Promise<void> {
   try {
-    const game = games[channel.id]
-    game.resetGame()
-    // console.log(util.inspect(game, false, null, true))
-    const { maxCapacity } = (game.settings = await getChannelSettings(
-      channel.id
-    ))
+    const game = games[channelId]
+    const { maxCapacity, messageId } = (game.settings =
+      await getChannelSettings(channelId))
+    const waitingRoomChannel = (await client.channels.fetch(
+      channelId
+    )) as TextChannel
 
-    if (game.type !== GameTypes.OneVsOne) {
-      game.addNpc(channel.client.user)
-    }
-
-    // Send first waiting room embed
-    game.embed = await channel.send(doEmbed(GameStatus.waitingRoom, game))
-
-    /**
-     * *******************
-     * WAITING ROOM LOOP *
-     * *******************
-     */
+    await sendWaitingRoomEmbed(
+      client,
+      game,
+      waitingRoomChannel,
+      channelId,
+      messageId as string
+    )
 
     while (
       game.playerCount < maxCapacity &&
@@ -50,16 +48,48 @@ export default async function startWaitingRoom(
       }
       await wait(1000)
     }
-    await game.embed.delete()
-    game.embed = await channel.send(doEmbed(GameStatus.activeGame, game))
-    game.status = GameStatus.activeGame // Start the Game
-    await handleGameLoop(game, channel)
-    await win(game, channel)
-    game.embed.delete()
-    startWaitingRoom(channel)
+    await game.embed
+      ?.edit(doEmbed(GameStatus.activeGame, game))
+      .then(() => (game.status = GameStatus.activeGame))
+      .then(() => handleGameLoop(game, waitingRoomChannel))
+      .then(() => win(game, waitingRoomChannel))
+      .then(() => startWaitingRoom(client, channelId))
   } catch (error) {
     Logger.error('****** ERROR STARTING WAITING ROOM ******', error)
   }
+}
+
+const sendWaitingRoomEmbed = async (
+  client: Client,
+  game: Game,
+  waitingRoomChannel: TextChannel,
+  channelId: string,
+  messageId: string
+): Promise<void> => {
+  Logger.info(`Joining the Channel ${channelId} of type ${game.type}.`)
+  game.resetGame()
+  await waitingRoomChannel.messages.fetch(messageId).catch(e => {
+    Logger.error(`Error when trying to fetch the message for ${game.type}\n`, e)
+    Logger.info('Creating new message')
+  })
+
+  try {
+    if (messageId) waitingRoomChannel.messages.cache.get(messageId)?.delete()
+  } catch (e: any) {
+    Logger.error('Error when trying to delete the waiting room.', e)
+  }
+
+  if (game.type !== GameTypes.OneVsOne) {
+    game.addNpc(client.user as ClientUser)
+  }
+
+  // Send first waiting room embed
+  game.embed = await waitingRoomChannel
+    .send(doEmbed(GameStatus.waitingRoom, game))
+    .then(msg => {
+      updateMessageId(channelId, msg.id)
+      return msg
+    })
 }
 
 /**
@@ -78,8 +108,8 @@ const handleGameLoop = async (
     Logger.warn('You are Skipping battles! Hope this is not Production')
     channel.send('Skipping The Battle.. because well tests')
     await wait(2500)
-    hasWon = true
-    game.winGame()
+      .then(() => (hasWon = true))
+      .then(() => game.winGame())
   }
   await wait(1500)
 
@@ -101,8 +131,9 @@ const handleGameLoop = async (
           } else {
             await channelMessage.edit(board)
           }
-
-          await wait(renderConfig[phase].duration)
+          await wait(
+            randomNumber(renderConfig[phase].durMin, renderConfig[phase].durMax)
+          )
         }
       }
     )
@@ -114,4 +145,14 @@ const handleGameLoop = async (
       game.incrementRollIndex()
     }
   }
+}
+/**
+ * Send a winning embed for each winning player
+ * @param game {Game}
+ * @param channel {TextChannel}
+ */
+async function win(game: Game, channel: TextChannel): Promise<void> {
+  await asyncForEach(game.winningPlayers, async (player: Player) => {
+    await channel.send(doEmbed(GameStatus.win, game, { player }))
+  })
 }

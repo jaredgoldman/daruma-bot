@@ -56,14 +56,15 @@ class BoardConfig {
 // TODO: fetch this from db
 export default new BoardConfig(4, 3, 2, 3, 2, 5)
 
-export const renderConfig: { [key: string]: { duration: number } } = {
+export const renderConfig: {
+  [key: string]: { durMin: number; durMax: number }
+} = {
   [RenderPhases.GIF]: {
-    duration: 2000,
+    durMin: 1000,
+    durMax: 3500,
   },
   [RenderPhases.EMOJI]: {
-    duration: 500,
-  },
-  [RenderPhases.SCORE]: {
-    duration: 500,
+    durMin: 500,
+    durMax: 500,
   },
 }

@@ -17,3 +17,13 @@ export const getChannelSettings = async (
 export const saveEncounter = async (encounter: Encounter): Promise<void> => {
   await collections.encounters.insertOne(encounter)
 }
+
+export const updateMessageId = async (
+  channelId: string,
+  messageId: string
+): Promise<void> => {
+  await collections.settings.findOneAndUpdate(
+    { channelId },
+    { $set: { messageId } }
+  )
+}
