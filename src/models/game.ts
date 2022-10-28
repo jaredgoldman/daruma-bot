@@ -1,9 +1,17 @@
-import { BaseMessageOptions, ClientUser, Message, Snowflake } from 'discord.js'
+import {
+  BaseMessageOptions,
+  Client,
+  ClientUser,
+  Message,
+  Snowflake,
+  TextChannel,
+} from 'discord.js'
 import { ObjectId } from 'mongodb'
 
 import { GameStatus } from '../constants/game'
 import doEmbed from '../core/embeds'
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
+import { startChannelGame } from '../game'
 import { renderBoard } from '../game/board'
 import * as GameImages from '../game/images.json'
 import { PlayerRoundsData } from '../types/attack'
@@ -30,9 +38,8 @@ export default class Game {
   public hasNpc: boolean
   public type: GameTypes = GameTypes.OneVsNpc
   public winningPlayers: Player[] = []
-  constructor(
-    private _settings: ChannelSettings // private m
-  ) {
+  public waitingRoomChannel: TextChannel
+  constructor(private _client: Client, private _settings: ChannelSettings) {
     this._status = GameStatus.waitingRoom
     this.win = false
     this.embed = undefined
@@ -41,6 +48,12 @@ export default class Game {
     this.startTime = Date.now()
     this.endTime = Date.now()
     this.hasNpc = false
+    this.waitingRoomChannel = this._client.channels.cache.get(
+      _settings.channelId
+    ) as TextChannel
+  }
+  public get client(): Client {
+    return this._client
   }
   public get settings(): ChannelSettings {
     return this._settings
@@ -65,6 +78,14 @@ export default class Game {
   }
   public updateEmbed(): void {
     this.editEmbed(doEmbed(GameStatus.waitingRoom, this))
+    if (
+      this.playerCount < this.settings.maxCapacity &&
+      this.status === GameStatus.waitingRoom
+    ) {
+      Logger.debug('Waiting for players')
+    } else {
+      startChannelGame(this)
+    }
   }
   public get playerArray(): Player[] {
     return Object.values(this.players)

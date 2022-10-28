@@ -122,8 +122,8 @@ export class Bot {
       await asyncForEach(
         await getSettings(),
         async (settings: ChannelSettings) => {
-          games[settings.channelId] = new Game(settings)
-          startWaitingRoom(this.client, settings.channelId)
+          games[settings.channelId] = new Game(this.client, settings)
+          startWaitingRoom(games[settings.channelId])
         }
       )
     } catch (error) {
