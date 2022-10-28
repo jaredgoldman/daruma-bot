@@ -20,6 +20,7 @@ export interface ChannelSettings {
   token: {
     awardOnWin: number
   }
+  messageId?: string
 }
 
 export interface GameRoundState {

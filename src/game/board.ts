@@ -251,10 +251,7 @@ const getImageType = (
   if (isCurrentRoll && isTurnRoll) {
     if (renderPhase === RenderPhases.GIF) {
       return `roll`
-    } else if (
-      renderPhase === RenderPhases.SCORE ||
-      renderPhase === RenderPhases.EMOJI
-    ) {
+    } else if (renderPhase === RenderPhases.EMOJI) {
       return `${roll.damage}png`
     }
   } else if (isCurrentRoll && !isTurnRoll) {
@@ -290,7 +287,7 @@ const createTotalRow = (
 
     let totalRollIndex = rollIndex
 
-    if ((renderPhase !== RenderPhases.SCORE || notTurnYet) && !hasBeenTurn) {
+    if ((renderPhase !== RenderPhases.EMOJI || notTurnYet) && !hasBeenTurn) {
       totalRollIndex = rollIndex - 1
     }
 

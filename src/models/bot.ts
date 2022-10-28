@@ -8,7 +8,6 @@ import {
   Events,
   Interaction,
   SelectMenuInteraction,
-  TextChannel,
 } from 'discord.js'
 import fs from 'node:fs'
 
@@ -123,12 +122,8 @@ export class Bot {
       await asyncForEach(
         await getSettings(),
         async (settings: ChannelSettings) => {
-          const channel = this.client.channels.cache.get(
-            settings.channelId
-          ) as TextChannel
-          const newGame = new Game(settings)
-          games[settings.channelId] = newGame
-          startWaitingRoom(channel)
+          games[settings.channelId] = new Game(settings)
+          startWaitingRoom(this.client, settings.channelId)
         }
       )
     } catch (error) {
