@@ -15,7 +15,6 @@ import gatherEmojis from '../core/emojis'
 import { connectToDatabase } from '../database/database.service'
 import { getSettings } from '../database/operations/game'
 import { connectToRedis } from '../database/redis.service'
-import startWaitingRoom from '../game'
 import { ChannelSettings } from '../types/game'
 import { initLog, Logger } from '../utils/logger'
 import * as Logs from '../utils/logs.json'
@@ -75,7 +74,7 @@ export class Bot {
     // Register discord commands
     this.setupCommands()
     // Start game for each channel
-    this.startGame()
+    this.startWaitingRoom()
     AsyncExitHook((done: () => any) => {
       Logger.info(`[exit-hook] Logged out of <${this.client.user?.tag}>`)
       this.client.destroy()
@@ -116,14 +115,14 @@ export class Bot {
       Logger.error(Logs.error.unspecified, error)
     }
   }
-  private startGame = async (): Promise<void> => {
+  private startWaitingRoom = async (): Promise<void> => {
     try {
       // start game for each channel
       await asyncForEach(
         await getSettings(),
         async (settings: ChannelSettings) => {
           games[settings.channelId] = new Game(this.client, settings)
-          startWaitingRoom(games[settings.channelId])
+          await games[settings.channelId].gameHandler.start()
         }
       )
     } catch (error) {
