@@ -2,6 +2,7 @@ import { BaseMessageOptions, ClientUser, Message, Snowflake } from 'discord.js'
 import { ObjectId } from 'mongodb'
 
 import { GameStatus } from '../constants/game'
+import doEmbed from '../core/embeds'
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { renderBoard } from '../game/board'
 import * as GameImages from '../game/images.json'
@@ -22,7 +23,6 @@ export default class Game {
   public win: boolean
   private winningRoundIndex: number | undefined
   private winningRollIndex: number | undefined
-  private _doUpdate: boolean
   public embed: Message | undefined
   private gameRoundState: GameRoundState
   private startTime: number
@@ -36,7 +36,6 @@ export default class Game {
     this._status = GameStatus.waitingRoom
     this.win = false
     this.embed = undefined
-    this._doUpdate = false
     this.players = {}
     this.gameRoundState = defaultGameRoundState
     this.startTime = Date.now()
@@ -64,14 +63,8 @@ export default class Game {
     }
     this._status = value
   }
-  public get doUpdate(): boolean {
-    return this._doUpdate
-  }
-  public set doUpdate(value: boolean) {
-    this._doUpdate = value
-    setTimeout(() => {
-      this._doUpdate = false
-    }, 3000)
+  public updateEmbed(): void {
+    this.editEmbed(doEmbed(GameStatus.waitingRoom, this))
   }
   public get playerArray(): Player[] {
     return Object.values(this.players)
@@ -344,7 +337,6 @@ export default class Game {
     this.status = GameStatus.waitingRoom
     this.win = false
     this.embed = undefined
-    this.doUpdate = false
     this.removePlayers()
     this.setDefaultGameRoundState()
     this.winningRoundIndex = undefined

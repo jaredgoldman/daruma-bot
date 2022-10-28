@@ -42,10 +42,6 @@ export default async function startWaitingRoom(
       game.playerCount < maxCapacity &&
       game.status === GameStatus.waitingRoom
     ) {
-      // If game is in updating state, update embed
-      if (game.doUpdate) {
-        await game.editEmbed(doEmbed(GameStatus.waitingRoom, game))
-      }
       await wait(1000)
     }
     await game.embed

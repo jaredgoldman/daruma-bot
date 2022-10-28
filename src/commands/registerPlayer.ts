@@ -90,7 +90,7 @@ module.exports = {
         await interaction.editReply(
           `${asset.alias || asset.name} has entered the game`
         )
-        game.doUpdate = true
+        game.updateEmbed()
       } else {
         interaction.reply({
           content:
