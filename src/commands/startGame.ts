@@ -57,7 +57,7 @@ module.exports = {
     }
 
     // start game
-    game.status = GameStatus.activeGame
+    game.gameHandler.startChannelGame()
     interaction.editReply('Game started')
   },
 }

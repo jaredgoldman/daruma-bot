@@ -75,7 +75,7 @@ export default function doEmbed(
       const playerMessage = game.playerArray
         .map((player: Player, index: number) => {
           return player.isNpc
-            ? `${index + 1} - <@${player.discordId}>`
+            ? `${index + 1} - **${player.asset.name}**`
             : `${index + 1} - <@${player.discordId}>`
         })
         .join('\n')

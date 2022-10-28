@@ -33,6 +33,7 @@
     "sadd",
     "setex",
     "smembers",
+    "Taoshin",
     "txns",
     "xtxn"
   ]

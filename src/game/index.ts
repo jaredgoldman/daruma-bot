@@ -10,6 +10,7 @@ import { RenderPhases } from '../types/board'
 import { GameTypes } from '../types/game'
 import { Logger } from '../utils/logger'
 import { asyncForEach, randomNumber, wait } from '../utils/sharedUtils'
+import * as GameImages from './images.json'
 
 export class GameHandler {
   private waitingRoomChannel: TextChannel
@@ -64,8 +65,22 @@ export class GameHandler {
       Logger.error('Error when trying to delete the waiting room.', e)
     }
 
-    if (this.game.type !== GameTypes.OneVsOne) {
-      this.game.addNpc(this.game.client.user as ClientUser)
+    switch (this.game.type) {
+      case GameTypes.OneVsNpc:
+        this.game.addNpc(
+          this.game.client.user as ClientUser,
+          'Karasu',
+          GameImages.Karasu.url
+        )
+        break
+      case GameTypes.OneVsOne:
+        break
+      case GameTypes.FourVsNpc:
+        this.game.addNpc(
+          this.game.client.user as ClientUser,
+          'Taoshin',
+          GameImages.Taoshin.url
+        )
     }
 
     this.game.embed = await this.waitingRoomChannel

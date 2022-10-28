@@ -12,7 +12,6 @@ import doEmbed from '../core/embeds'
 import { saveEncounter as saveEncounterToDb } from '../database/operations/game'
 import { GameHandler } from '../game'
 import { renderBoard } from '../game/board'
-import * as GameImages from '../game/images.json'
 import { PlayerRoundsData } from '../types/attack'
 import { RenderPhases } from '../types/board'
 import { ChannelSettings, GameRoundState, GameTypes } from '../types/game'
@@ -35,7 +34,7 @@ export default class Game {
   private startTime: number
   private endTime: number
   public hasNpc: boolean
-  public type: GameTypes = GameTypes.OneVsNpc
+  public type: GameTypes
   public winningPlayers: Player[] = []
   public gameHandler: GameHandler
   constructor(public client: Client, private _settings: ChannelSettings) {
@@ -48,6 +47,7 @@ export default class Game {
     this.endTime = Date.now()
     this.hasNpc = false
     this.gameHandler = new GameHandler(this)
+    this.type = _settings.gameType
   }
   public get settings(): ChannelSettings {
     return this._settings
@@ -174,13 +174,13 @@ export default class Game {
    */
 
   // TODO: add real asset npc, generate random name
-  addNpc(clientUser: ClientUser): void {
+  addNpc(clientUser: ClientUser, npcName: string, npcUrl: string): void {
     this.addPlayer(
       new Player(
-        'Karasu',
+        npcName,
         clientUser.id,
         '1234567',
-        new Asset(GameImages.Karasu.url, 12345, 'Karasu', 'Karasu'),
+        new Asset(npcUrl, 12345, npcName, npcName),
         new ObjectId('123456789012'),
         clientUser.bot
       )
