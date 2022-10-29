@@ -10,10 +10,8 @@ import {
 // Schemas
 import { GameStatus } from '../constants/game'
 // Helpers
-import * as GameImages from '../game/images.json'
 import Game from '../models/game'
 import Player from '../models/player'
-import { GameTypes } from '../types/game'
 import { env } from '../utils/environment'
 import { normalizeIpfsUrl } from '../utils/sharedUtils'
 
@@ -83,7 +81,7 @@ export default function doEmbed(
         .setTitle('Enjoy the battle!')
         .setDescription(`${game.type}`)
         .setFields(playerArrFields(playerArr))
-        .setImage(handleCommencingGameMessage(game.type))
+        .setImage(env.IMAGE_CDN + game.type + '.gif')
         .addFields([{ name: `Players`, value: playerMessage }])
       break
     }
@@ -102,24 +100,6 @@ export default function doEmbed(
     embeds: [embed],
     components,
   }
-}
-
-const handleCommencingGameMessage = (gameType: GameTypes): string => {
-  let imagePath = ''
-  switch (gameType) {
-    case GameTypes.OneVsOne:
-      imagePath = GameImages.OneVsOne.url
-      break
-    case GameTypes.OneVsNpc:
-      imagePath = GameImages.OneVsNpc.url
-      break
-    case GameTypes.FourVsNpc:
-      imagePath = GameImages.FourVsNpc.url
-      break
-    default:
-      break
-  }
-  return imagePath
 }
 
 const playerArrFields = (

@@ -88,4 +88,9 @@ export const env = envalid.cleanEnv(process.env, {
     choices: ['info', 'debug', 'trace', 'warn', 'error', 'fatal'],
     desc: 'The Log Level for Pino',
   }),
+  //! Misc Settings
+  IMAGE_CDN: envalid.url({
+    default: 'https://shoginn.github.io/daruma-images/images/',
+    desc: 'This is the CDN for the images',
+  }),
 })

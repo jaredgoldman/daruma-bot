@@ -8,9 +8,9 @@ import Game from '../models/game'
 import Player from '../models/player'
 import { RenderPhases } from '../types/board'
 import { GameTypes } from '../types/game'
+import { env } from '../utils/environment'
 import { Logger } from '../utils/logger'
 import { asyncForEach, randomNumber, wait } from '../utils/sharedUtils'
-import * as GameImages from './images.json'
 
 export class GameHandler {
   private waitingRoomChannel: TextChannel
@@ -70,7 +70,7 @@ export class GameHandler {
         this.game.addNpc(
           this.game.client.user as ClientUser,
           'Karasu',
-          GameImages.Karasu.url
+          env.IMAGE_CDN + 'Karasu_Win.gif'
         )
         break
       case GameTypes.OneVsOne:
@@ -79,7 +79,7 @@ export class GameHandler {
         this.game.addNpc(
           this.game.client.user as ClientUser,
           'Taoshin',
-          GameImages.Taoshin.url
+          env.IMAGE_CDN + 'Taoshin_Win.gif'
         )
     }
 
