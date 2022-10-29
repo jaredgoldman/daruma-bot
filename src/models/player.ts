@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 
-import { findUserByDiscordId, updateUser } from '../database/operations/user'
+import { findUserByDiscordId, replaceUser } from '../database/operations/user'
 import { PlayerRoundsData } from '../types/attack'
 import { ChannelSettings } from '../types/game'
 import { PlayerDice } from '../utils/attackUtils'
@@ -76,7 +76,7 @@ export default class Player {
         },
         coolDowns: { ...user.coolDowns, [this.asset.id]: coolDownDoneDate },
       }
-      await updateUser(updatedUserData, this.discordId)
+      await replaceUser(updatedUserData, this.discordId)
     } else {
       Logger.error('****** NO USER FOUND FOR MUTATION ******', this)
     }

@@ -17,7 +17,7 @@ export const findUserByDiscordId = async (
     discordId,
   })) as WithId<User>
 
-export const updateUser = async (
+export const replaceUser = async (
   userData: User,
   discordId: string
 ): Promise<void> => {
