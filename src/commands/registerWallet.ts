@@ -6,7 +6,7 @@ import {
   findUserByDiscordId,
   findUserById,
   saveUser,
-  updateUser,
+  replaceUser,
 } from '../database/operations/user'
 // Schemas
 import Asset from '../models/asset'
@@ -126,13 +126,16 @@ const processRegistration = async (
         }
       }
     } else {
+      const { coolDowns, karma } = user
       const updatedUser = new User(
         username,
         discordId,
         walletAddress,
-        keyedNfts
+        keyedNfts,
+        karma,
+        coolDowns
       )
-      await updateUser(updatedUser, discordId)
+      await replaceUser(updatedUser, discordId)
     }
 
     return {
