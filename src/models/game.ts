@@ -20,6 +20,7 @@ import * as Logs from '../utils/logs.json'
 import Asset from './asset'
 import Encounter from './encounter'
 import Player from './player'
+import { EmbedType } from '../types/embeds'
 /**
  * Main game class
  */
@@ -71,7 +72,7 @@ export default class Game {
     this._status = value
   }
   public updateEmbed(): void {
-    this.editEmbed(doEmbed(GameStatus.waitingRoom, this))
+    this.editEmbed(doEmbed(EmbedType.waitingRoom, this))
     if (
       this.playerCount < this.settings.maxCapacity &&
       this.status === GameStatus.waitingRoom

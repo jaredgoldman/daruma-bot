@@ -8,16 +8,12 @@ import {
 } from 'discord.js'
 
 // Schemas
-import { GameStatus } from '../constants/game'
+import { EmbedType, CooldownContent } from '../types/embeds'
 // Helpers
 import Game from '../models/game'
 import Player from '../models/player'
 import { env } from '../utils/environment'
 import { normalizeIpfsUrl } from '../utils/sharedUtils'
-
-type EmbedOptions = {
-  player?: Player
-}
 
 /**
  * Abstraction for building embeds
@@ -26,10 +22,10 @@ type EmbedOptions = {
  * @param options {any}
  * @returns
  */
-export default function doEmbed(
-  type: GameStatus,
+export default function doEmbed<T>(
+  type: EmbedType,
   game: Game,
-  options?: EmbedOptions
+  data?: T
 ): BaseMessageOptions {
   const embed = new EmbedBuilder()
     .setTitle(`${env.ALGO_UNIT_NAME} Bot`)
@@ -43,7 +39,7 @@ export default function doEmbed(
 
   //const playerCount = playerArr.length
   switch (type) {
-    case GameStatus.waitingRoom: {
+    case EmbedType.waitingRoom: {
       embed
         .setTitle(`${game.type.toString()} - Waiting Room`)
         .setDescription(
@@ -69,7 +65,7 @@ export default function doEmbed(
       )
       break
     }
-    case GameStatus.activeGame: {
+    case EmbedType.activeGame: {
       const playerMessage = game.playerArray
         .map((player: Player, index: number) => {
           return player.isNpc
@@ -85,14 +81,27 @@ export default function doEmbed(
         .addFields([{ name: `Players`, value: playerMessage }])
       break
     }
-    case GameStatus.win: {
-      const player = options?.player as Player
+    case EmbedType.win: {
+      const player = data as Player
       embed
         .setTitle('Game Over')
         .setDescription(`${player.username} WON the game!`)
         .setImage(normalizeIpfsUrl(player.asset.url))
 
       break
+    }
+    case EmbedType.cooldown: {
+      const cooldownContent = data as CooldownContent
+      const fields = cooldownContent.map(content => {
+        return {
+          name: content.name,
+          value: content.timeString,
+        }
+      })
+      embed
+        .setTitle('Cooldowns')
+        .setDescription('Cooldowns description')
+        .setFields(fields)
     }
   }
 
