@@ -3,8 +3,6 @@ import { ObjectId } from 'mongodb'
 import Asset from './asset'
 
 export default class User {
-  public karma: number
-  public coolDowns: { [key: string]: number } // timestamp
   _id?: ObjectId
   created: number
 
@@ -12,10 +10,10 @@ export default class User {
     public username: string,
     public discordId: string,
     public walletAddress: string,
-    public assets: { [key: string]: Asset }
+    public assets: { [key: string]: Asset },
+    public karma: number = 0,
+    public coolDowns: { [key: string]: number } = {} // timestamp
   ) {
-    this.coolDowns = {}
-    this.karma = 0
     this.created = Date.now()
   }
 }
