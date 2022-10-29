@@ -7,11 +7,11 @@ import { updateMessageId } from '../database/operations/game'
 import Game from '../models/game'
 import Player from '../models/player'
 import { RenderPhases } from '../types/board'
+import { EmbedType } from '../types/embeds'
 import { GameTypes } from '../types/game'
 import { env } from '../utils/environment'
 import { Logger } from '../utils/logger'
 import { asyncForEach, randomNumber, wait } from '../utils/sharedUtils'
-import { EmbedType } from '../types/embeds'
 
 export class GameHandler {
   private waitingRoomChannel: TextChannel

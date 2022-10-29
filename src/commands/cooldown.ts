@@ -1,15 +1,16 @@
 // Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction, InteractionType } from 'discord.js'
-import doEmbed from '../core/embeds'
+
 // Data
+import doEmbed from '../core/embeds'
 import { findUserByDiscordId } from '../database/operations/user'
 import { redisClient } from '../database/redis.service'
-import { CooldownContent, EmbedType } from '../types/embeds'
 import { games } from '../models/bot'
-import { asyncForEach, formatTimeString } from '../utils/sharedUtils'
-import { Logger } from 'mongodb'
 // Helpers
+import { CooldownContent, EmbedType } from '../types/embeds'
+import { asyncForEach, formatTimeString } from '../utils/sharedUtils'
+// Schema
 
 module.exports = {
   data: new SlashCommandBuilder()

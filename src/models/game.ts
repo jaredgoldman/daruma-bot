@@ -14,13 +14,13 @@ import { GameHandler } from '../game'
 import { renderBoard } from '../game/board'
 import { PlayerRoundsData } from '../types/attack'
 import { RenderPhases } from '../types/board'
+import { EmbedType } from '../types/embeds'
 import { ChannelSettings, GameRoundState, GameTypes } from '../types/game'
 import { Logger } from '../utils/logger'
 import * as Logs from '../utils/logs.json'
 import Asset from './asset'
 import Encounter from './encounter'
 import Player from './player'
-import { EmbedType } from '../types/embeds'
 /**
  * Main game class
  */

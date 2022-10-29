@@ -8,10 +8,10 @@ import {
 } from 'discord.js'
 
 // Schemas
-import { EmbedType, CooldownContent } from '../types/embeds'
 // Helpers
 import Game from '../models/game'
 import Player from '../models/player'
+import { CooldownContent, EmbedType } from '../types/embeds'
 import { env } from '../utils/environment'
 import { normalizeIpfsUrl } from '../utils/sharedUtils'
 
