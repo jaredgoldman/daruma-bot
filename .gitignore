@@ -193,7 +193,11 @@ dist
 .history
 .ionide
 
+# Ignore mongo/redis data directory
 data
+
+# Ignore docker comfigs
+docker-compose.yml
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,node,macos
 

@@ -47,12 +47,18 @@ module.exports = {
     }
 
     const cooldownContent: CooldownContent = []
-    await asyncForEach(assetCooldowns, async (cooldown: [number, number]) => {
-      const [assetId, cooldownTime] = cooldown
-      const { name } = await redisClient.hgetall(assetId.toString())
-      const timeString = formatTimeString(cooldownTime)
-      cooldownContent.push({ name, timeString })
-    })
+    const maxDiscordFields = 25
+    await asyncForEach(
+      assetCooldowns,
+      async (cooldown: [number, number], index: number) => {
+        if (index + 1 <= maxDiscordFields) {
+          const [assetId, cooldownTime] = cooldown
+          const { name } = await redisClient.hgetall(assetId.toString())
+          const timeString = formatTimeString(cooldownTime)
+          cooldownContent.push({ name, timeString })
+        }
+      }
+    )
 
     await interaction.editReply(
       doEmbed(EmbedType.cooldown, game, cooldownContent)
