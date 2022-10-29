@@ -126,12 +126,12 @@ const processRegistration = async (
         }
       }
     } else {
-      const { coolDowns, karma } = user
+      const { coolDowns, karma, assets } = user
       const updatedUser = new User(
         username,
         discordId,
         walletAddress,
-        keyedNfts,
+        assets,
         karma,
         coolDowns
       )
