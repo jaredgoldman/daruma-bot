@@ -7,6 +7,7 @@ import { updateMessageId } from '../database/operations/game'
 import Game from '../models/game'
 import Player from '../models/player'
 import { RenderPhases } from '../types/board'
+import { EmbedType } from '../types/embeds'
 import { GameTypes } from '../types/game'
 import { env } from '../utils/environment'
 import { Logger } from '../utils/logger'
@@ -37,7 +38,7 @@ export class GameHandler {
 
   async startChannelGame(): Promise<void> {
     await this.game.embed
-      ?.edit(doEmbed(GameStatus.activeGame, this.game))
+      ?.edit(doEmbed(EmbedType.activeGame, this.game))
       .then(() => (this.game.status = GameStatus.activeGame))
       .then(() => this.handleGameLoop())
       .then(() => this.win())
@@ -84,7 +85,7 @@ export class GameHandler {
     }
 
     this.game.embed = await this.waitingRoomChannel
-      ?.send(doEmbed(GameStatus.waitingRoom, this.game))
+      ?.send(doEmbed(EmbedType.waitingRoom, this.game))
       .then(msg => {
         this.game.settings.messageId = msg.id
         updateMessageId(this.game.settings.channelId, msg.id)
@@ -154,7 +155,7 @@ export class GameHandler {
   async win(): Promise<void> {
     await asyncForEach(this.game.winningPlayers, async (player: Player) => {
       await this.waitingRoomChannel.send(
-        doEmbed(GameStatus.win, this.game, { player })
+        doEmbed<Player>(EmbedType.win, this.game, player)
       )
     })
   }

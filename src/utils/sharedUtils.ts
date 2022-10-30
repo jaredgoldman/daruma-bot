@@ -46,3 +46,24 @@ export const normalizeIpfsUrl = (url: string): string => {
     return url
   }
 }
+
+export const formatTimeString = (
+  cooldown: number,
+  verbose = false,
+  label: string = 'cooldown'
+): string => {
+  const minutesLeft = Math.floor((cooldown - Date.now()) / 60000)
+  const hoursLeft = Math.floor(minutesLeft / 60)
+  const minutesOnTopOfHours = minutesLeft % 60
+  let hrUnitBase = verbose ? 'hour' : 'hr'
+  let minUnitBase = verbose ? 'minute' : 'min'
+  let hrString = `${hoursLeft} ${hrUnitBase} `
+  let minString = `${minutesOnTopOfHours} ${minUnitBase}`
+  let timeString = hrString
+  if (hoursLeft > 1) {
+    timeString += minString
+  } else {
+    timeString = minString
+  }
+  return timeString + ' ' + label
+}

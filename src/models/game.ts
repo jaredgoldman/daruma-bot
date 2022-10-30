@@ -14,6 +14,7 @@ import { GameHandler } from '../game'
 import { renderBoard } from '../game/board'
 import { PlayerRoundsData } from '../types/attack'
 import { RenderPhases } from '../types/board'
+import { EmbedType } from '../types/embeds'
 import { ChannelSettings, GameRoundState, GameTypes } from '../types/game'
 import { Logger } from '../utils/logger'
 import * as Logs from '../utils/logs.json'
@@ -71,7 +72,7 @@ export default class Game {
     this._status = value
   }
   public updateEmbed(): void {
-    this.editEmbed(doEmbed(GameStatus.waitingRoom, this))
+    this.editEmbed(doEmbed(EmbedType.waitingRoom, this))
     if (
       this.playerCount < this.settings.maxCapacity &&
       this.status === GameStatus.waitingRoom
