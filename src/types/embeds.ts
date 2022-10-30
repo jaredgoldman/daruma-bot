@@ -11,10 +11,13 @@ export enum EmbedType {
 }
 
 export type CooldownContent = {
-  name: string
-  formattedTimeString: string
-  utcTimestamp: number
-  assetId: number
-}[]
+  fields: {
+    name: string
+    formattedTimeString: string
+    utcTimestamp: number
+    assetId: number
+  }[]
+  page: number
+}
 
 export type AssetCoolDown = [assetId: number, utcTimestamp: number]

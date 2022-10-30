@@ -11,7 +11,7 @@ import {
 // Helpers
 import Game from '../models/game'
 import Player from '../models/player'
-import { CooldownContent, EmbedType } from '../types/embeds'
+import { CooldownContent, EmbedOptions, EmbedType } from '../types/embeds'
 import { env } from '../utils/environment'
 import { normalizeIpfsUrl } from '../utils/sharedUtils'
 
@@ -22,7 +22,7 @@ import { normalizeIpfsUrl } from '../utils/sharedUtils'
  * @param options {any}
  * @returns
  */
-export default function doEmbed<T>(
+export default function doEmbed<T extends EmbedOptions>(
   type: EmbedType,
   game: Game,
   data?: T
