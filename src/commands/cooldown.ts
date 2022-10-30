@@ -81,6 +81,7 @@ module.exports = {
         totalPages,
       })
     )
+
     // Paginate embeds if more than 25 fields
     if (totalPages > 1) {
       for (let i = 0; i < totalPages; i++) {
