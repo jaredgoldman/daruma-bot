@@ -95,7 +95,7 @@ export default function doEmbed<T>(
       const fields = cooldownContent.map(content => {
         return {
           name: content.name,
-          value: content.timeString,
+          value: content.formattedTimeString,
         }
       })
       embed

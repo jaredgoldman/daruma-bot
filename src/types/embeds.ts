@@ -12,5 +12,9 @@ export enum EmbedType {
 
 export type CooldownContent = {
   name: string
-  timeString: string
+  formattedTimeString: string
+  utcTimestamp: number
+  assetId: number
 }[]
+
+export type AssetCoolDown = [assetId: number, utcTimestamp: number]

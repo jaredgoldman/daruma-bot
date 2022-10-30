@@ -1,6 +1,7 @@
 // Discord
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Interaction, InteractionType } from 'discord.js'
+import { Logger } from '../utils/logger'
 
 // Data
 import doEmbed from '../core/embeds'
@@ -8,7 +9,7 @@ import { findUserByDiscordId } from '../database/operations/user'
 import { redisClient } from '../database/redis.service'
 import { games } from '../models/bot'
 // Helpers
-import { CooldownContent, EmbedType } from '../types/embeds'
+import { AssetCoolDown, CooldownContent, EmbedType } from '../types/embeds'
 import { asyncForEach, formatTimeString } from '../utils/sharedUtils'
 // Schema
 
@@ -25,7 +26,7 @@ module.exports = {
    */
   async execute(interaction: Interaction) {
     if (interaction.type !== InteractionType.ApplicationCommand) return
-    const { user, channelId } = interaction
+    const { user, channelId, channel } = interaction
     const game = games[channelId]
 
     await interaction.deferReply({ ephemeral: true })
@@ -47,21 +48,43 @@ module.exports = {
     }
 
     const cooldownContent: CooldownContent = []
-    const maxDiscordFields = 25
-    await asyncForEach(
-      assetCooldowns,
-      async (cooldown: [number, number], index: number) => {
-        if (index + 1 <= maxDiscordFields) {
-          const [assetId, cooldownTime] = cooldown
-          const { name } = await redisClient.hgetall(assetId.toString())
-          const timeString = formatTimeString(cooldownTime)
-          cooldownContent.push({ name, timeString })
-        }
+    await asyncForEach(assetCooldowns, async (cooldown: AssetCoolDown) => {
+      const [assetId, utcTimestamp] = cooldown
+      const { name } = await redisClient.hgetall(assetId.toString())
+      const formattedTimeString = formatTimeString(utcTimestamp)
+      const cooldownData = {
+        name,
+        formattedTimeString,
+        utcTimestamp,
+        assetId,
       }
+      cooldownContent.push(cooldownData)
+    })
+
+    const sortedContent = cooldownContent.sort((a, b) => {
+      if (a.utcTimestamp > b.utcTimestamp) return 1
+      if (a.utcTimestamp < b.utcTimestamp) return -1
+      return 0
+    })
+
+    const discordFieldLimit = 25
+
+    const pages = Math.ceil(cooldownContent.length / discordFieldLimit)
+
+    const firstPageContent = sortedContent.slice(0, discordFieldLimit)
+    await interaction.editReply(
+      doEmbed<CooldownContent>(EmbedType.cooldown, game, firstPageContent)
     )
 
-    await interaction.editReply(
-      doEmbed(EmbedType.cooldown, game, cooldownContent)
-    )
+    if (pages > 1) {
+      for (let i = 0; i < pages; i++) {
+        const startIndex = i * discordFieldLimit
+        const endIndex = startIndex + discordFieldLimit
+        const pageContent = sortedContent.slice(startIndex, endIndex)
+        await interaction.followUp(
+          doEmbed<CooldownContent>(EmbedType.cooldown, game, pageContent)
+        )
+      }
+    }
   },
 }
