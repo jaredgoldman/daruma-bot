@@ -92,7 +92,7 @@ export default function doEmbed<T extends EmbedOptions>(
     }
     case EmbedType.cooldown: {
       const cooldownContent = data as CooldownContent
-      const fields = cooldownContent.map(content => {
+      const fields = cooldownContent.fields.map(content => {
         return {
           name: content.name,
           value: content.formattedTimeString,
