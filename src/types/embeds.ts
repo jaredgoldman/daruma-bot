@@ -10,14 +10,17 @@ export enum EmbedType {
   win = 'win',
 }
 
+export type CoolDownField = {
+  name: string
+  formattedTimeString: string
+  utcTimestamp: number
+  assetId: number
+}
+
 export type CooldownContent = {
-  fields: {
-    name: string
-    formattedTimeString: string
-    utcTimestamp: number
-    assetId: number
-  }[]
+  fields: CoolDownField[]
   page: number
+  totalPages: number
 }
 
 export type AssetCoolDown = [assetId: number, utcTimestamp: number]

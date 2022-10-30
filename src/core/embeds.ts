@@ -100,7 +100,9 @@ export default function doEmbed<T extends EmbedOptions>(
       })
       embed
         .setTitle('Cooldowns')
-        .setDescription('Cooldowns description')
+        .setDescription(
+          `Page ${cooldownContent.page}/${cooldownContent.totalPages}`
+        )
         .setFields(fields)
     }
   }

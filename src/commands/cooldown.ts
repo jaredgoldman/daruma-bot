@@ -8,7 +8,12 @@ import { findUserByDiscordId } from '../database/operations/user'
 import { redisClient } from '../database/redis.service'
 import { games } from '../models/bot'
 // Helpers
-import { AssetCoolDown, CooldownContent, EmbedType } from '../types/embeds'
+import {
+  AssetCoolDown,
+  CooldownContent,
+  CoolDownField,
+  EmbedType,
+} from '../types/embeds'
 import { asyncForEach, formatTimeString } from '../utils/sharedUtils'
 // Schema
 
@@ -46,7 +51,7 @@ module.exports = {
       })
     }
 
-    const cooldownContent: CooldownContent = { fields: [], page: 0 }
+    const fields: CoolDownField[] = []
     await asyncForEach(assetCooldowns, async (cooldown: AssetCoolDown) => {
       const [assetId, utcTimestamp] = cooldown
       const { name } = await redisClient.hgetall(assetId.toString())
@@ -57,35 +62,36 @@ module.exports = {
         utcTimestamp,
         assetId,
       }
-      cooldownContent.fields.push(cooldownData)
+      fields.push(cooldownData)
     })
 
-    const sortedContent = cooldownContent.fields.sort((a, b) => {
+    const sortedContent = fields.sort((a, b) => {
       if (a.utcTimestamp > b.utcTimestamp) return 1
       if (a.utcTimestamp < b.utcTimestamp) return -1
       return 0
     })
 
     const discordFieldLimit = 25
-    const pages = Math.ceil(cooldownContent.fields.length / discordFieldLimit)
-    const fields = sortedContent.slice(0, discordFieldLimit)
-
+    const totalPages = Math.ceil(fields.length / discordFieldLimit)
+    const firstPageFields = sortedContent.slice(0, discordFieldLimit)
     await interaction.editReply(
       doEmbed<CooldownContent>(EmbedType.cooldown, game, {
-        fields,
+        fields: firstPageFields,
         page: 1,
+        totalPages,
       })
     )
     // Paginate embeds if more than 25 fields
-    if (pages > 1) {
-      for (let i = 0; i < pages; i++) {
+    if (totalPages > 1) {
+      for (let i = 0; i < totalPages; i++) {
         const startIndex = i * discordFieldLimit
         const endIndex = startIndex + discordFieldLimit
-        const fields = sortedContent.slice(startIndex, endIndex)
+        const pageFields = sortedContent.slice(startIndex, endIndex)
         await interaction.followUp(
           doEmbed<CooldownContent>(EmbedType.cooldown, game, {
-            fields,
+            fields: pageFields,
             page: i + 1,
+            totalPages,
           })
         )
       }
