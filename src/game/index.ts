@@ -155,7 +155,7 @@ export class GameHandler {
   async win(): Promise<void> {
     await asyncForEach(this.game.winningPlayers, async (player: Player) => {
       await this.waitingRoomChannel.send(
-        doEmbed(EmbedType.win, this.game, { player })
+        doEmbed<Player>(EmbedType.win, this.game, player)
       )
     })
   }
