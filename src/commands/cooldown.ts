@@ -51,6 +51,7 @@ module.exports = {
       })
     }
 
+    // Format fields
     const fields: CoolDownField[] = []
     await asyncForEach(assetCooldowns, async (cooldown: AssetCoolDown) => {
       const [assetId, utcTimestamp] = cooldown
@@ -71,6 +72,7 @@ module.exports = {
       return 0
     })
 
+    // Send initial embed
     const discordFieldLimit = 25
     const totalPages = Math.ceil(fields.length / discordFieldLimit)
     const firstPageFields = sortedContent.slice(0, discordFieldLimit)
